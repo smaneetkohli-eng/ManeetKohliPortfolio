@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=51" />
+    <link rel="stylesheet" href="css/styles.css?v=52" />
   </head>
   <body>
     <!-- Blur fill only (sharp edges): blur then clip to original alpha -->
@@ -371,36 +371,54 @@
 
       <!-- dark panel (flows naturally below the 100 vh hero) -->
       <section class="hero-bottom">
-        <div class="glass-card anim-card" id="about">
-          <p class="bio">
-            [YOUR BIO — 2-3 sentences about who you are and what you do]
-          </p>
-          <div class="skill-tags" id="skills" aria-label="Skills">
-            <span class="skill-tag">UI/UX Design</span>
-            <span class="skill-tag">Web Development</span>
-            <span class="skill-tag">Branding</span>
-            <span class="skill-tag">Motion</span>
-            <span class="skill-tag">Strategy</span>
+        <section class="about-me" aria-labelledby="about-me-heading">
+          <div class="about-me__content">
+            <div class="about-me-collage" aria-hidden="true">
+              <div class="about-me-collage__col">
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/city-golden-hour.png" alt="Golden hour city buildings and lights" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/punjabi-couple.png" alt="Punjabi performance outfits couple portrait" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/friends-group.png" alt="Night friends group photo" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell about-me-collage__cell--crop about-me-collage__cell--crop-halloween"><div class="about-me-collage__media"><img src="images/about/halloween-porch.png" alt="Porch photo with pumpkins" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell about-me-collage__cell--stretch about-me-collage__cell--stretch-gym"><div class="about-me-collage__media"><img src="images/about/gym-mirror-2.png" alt="Gym mirror flex photo" loading="lazy" decoding="async" /></div></div>
+              </div>
+              <div class="about-me-collage__col">
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/disney-family.png" alt="Family photo at Disney castle" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/tower-night.png" alt="Hollywood Tower Hotel at night" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/drinks-table.png" alt="Drinks on table with flower garnish" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell about-me-collage__cell--stretch about-me-collage__cell--stretch-steak"><div class="about-me-collage__media"><img src="images/about/avatar-view.png" alt="Looking up at Avatar scenery" loading="lazy" decoding="async" /></div></div>
+              </div>
+              <div class="about-me-collage__col">
+                <div class="about-me-collage__cell about-me-collage__cell--crop about-me-collage__cell--crop-palm"><div class="about-me-collage__media"><img src="images/about/palm-walk.png" alt="Walking near palm trees" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/sixflags-couple.png" alt="Couple selfie at Six Flags" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/gym-selfie.png" alt="Gym mirror selfie" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell about-me-collage__cell--stretch about-me-collage__cell--stretch-drinks"><div class="about-me-collage__media"><img src="images/about/steak-plate.png" alt="Plated steak dish on green plate" loading="lazy" decoding="async" /></div></div>
+              </div>
+            </div>
+
+            <div class="about-me__bio">
+              <h2 class="about-me__title" id="about-me-heading">Who I Am</h2>
+              <p>
+                Outside of AI, data, and business, I've always believed that the best work comes from a life fully lived.
+              </p>
+              <p>
+                The gym keeps me grounded &mdash; discipline outside of work bleeds into everything else. Music has been therapy my whole life. I grew up in a family where it was always playing, my outlet is guitar, and I lead a bhangra dance team &mdash; performing at concerts and events, including recently at a Dallas Mavericks game. Honestly, there are more hours in my day where music is on than when it isn't.
+              </p>
+              <p>
+                I love capturing things &mdash; photos, videos, moments. There's something that genuinely moves me about the idea that something I see or feel right now can exist forever. Traveling and food feed that same curiosity. Every new place, every unfamiliar flavor &mdash; it reminds me why I work as hard as I do. So I can do more of it.
+              </p>
+              <p>
+                But above everything, it's the people. Laughing with my family, being absolute hooligans with my friends, and slow, quiet moments with my girlfriend &mdash; those are the ones I hold onto most.
+              </p>
+              <a class="about-me__story-link" href="about.html">Get to know more about me</a>
+            </div>
           </div>
-          <a class="cta-btn" href="#contact" id="contact-cta">Get in touch →</a>
-        </div>
-
-        <div class="projects-strip" id="projects">
-          <h2 class="projects-strip__title">Projects</h2>
-          <p class="projects-strip__placeholder">
-            Add project highlights or case studies here.
-          </p>
-        </div>
-
-        <footer class="site-footer" id="contact">
-          <p class="site-footer__note">© <span id="year"></span> · [YOUR NAME]</p>
-        </footer>
+        </section>
       </section>
 
     </main>
 
     <!-- Introduction video modal -->
-    <div class="intro-video-overlay" id="intro-video-overlay" role="dialog" aria-modal="true" aria-label="Introduction video" aria-hidden="true">
+    <div class="intro-video-overlay" id="intro-video-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Introduction video" aria-hidden="true">
       <div class="intro-video-modal" id="intro-video-modal">
         <button class="intro-video-close" id="intro-video-close" type="button" aria-label="Close video">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">

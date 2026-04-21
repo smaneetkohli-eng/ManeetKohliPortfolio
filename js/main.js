@@ -210,6 +210,7 @@
 
   function openVideoModal() {
     if (!videoOverlay) return;
+    videoOverlay.style.display = "flex";
     videoOverlay.classList.add("is-open");
     videoOverlay.removeAttribute("aria-hidden");
     document.body.style.overflow = "hidden";
@@ -223,6 +224,22 @@
     document.body.style.overflow = "";
     if (videoPlayer) videoPlayer.pause();
     if (videoBtn) videoBtn.focus();
+
+    function hideOverlayWhenClosed() {
+      if (!videoOverlay.classList.contains("is-open")) {
+        videoOverlay.style.display = "none";
+      }
+    }
+    videoOverlay.addEventListener(
+      "transitionend",
+      function (e) {
+        if (e.target === videoOverlay && e.propertyName === "opacity") {
+          hideOverlayWhenClosed();
+        }
+      },
+      { once: true }
+    );
+    window.setTimeout(hideOverlayWhenClosed, 450);
   }
 
   if (videoBtn) {
