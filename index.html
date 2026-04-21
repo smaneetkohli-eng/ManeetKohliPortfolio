@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css?v=51" />
+  </head>
+  <body>
+    <!-- Blur fill only (sharp edges): blur then clip to original alpha -->
+    <svg class="svg-filters" aria-hidden="true" focusable="false" width="0" height="0">
+      <defs>
+        <filter
+          id="name-fill-blur"
+          x="-30%"
+          y="-30%"
+          width="160%"
+          height="160%"
+          color-interpolation-filters="sRGB"
+        >
+          <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+          <feComposite in="blur" in2="SourceGraphic" operator="in" />
+        </filter>
+      </defs>
+    </svg>
+    <header class="site-header" id="top">
+      <a class="logo" href="#top">Maneet Kohli</a>
+      <button class="nav-hamburger" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span class="nav-hamburger__bar"></span>
+        <span class="nav-hamburger__bar"></span>
+        <span class="nav-hamburger__bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-nav" aria-label="Primary">
+        <div class="nav-item nav-item--has-dropdown">
+          <button class="nav-link nav-link--trigger" type="button" aria-haspopup="true" aria-expanded="false">
+            Projects
+            <svg class="nav-chevron" width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden="true" focusable="false"><path d="M1 1L4 4L7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul class="nav-dropdown" role="menu">
+            <li role="none"><a class="nav-dropdown__link" href="projects/apps.html" role="menuitem">Apps</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="projects/data-viz.html" role="menuitem">Data &amp; Visualization</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="projects/design.html" role="menuitem">Design</a></li>
+          </ul>
+        </div>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <div class="nav-item nav-item--has-dropdown">
+          <button class="nav-link nav-link--trigger" type="button" aria-haspopup="true" aria-expanded="false">
+            Experience
+            <svg class="nav-chevron" width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden="true" focusable="false"><path d="M1 1L4 4L7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul class="nav-dropdown" role="menu">
+            <li role="none"><a class="nav-dropdown__link" href="experience/businesses.html" role="menuitem">Businesses</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="experience/jobs.html" role="menuitem">Jobs &amp; Internships</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="experience/leadership.html" role="menuitem">Leadership</a></li>
+          </ul>
+        </div>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <a class="nav-link" href="branding.html">Branding</a>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <a class="nav-link" href="about.html">About Me</a>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <a class="nav-link" href="contact.html">Contact</a>
+      </nav>
+    </header>
+
+    <main class="page-stage">
+
+      <!-- ── HERO (100 vh mountain section) ── -->
+      <section class="hero-top" aria-label="Introduction">
+
+        <!-- bg + vignette clipped inside the section so blur doesn't bleed -->
+        <div class="hero-top__bg-clip" aria-hidden="true">
+          <div class="hero-top__bg"></div>
+          <div class="hero-top__vignette"></div>
+        </div>
+
+        <!-- name text: z-index 5, behind the figure -->
+        <div class="hero-name-layer">
+          <h1 class="name-display anim-name">
+            <span class="name-display__first">Maneet</span>
+            <span class="name-display__last">Kohli</span>
+          </h1>
+          <div class="name-rule anim-name-rule" aria-hidden="true"></div>
+        </div>
+
+        <p class="hero-subtitle anim-subtitle">AI-focused. Data-driven. Business-minded.</p>
+
+        <!-- glowing line: bottom edge of the hero section -->
+        <div class="dividing-line anim-line" aria-hidden="true"></div>
+
+        <!-- Scroll indicator — fades out on scroll -->
+        <div class="scroll-indicator anim-scroll-indicator" aria-hidden="true">
+          <span class="scroll-indicator__text">Scroll to Explore</span>
+          <span class="scroll-indicator__arrow">↓</span>
+        </div>
+
+      </section>
+      <!-- ── end hero ── -->
+
+      <!-- Frosted skill marquee — behind figure (z-index 25 < 30) -->
+      <div class="skills-marquee" aria-hidden="true">
+        <div class="skills-marquee__band">
+          <div class="skills-marquee__row skills-marquee__row--l1">
+            <div class="skills-marquee__strip">
+              <div class="skills-marquee__group">
+                <span class="skills-marquee__word">Artificial Intelligence</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Automation</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Graphic Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Science</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Analytics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Marketing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Video Production</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Photoshop</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Web Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Agentic AI</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Generative AI</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Python</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">SQL</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Excel</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Tableau</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Business Analytics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Visualization</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Statistical Analysis</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Predictive Modeling</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Machine Learning</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">AI Prompt Engineering</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Large Language Model Applications</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Natural Language Processing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Wrangling</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">ETL Pipelines</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Database Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Azure</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Cloud Computing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Power BI</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">A/B Testing</span><span class="skills-marquee__dot">·</span>
+              </div>
+              <div class="skills-marquee__group">
+                <span class="skills-marquee__word">Artificial Intelligence</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Automation</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Graphic Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Science</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Analytics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Marketing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Video Production</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Photoshop</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Web Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Agentic AI</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Generative AI</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Python</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">SQL</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Excel</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Tableau</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Business Analytics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Visualization</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Statistical Analysis</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Predictive Modeling</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Machine Learning</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">AI Prompt Engineering</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Large Language Model Applications</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Natural Language Processing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Wrangling</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">ETL Pipelines</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Database Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Azure</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Cloud Computing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Power BI</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">A/B Testing</span><span class="skills-marquee__dot">·</span>
+              </div>
+            </div>
+          </div>
+          <div class="skills-marquee__row skills-marquee__row--r">
+            <div class="skills-marquee__strip">
+              <div class="skills-marquee__group">
+                <span class="skills-marquee__word">Hypothesis Testing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Regression Analysis</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Classification Models</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Clustering</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Feature Engineering</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Cleaning</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Dashboard Development</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">KPI Reporting</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Business Intelligence</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Market Research</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Competitive Analysis</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Go-to-Market Strategy</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Product Thinking</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Agile Methodology</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Project Management</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Content Strategy</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">YouTube Growth</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Personal Branding</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Technical Writing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Research</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Problem Framing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Systems Thinking</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">First-Principles Reasoning</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Cross-functional Communication</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Stakeholder Presentation</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Git</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">VS Code</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Jupyter Notebooks</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">API Integration</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Web Scraping</span><span class="skills-marquee__dot">·</span>
+              </div>
+              <div class="skills-marquee__group">
+                <span class="skills-marquee__word">Hypothesis Testing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Regression Analysis</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Classification Models</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Clustering</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Feature Engineering</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Data Cleaning</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Dashboard Development</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">KPI Reporting</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Business Intelligence</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Market Research</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Competitive Analysis</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Go-to-Market Strategy</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Product Thinking</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Agile Methodology</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Project Management</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Content Strategy</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">YouTube Growth</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Personal Branding</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Technical Writing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Research</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Problem Framing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Systems Thinking</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">First-Principles Reasoning</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Cross-functional Communication</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Stakeholder Presentation</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Git</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">VS Code</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Jupyter Notebooks</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">API Integration</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Web Scraping</span><span class="skills-marquee__dot">·</span>
+              </div>
+            </div>
+          </div>
+          <div class="skills-marquee__row skills-marquee__row--l2">
+            <div class="skills-marquee__strip">
+              <div class="skills-marquee__group">
+                <span class="skills-marquee__word">App Development</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">SaaS Thinking</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Revenue Modeling</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Unit Economics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Customer Discovery</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Video Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Premiere Pro</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">After Effects</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">DaVinci Resolve</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Motion Graphics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Thumbnail Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">YouTube Production</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Scriptwriting</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Voiceover</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Audio Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Audacity</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Color Grading</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">B-Roll Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Transitions & Effects</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Lightroom</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Photo Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Image Retouching</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Illustrator</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Banner Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Social Media Graphics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Short-Form Content (Reels/Shorts)</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Screen Recording</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">OBS Studio</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Capcut</span><span class="skills-marquee__dot">·</span>
+              </div>
+              <div class="skills-marquee__group">
+                <span class="skills-marquee__word">App Development</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">SaaS Thinking</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Revenue Modeling</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Unit Economics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Customer Discovery</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Video Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Premiere Pro</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">After Effects</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">DaVinci Resolve</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Motion Graphics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Thumbnail Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">YouTube Production</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Scriptwriting</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Voiceover</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Audio Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Audacity</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Color Grading</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">B-Roll Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Transitions & Effects</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Lightroom</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Photo Editing</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Image Retouching</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Illustrator</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Banner Design</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Social Media Graphics</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Short-Form Content (Reels/Shorts)</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Screen Recording</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">OBS Studio</span><span class="skills-marquee__dot">·</span>
+                <span class="skills-marquee__word">Capcut</span><span class="skills-marquee__dot">·</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="sr-only">
+        Skills include Artificial Intelligence, Automation, Graphic Design, Data Science, Data Analytics, Marketing, Video Production, Photoshop, Web Design, Agentic AI, Generative AI, Python, SQL, Excel, Tableau, Business Analytics, Data Visualization, Statistical Analysis, Predictive Modeling, Machine Learning, AI Prompt Engineering, Large Language Model Applications, Natural Language Processing, Data Wrangling, ETL Pipelines, Database Design, Azure, Cloud Computing, Power BI, A/B Testing, Hypothesis Testing, Regression Analysis, Classification Models, Clustering, Feature Engineering, Data Cleaning, Dashboard Development, KPI Reporting, Business Intelligence, Market Research, Competitive Analysis, Go-to-Market Strategy, Product Thinking, Agile Methodology, Project Management, Content Strategy, YouTube Growth, Personal Branding, Technical Writing, Research, Problem Framing, Systems Thinking, First-Principles Reasoning, Cross-functional Communication, Stakeholder Presentation, Git, VS Code, Jupyter Notebooks, API Integration, Web Scraping, App Development, SaaS Thinking, Revenue Modeling, Unit Economics, Customer Discovery, Video Editing, Premiere Pro, After Effects, DaVinci Resolve, Motion Graphics, Thumbnail Design, YouTube Production, Scriptwriting, Voiceover, Audio Editing, Audacity, Color Grading, B-Roll Editing, Transitions & Effects, Lightroom, Photo Editing, Image Retouching, Illustrator, Banner Design, Social Media Graphics, Short-Form Content (Reels/Shorts), Screen Recording, OBS Studio, Capcut.
+      </p>
+
+      <!--
+        Figure lives OUTSIDE hero-top so its z-index (30) is compared at the
+        page-stage level and isn't hidden by hero-bottom (z-index 20).
+        top = 100vh - figure-height + overhang = 100vh - 80vh + 30vh = 50vh
+      -->
+      <div class="hero-figure anim-hero" aria-hidden="true">
+        <img src="images/hero6.png" alt="" width="2560" height="1080" decoding="async" />
+      </div>
+
+      <div class="hero-frost-panes" role="region" aria-label="Highlights">
+        <div class="hero-frost-panes__col hero-frost-panes__col--left anim-frost-col">
+          <div class="hero-frost-panes__box hero-frost-panes__box--split">
+            <p class="hero-frost-panes__label">Studying at:</p>
+            <p class="hero-frost-panes__text">
+              University of Texas at Dallas
+            </p>
+          </div>
+          <!-- TODO: Replace # with resume link or download path -->
+          <a class="hero-frost-panes__box hero-frost-panes__box--below hero-frost-panes__box--social"
+             href="#"
+             aria-label="View Resume">
+            <span class="hero-frost-panes__social-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" fill="none" aria-hidden="true" focusable="false">
+                <path stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="14 2 14 8 20 8"/>
+                <line stroke="white" stroke-width="1.5" stroke-linecap="round" x1="12" y1="12" x2="12" y2="18"/>
+                <polyline stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="9 15 12 18 15 15"/>
+              </svg>
+            </span>
+            <span class="hero-frost-panes__social-subtext">View Resume</span>
+          </a>
+        </div>
+        <div class="hero-frost-panes__col hero-frost-panes__col--right anim-frost-col">
+          <div class="hero-frost-panes__box hero-frost-panes__box--split">
+            <p class="hero-frost-panes__label">Majoring in:</p>
+            <p class="hero-frost-panes__text">
+              Business Analytics and AI
+            </p>
+          </div>
+          <button class="hero-frost-panes__box hero-frost-panes__box--below hero-frost-panes__box--social"
+                  id="intro-video-btn"
+                  type="button"
+                  aria-label="Watch introduction video">
+            <span class="hero-frost-panes__social-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" fill="none" aria-hidden="true" focusable="false">
+                <rect x="2" y="3" width="20" height="18" rx="3" stroke="white" stroke-width="1.5" fill="rgba(255,255,255,0.06)"/>
+                <path d="M9.5 8.5L16.5 12L9.5 15.5V8.5Z" fill="white" stroke="white" stroke-width="0.5" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="hero-frost-panes__social-subtext">Introduction</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- dark panel (flows naturally below the 100 vh hero) -->
+      <section class="hero-bottom">
+        <div class="glass-card anim-card" id="about">
+          <p class="bio">
+            [YOUR BIO — 2-3 sentences about who you are and what you do]
+          </p>
+          <div class="skill-tags" id="skills" aria-label="Skills">
+            <span class="skill-tag">UI/UX Design</span>
+            <span class="skill-tag">Web Development</span>
+            <span class="skill-tag">Branding</span>
+            <span class="skill-tag">Motion</span>
+            <span class="skill-tag">Strategy</span>
+          </div>
+          <a class="cta-btn" href="#contact" id="contact-cta">Get in touch →</a>
+        </div>
+
+        <div class="projects-strip" id="projects">
+          <h2 class="projects-strip__title">Projects</h2>
+          <p class="projects-strip__placeholder">
+            Add project highlights or case studies here.
+          </p>
+        </div>
+
+        <footer class="site-footer" id="contact">
+          <p class="site-footer__note">© <span id="year"></span> · [YOUR NAME]</p>
+        </footer>
+      </section>
+
+    </main>
+
+    <!-- Introduction video modal -->
+    <div class="intro-video-overlay" id="intro-video-overlay" role="dialog" aria-modal="true" aria-label="Introduction video" aria-hidden="true">
+      <div class="intro-video-modal" id="intro-video-modal">
+        <button class="intro-video-close" id="intro-video-close" type="button" aria-label="Close video">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <!-- TODO: Replace with actual video path or URL -->
+        <video class="intro-video-player" id="intro-video-player" controls preload="metadata">
+          <source src="placeholder.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+    <script src="js/main.js?v=6"></script>
+  </body>
+</html>

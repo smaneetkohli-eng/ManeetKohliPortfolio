@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Branding — Maneet Kohli</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="logo" href="index.html">Maneet Kohli</a>
+      <button class="nav-hamburger" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span class="nav-hamburger__bar"></span>
+        <span class="nav-hamburger__bar"></span>
+        <span class="nav-hamburger__bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-nav" aria-label="Primary">
+        <div class="nav-item nav-item--has-dropdown">
+          <button class="nav-link nav-link--trigger" type="button" aria-haspopup="true" aria-expanded="false">
+            Projects
+            <svg class="nav-chevron" width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden="true" focusable="false"><path d="M1 1L4 4L7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul class="nav-dropdown" role="menu">
+            <li role="none"><a class="nav-dropdown__link" href="projects/apps.html" role="menuitem">Apps</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="projects/data-viz.html" role="menuitem">Data &amp; Visualization</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="projects/design.html" role="menuitem">Design</a></li>
+          </ul>
+        </div>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <div class="nav-item nav-item--has-dropdown">
+          <button class="nav-link nav-link--trigger" type="button" aria-haspopup="true" aria-expanded="false">
+            Experience
+            <svg class="nav-chevron" width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden="true" focusable="false"><path d="M1 1L4 4L7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul class="nav-dropdown" role="menu">
+            <li role="none"><a class="nav-dropdown__link" href="experience/businesses.html" role="menuitem">Businesses</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="experience/jobs.html" role="menuitem">Jobs &amp; Internships</a></li>
+            <li role="none"><a class="nav-dropdown__link" href="experience/leadership.html" role="menuitem">Leadership</a></li>
+          </ul>
+        </div>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <a class="nav-link" href="branding.html">Branding</a>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <a class="nav-link" href="about.html">About Me</a>
+        <span class="nav-dot" aria-hidden="true">·</span>
+        <a class="nav-link" href="contact.html">Contact</a>
+      </nav>
+    </header>
+
+    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:5rem;">
+      <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,6rem);letter-spacing:0.08em;color:rgba(255,255,255,0.12);text-transform:uppercase;margin:0;">Branding</h1>
+    </main>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
