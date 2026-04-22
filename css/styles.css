@@ -2043,3 +2043,141 @@ button.hero-frost-panes__box {
     display: none;
   }
 }
+
+/* ─── Featured Projects ──────────────────────────────────── */
+.featured-projects {
+  width: min(1120px, 100%);
+  margin: clamp(5rem, 10vh, 8rem) auto 0;
+}
+
+.featured-projects__title {
+  margin: 0 0 clamp(1.5rem, 3vh, 2.5rem);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.7rem, 5.6vw, 4.75rem);
+  line-height: 0.92;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.featured-projects__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.project-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.6);
+}
+
+.project-card__name {
+  margin: 0 0 clamp(0.75rem, 1.5vw, 1rem);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.project-card__body {
+  display: grid;
+  grid-template-columns: clamp(90px, 14vw, 140px) 1fr;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: stretch;
+  flex: 1;
+  margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.project-card__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(90px, 14vw, 140px);
+  height: clamp(90px, 14vw, 140px);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.project-card__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Side Hustle Club logo is black-on-white — invert so it reads on dark bg */
+.project-card__logo--invert img {
+  filter: invert(1);
+}
+
+.project-card__desc {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.72);
+  align-self: center;
+}
+
+.project-card__cta {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  margin-top: auto;
+  padding: 0.55rem 1.05rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(0.78rem, 1.15vw, 0.9rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  text-decoration: none;
+  transition:
+    color 0.25s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    text-shadow 0.25s var(--ease-out);
+}
+
+.project-card__cta:hover,
+.project-card__cta:focus-visible {
+  color: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.96);
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.85),
+    0 0 18px rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    0 0 16px rgba(255, 255, 255, 0.32);
+}
+
+.project-card__cta:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.62);
+  outline-offset: 3px;
+}
