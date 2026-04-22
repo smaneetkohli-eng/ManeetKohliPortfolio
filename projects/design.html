@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/styles.css?v=10" />
+    <link rel="stylesheet" href="../css/styles.css?v=12" />
   </head>
   <body>
     <header class="site-header">
@@ -52,15 +52,138 @@
       </nav>
     </header>
 
-    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:5rem;">
-      <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,6rem);letter-spacing:0.08em;color:rgba(255,255,255,0.12);text-transform:uppercase;margin:0;">Design</h1>
+    <main>
+      <section class="page-hero page-hero--design" aria-labelledby="page-hero-title">
+        <div class="page-hero__media" aria-hidden="true"></div>
+        <div class="page-hero__scrim" aria-hidden="true"></div>
+        <div class="page-hero__inner">
+          <div class="page-hero__card">
+            <h1 id="page-hero-title" class="page-hero__title">Design</h1>
+          </div>
+        </div>
+      </section>
+      <div class="page-body">
+        <div class="design-page-stack">
+          <section class="design-chapter" aria-labelledby="design-photo-heading">
+            <h2 id="design-photo-heading" class="design-chapter__heading">Photography</h2>
+            <div class="design-mini-grid">
+              <div class="design-mini" data-reveal>
+                <h3 class="design-mini__title">Landscapes &amp; Nature</h3>
+                <p class="design-mini__desc">
+                  Captures the grandeur of the natural world through wide-angle composition and professional color grading. Depth, scale, and quiet solitude.
+                </p>
+                <div class="design-media-slot">
+                  <!-- PLACEHOLDER: landscape / nature portfolio image -->
+                  <span class="design-media-slot__label">Image slot</span>
+                </div>
+              </div>
+              <div class="design-mini" data-reveal>
+                <h3 class="design-mini__title">Portraits &amp; People</h3>
+                <p class="design-mini__desc">
+                  Subject-driven framing with natural lighting, refined in Lightroom and Photoshop for professional texture and skin-tone accuracy.
+                </p>
+                <div class="design-media-slot">
+                  <!-- PLACEHOLDER: portrait portfolio image -->
+                  <span class="design-media-slot__label">Image slot</span>
+                </div>
+              </div>
+              <div class="design-mini" data-reveal>
+                <h3 class="design-mini__title">Atmosphere &amp; Architecture</h3>
+                <p class="design-mini__desc">
+                  Low-light photography exploring the intersection of light and geometry in urban environments.
+                </p>
+                <div class="design-media-slot">
+                  <!-- PLACEHOLDER: architecture / low-light image -->
+                  <span class="design-media-slot__label">Image slot</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="design-chapter" aria-labelledby="design-graphic-heading">
+            <h2 id="design-graphic-heading" class="design-chapter__heading">Graphic Design</h2>
+            <div class="design-work-grid">
+              <article class="design-tile" data-reveal>
+                <div class="design-tile__media">
+                  <!-- PLACEHOLDER: Filtered Fire poster artwork -->
+                  <span class="design-media-slot__label">Image slot</span>
+                </div>
+                <h3 class="design-tile__name">Filtered Fire</h3>
+                <p class="design-tile__desc">
+                  A conceptual movie poster blending photography, typography, and digital effects. Cinematic and bold.
+                </p>
+              </article>
+              <article class="design-tile" data-reveal>
+                <div class="design-tile__media">
+                  <!-- PLACEHOLDER: The Art of Words typography piece -->
+                  <span class="design-media-slot__label">Image slot</span>
+                </div>
+                <h3 class="design-tile__name">The Art of Words</h3>
+                <p class="design-tile__desc">
+                  An experimental typography design combining photography and word art &mdash; words like faith, unity, and passion framing the subject.
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <section class="design-chapter" aria-labelledby="design-illustration-heading">
+            <h2 id="design-illustration-heading" class="design-chapter__heading">Digital Illustration</h2>
+            <div class="design-work-grid design-work-grid--single">
+              <article class="design-tile" data-reveal>
+                <div class="design-tile__media">
+                  <!-- PLACEHOLDER: Haunted illustration -->
+                  <span class="design-media-slot__label">Image slot</span>
+                </div>
+                <h3 class="design-tile__name">Haunted</h3>
+                <p class="design-tile__desc">
+                  A dark concept artwork blending illustration and typography. Uses contrast, shadow, and texture to evoke power and unease.
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <section class="design-chapter" aria-labelledby="design-video-heading">
+            <h2 id="design-video-heading" class="design-chapter__heading">Video Editing</h2>
+            <div class="design-cta-row">
+              <a class="design-cta-block" data-reveal href="#">
+                <p class="design-cta-block__label">Short-Form Edits</p>
+                <p class="design-cta-block__hint">TikTok</p>
+                <span class="design-cta-block__go">Open channel →</span>
+              </a>
+              <a class="design-cta-block" data-reveal href="#">
+                <p class="design-cta-block__label">Long-Form Videos</p>
+                <p class="design-cta-block__hint">YouTube</p>
+                <span class="design-cta-block__go">Open channel →</span>
+              </a>
+            </div>
+          </section>
+
+          <section class="design-chapter" aria-labelledby="design-web-heading">
+            <h2 id="design-web-heading" class="design-chapter__heading">Web Design</h2>
+            <div class="design-work-grid design-work-grid--single">
+              <article class="design-tile" data-reveal>
+                <div class="design-tile__media">
+                  <!-- PLACEHOLDER: Punjabi By Flavor site screenshot -->
+                  <span class="design-media-slot__label">Image slot</span>
+                </div>
+                <h3 class="design-tile__name">Punjabi By Flavor</h3>
+                <p class="design-tile__desc">
+                  Co-founded Punjabi By Flavor and designed the full website to showcase authentic Punjabi cuisine and drive customer orders.
+                </p>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
     </main>
 
 
-    <footer class="site-footer">
+    <footer class="site-footer" data-reveal>
       <div class="site-footer__watermark" aria-hidden="true">Maneet Kohli</div>
       <div class="site-footer__top">
-        <div class="site-footer__brand">          <p class="site-footer__blurb">Go explore more of my website. I&rsquo;m making constant design changes and adding more projects as I complete them.</p>
+        <div class="site-footer__brand">
+          <p class="site-footer__blurb">Go explore more of my website.</p>
+          <p class="site-footer__blurb site-footer__blurb--next">I&rsquo;m making constant design changes and adding more projects as I complete them. Stay tuned.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <div>
@@ -90,11 +213,14 @@
           </div>
         </nav>
       </div>
+      <div class="site-footer__name-row">
+        <hr class="site-footer__rule site-footer__rule--pre-name" aria-hidden="true" />
+      </div>
       <div class="site-footer__bottom">
         <p class="site-footer__copy">&copy; 2026 Maneet Kohli. All rights reserved.</p>
         <p class="site-footer__bottom-note">AI-focused. Data-driven. Business-minded.</p>
       </div>
     </footer>
-    <script src="../js/main.js"></script>
+    <script src="../js/main.js?v=10"></script>
   </body>
 </html>

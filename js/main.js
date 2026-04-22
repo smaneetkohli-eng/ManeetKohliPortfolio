@@ -10,14 +10,14 @@
     document.documentElement.classList.add("is-safari");
   }
 
-  function onScroll() {
+  function onHeaderScroll() {
     if (!header) return;
     var y = window.scrollY || document.documentElement.scrollTop;
     header.classList.toggle("is-scrolled", y > 48);
   }
 
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
+  window.addEventListener("scroll", onHeaderScroll, { passive: true });
+  onHeaderScroll();
 
   if (yearEl) {
     yearEl.textContent = String(new Date().getFullYear());
@@ -337,4 +337,96 @@
       this.setAttribute("aria-expanded", isOpen ? "false" : "true");
     });
   });
+
+  // ── Scroll reveal ([data-reveal]) — home below-hero, contact, inner pages ─
+  (function () {
+    var els = document.querySelectorAll("[data-reveal]");
+    if (!els.length) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      els.forEach(function (el) {
+        el.classList.add("is-revealed");
+      });
+      return;
+    }
+    if (!("IntersectionObserver" in window)) {
+      els.forEach(function (el) {
+        el.classList.add("is-revealed");
+      });
+      return;
+    }
+    /* threshold 0 = any pixel visible. A single value like 0.06 breaks very tall
+     * sections: the visible slice can be <6% of element height while clearly on screen. */
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-revealed");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { root: null, rootMargin: "0px 0px 25% 0px", threshold: 0 }
+    );
+    function revealIfAlreadyOnScreen() {
+      var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+      els.forEach(function (el) {
+        if (el.classList.contains("is-revealed")) return;
+        var r = el.getBoundingClientRect();
+        if (r.bottom > 0 && r.top < vh) {
+          el.classList.add("is-revealed");
+          io.unobserve(el);
+        }
+      });
+    }
+    function revealAllRemaining() {
+      els.forEach(function (el) {
+        if (!el.classList.contains("is-revealed")) {
+          el.classList.add("is-revealed");
+          io.unobserve(el);
+        }
+      });
+    }
+    function observeWithLayout() {
+      els.forEach(function (el) {
+        if (el.classList.contains("is-revealed")) return;
+        var r = el.getBoundingClientRect();
+        if (r.width < 1 && r.height < 1) {
+          el.classList.add("is-revealed");
+          return;
+        }
+        io.observe(el);
+      });
+    }
+
+    var revealSyncRaf = 0;
+    function syncRevealOnScroll() {
+      if (revealSyncRaf) return;
+      revealSyncRaf = requestAnimationFrame(function () {
+        revealSyncRaf = 0;
+        revealIfAlreadyOnScreen();
+      });
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        observeWithLayout();
+        revealIfAlreadyOnScreen();
+      });
+    });
+
+    window.addEventListener("scroll", syncRevealOnScroll, { passive: true });
+    window.addEventListener("resize", syncRevealOnScroll, { passive: true });
+
+    window.addEventListener(
+      "load",
+      function () {
+        revealIfAlreadyOnScreen();
+        window.setTimeout(revealAllRemaining, 2500);
+      },
+      { once: true }
+    );
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) revealIfAlreadyOnScreen();
+    });
+  })();
 })();
