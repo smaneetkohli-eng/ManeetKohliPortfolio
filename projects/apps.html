@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/styles.css?v=10" />
+    <link rel="stylesheet" href="../css/styles.css?v=24" />
   </head>
   <body>
     <header class="site-header">
@@ -52,15 +52,77 @@
       </nav>
     </header>
 
-    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:5rem;">
-      <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,6rem);letter-spacing:0.08em;color:rgba(255,255,255,0.12);text-transform:uppercase;margin:0;">Apps</h1>
+    <main>
+      <section class="page-hero page-hero--apps" aria-labelledby="page-hero-title">
+        <div class="page-hero__media" aria-hidden="true"></div>
+        <div class="page-hero__scrim" aria-hidden="true"></div>
+        <div class="page-hero__inner">
+          <div class="page-hero__card">
+            <h1 id="page-hero-title" class="page-hero__title">Apps</h1>
+          </div>
+        </div>
+      </section>
+      <div class="page-body">
+        <section class="inner-page-stack" aria-label="App projects">
+          <div class="featured-projects__grid">
+            <article class="project-card" data-reveal>
+              <p class="project-card__name">Bani AI</p>
+              <div class="project-card__body">
+                <div class="project-card__logo">
+                  <img src="../images/projects/home/logo-bani-ai.png" alt="Bani AI logo" />
+                </div>
+                <div class="project-card__text-stack">
+                  <p class="project-card__desc">
+                    A real-time Gurbani companion for the Sikh community. Bani AI listens to live kirtan or shabad recitation &mdash; at the Gurdwara or at home &mdash; and automatically identifies which shabad from Sri Guru Granth Sahib is being sung. No manual input, no searching. It follows along line by line, displaying Gurmukhi script, Roman transliteration, and English translation in sync with the recitation, making Gurbani accessible to anyone in the room regardless of their fluency.
+                  </p>
+                  <p class="project-card__desc project-card__desc--alpha-note">
+                    &mdash; More information available after alpha testing has concluded.
+                  </p>
+                </div>
+              </div>
+              <ul class="project-skill-pills" aria-label="Skills and tools">
+                <li><span class="project-skill-pill">Artificial Intelligence</span></li>
+                <li><span class="project-skill-pill">Machine Learning</span></li>
+                <li><span class="project-skill-pill">Natural Language Processing</span></li>
+                <li><span class="project-skill-pill">Large Language Model Applications</span></li>
+                <li><span class="project-skill-pill">Generative AI</span></li>
+                <li><span class="project-skill-pill">Agentic AI</span></li>
+                <li><span class="project-skill-pill">Python</span></li>
+                <li><span class="project-skill-pill">App Development</span></li>
+                <li><span class="project-skill-pill">API Integration</span></li>
+                <li><span class="project-skill-pill">Data Wrangling</span></li>
+                <li><span class="project-skill-pill">Research</span></li>
+                <li><span class="project-skill-pill">Web Scraping</span></li>
+                <li><span class="project-skill-pill">AI Prompt Engineering</span></li>
+                <li><span class="project-skill-pill">Real-time audio &amp; ML</span></li>
+                <li><span class="project-skill-pill">Gurmukhi script &amp; i18n</span></li>
+              </ul>
+            </article>
+
+            <article class="project-card project-card--soon" data-reveal>
+              <p class="project-card__name">Tesseract</p>
+              <div class="project-card__body project-card__body--soon-only">
+                <div class="project-card__logo" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+                    <path d="M32 6 54 20v24L32 58 10 44V20L32 6z" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M32 6v52M10 20l44 24M54 20L10 44" stroke="rgba(255,255,255,0.28)" stroke-width="1.2" />
+                  </svg>
+                </div>
+                <p class="project-card__soon-mega">Coming soon</p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
     </main>
 
 
-    <footer class="site-footer">
+    <footer class="site-footer" data-reveal>
       <div class="site-footer__watermark" aria-hidden="true">Maneet Kohli</div>
       <div class="site-footer__top">
-        <div class="site-footer__brand">          <p class="site-footer__blurb">Go explore more of my website. I&rsquo;m making constant design changes and adding more projects as I complete them.</p>
+        <div class="site-footer__brand">
+          <p class="site-footer__blurb">Go explore more of my website.</p>
+          <p class="site-footer__blurb site-footer__blurb--next">I&rsquo;m making constant design changes and adding more projects as I complete them. Stay tuned.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <div>
@@ -90,11 +152,14 @@
           </div>
         </nav>
       </div>
+      <div class="site-footer__name-row">
+        <hr class="site-footer__rule site-footer__rule--pre-name" aria-hidden="true" />
+      </div>
       <div class="site-footer__bottom">
         <p class="site-footer__copy">&copy; 2026 Maneet Kohli. All rights reserved.</p>
         <p class="site-footer__bottom-note">AI-focused. Data-driven. Business-minded.</p>
       </div>
     </footer>
-    <script src="../js/main.js"></script>
+    <script src="../js/main.js?v=10"></script>
   </body>
 </html>

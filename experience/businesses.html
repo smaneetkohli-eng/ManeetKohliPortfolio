@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/styles.css?v=10" />
+    <link rel="stylesheet" href="../css/styles.css?v=24" />
   </head>
   <body>
     <header class="site-header">
@@ -52,15 +52,102 @@
       </nav>
     </header>
 
-    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:5rem;">
-      <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,6rem);letter-spacing:0.08em;color:rgba(255,255,255,0.12);text-transform:uppercase;margin:0;">Businesses</h1>
+    <main>
+      <section class="page-hero page-hero--businesses" aria-labelledby="page-hero-title">
+        <div class="page-hero__media" aria-hidden="true"></div>
+        <div class="page-hero__scrim" aria-hidden="true"></div>
+        <div class="page-hero__inner">
+          <div class="page-hero__card">
+            <h1 id="page-hero-title" class="page-hero__title">Businesses</h1>
+          </div>
+        </div>
+      </section>
+      <div class="page-body">
+        <section class="inner-page-stack" aria-label="Businesses">
+          <div class="featured-projects__grid">
+            <article class="project-card project-card--pbf" data-reveal>
+              <p class="project-card__name">Punjabi By Flavor</p>
+              <div class="project-card__body project-card__body--media-split">
+                <div class="project-card__left-stack">
+                  <div class="project-card__logo">
+                    <img src="../images/projects/home/logo-punjabi-by-flavor.png" alt="Punjabi By Flavor logo" />
+                  </div>
+                  <!-- 2×2 food grid: shared “flowing” collage look with About Me + SHC (see styles.css) -->
+                  <div class="project-card__collage" aria-label="Punjabi By Flavor food photos">
+                    <div class="project-card__collage-cell">
+                      <img src="../images/projects/punjabi-by-flavor/kadhi-pakora-rice.png" alt="Kadhi pakora with basmati rice" loading="lazy" decoding="async" />
+                    </div>
+                    <div class="project-card__collage-cell">
+                      <img src="../images/projects/punjabi-by-flavor/pav-bhaji.png" alt="Pav bhaji with buttered pav and garnishes" loading="lazy" decoding="async" />
+                    </div>
+                    <div class="project-card__collage-cell">
+                      <img src="../images/projects/punjabi-by-flavor/butter-chicken-rice.png" alt="Butter chicken with basmati rice and cilantro" loading="lazy" decoding="async" />
+                    </div>
+                    <div class="project-card__collage-cell">
+                      <img src="../images/projects/punjabi-by-flavor/palak-paneer-jeera-rice.png" alt="Palak paneer with jeera rice" loading="lazy" decoding="async" />
+                    </div>
+                  </div>
+                </div>
+                <div class="project-card__copy-col project-card__text-stack">
+                  <p class="project-card__desc">
+                    <strong>Punjabi By Flavor</strong> Every time my family went looking for good North Indian food, we came back disappointed. Nothing tasted authentic &mdash; nothing tasted like home. My mother had spent years mastering the most authentic Punjabi cooking, especially the breakfast dishes that our neighbors and family would rave about. So we decided to stop searching and start serving. Punjabi By Flavor was born out of a real problem &mdash; genuinely good Indian food was nowhere to be found around us &mdash; and a family that had the answer.
+                  </p>
+                  <p class="project-card__desc">
+                    We built the business as a subscription and order-based catering operation, one of the first of its kind for North Indian food in the area. Weekend breakfasts, family dinners, special occasions. Every dish carries the taste, the scent, and the memory of Punjab, delivered to your door.
+                  </p>
+                  <p class="project-card__desc">
+                    Beyond the food, I took ownership of the business side. Designed and launched the brand&rsquo;s website, created all visual and social media content, and drove customer acquisition through short-form content, grassroots community outreach, and targeted digital campaigns. Applied A/B testing and market research to understand what resonated with the community, and used business analytics and business intelligence to track growth and customer behavior. Built and managed the subscription and order operations end-to-end &mdash; from onboarding new customers to fulfillment logistics. Grew the business to a loyal base of returning customers who came back not just for the food, but for the experience and the connection to culture.
+                  </p>
+                </div>
+              </div>
+              <div class="project-card__site-link">
+                <a class="project-card__cta" href="https://punjabibyflavor.com/products/butter-chicken-rice-20-june-24" target="_blank" rel="noopener noreferrer">Visit website &rarr;</a>
+              </div>
+              <ul class="project-skill-pills" aria-label="Skills and tools">
+                <li><span class="project-skill-pill">Marketing</span></li>
+                <li><span class="project-skill-pill">Video Production</span></li>
+                <li><span class="project-skill-pill">Web Design</span></li>
+                <li><span class="project-skill-pill">Photoshop</span></li>
+                <li><span class="project-skill-pill">Social Media Graphics</span></li>
+                <li><span class="project-skill-pill">Content Strategy</span></li>
+                <li><span class="project-skill-pill">Customer Discovery</span></li>
+                <li><span class="project-skill-pill">Go-to-Market Strategy</span></li>
+                <li><span class="project-skill-pill">Business Analytics</span></li>
+                <li><span class="project-skill-pill">Market Research</span></li>
+                <li><span class="project-skill-pill">A/B Testing</span></li>
+                <li><span class="project-skill-pill">Business Intelligence</span></li>
+                <li><span class="project-skill-pill">Excel</span></li>
+                <li><span class="project-skill-pill">Personal Branding</span></li>
+                <li><span class="project-skill-pill">Short-Form Content (Reels/Shorts)</span></li>
+                <li><span class="project-skill-pill">Subscription &amp; order operations</span></li>
+                <li><span class="project-skill-pill">Grassroots community outreach</span></li>
+              </ul>
+            </article>
+
+            <article class="project-card project-card--soon" data-reveal>
+              <p class="project-card__name">Sky Automations</p>
+              <div class="project-card__body project-card__body--soon-only">
+                <div class="project-card__logo" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+                    <path d="M14 40c4-12 32-12 36 0" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M18 36h8l4-14 6 22 6-18 4 10h10" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <p class="project-card__soon-mega">Coming soon</p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
     </main>
 
 
-    <footer class="site-footer">
+    <footer class="site-footer" data-reveal>
       <div class="site-footer__watermark" aria-hidden="true">Maneet Kohli</div>
       <div class="site-footer__top">
-        <div class="site-footer__brand">          <p class="site-footer__blurb">Go explore more of my website. I&rsquo;m making constant design changes and adding more projects as I complete them.</p>
+        <div class="site-footer__brand">
+          <p class="site-footer__blurb">Go explore more of my website.</p>
+          <p class="site-footer__blurb site-footer__blurb--next">I&rsquo;m making constant design changes and adding more projects as I complete them. Stay tuned.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <div>
@@ -90,11 +177,14 @@
           </div>
         </nav>
       </div>
+      <div class="site-footer__name-row">
+        <hr class="site-footer__rule site-footer__rule--pre-name" aria-hidden="true" />
+      </div>
       <div class="site-footer__bottom">
         <p class="site-footer__copy">&copy; 2026 Maneet Kohli. All rights reserved.</p>
         <p class="site-footer__bottom-note">AI-focused. Data-driven. Business-minded.</p>
       </div>
     </footer>
-    <script src="../js/main.js"></script>
+    <script src="../js/main.js?v=10"></script>
   </body>
 </html>

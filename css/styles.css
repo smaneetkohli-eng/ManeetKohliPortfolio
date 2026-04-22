@@ -86,6 +86,8 @@
   --skills-row-gap: clamp(1.2rem, 0.56rem + 1.12vh, 2rem);
   --skills-band-pad-block: clamp(0.24rem, 0.1rem + 0.42vh, 0.52rem);
   --skills-marquee-edge-w: clamp(2rem, 12vw, 7.5rem);
+  /* Inner page heroes (image + frosted title) */
+  --page-hero-h: clamp(22rem, 52vh, 40rem);
 }
 
 /* ─── Reset ──────────────────────────────────────────────── */
@@ -665,6 +667,17 @@ a { color: inherit; text-decoration: none; }
   50%       { transform: translateY(9px); }
 }
 
+/* Slow pan/zoom on collage & photo-grid images (About, PBF, SHC) */
+@keyframes collageImageFlow {
+  0%,
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.055) translate(-1.4%, 0.4%);
+  }
+}
+
 /* ─── Hero figure — straddles the glowing line ───────────── */
 /*
  * hero.png is 2560×1080 (ultra-wide landscape).
@@ -1102,7 +1115,13 @@ button.hero-frost-panes__box {
   min-height: 100%;
 }
 
-.about-me-collage__cell {
+/*
+ * Photo collages: shared “flowing” look (crisp border, hover glow, bottom fade, slow image drift).
+ * Add new multi-image layouts by joining the selector list, or re-use the same class names.
+ */
+.about-me-collage__cell,
+.project-card__collage .project-card__collage-cell,
+.shc-collage__cell {
   position: relative;
   overflow: hidden;
   border-radius: 12px;
@@ -1111,8 +1130,17 @@ button.hero-frost-panes__box {
   transition: border-color 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
 }
 
+.project-card__collage .project-card__collage-cell {
+  aspect-ratio: 1;
+  min-height: 0;
+}
+
 .about-me-collage__cell:hover,
-.about-me-collage__cell:focus-within {
+.about-me-collage__cell:focus-within,
+.project-card__collage .project-card__collage-cell:hover,
+.project-card__collage .project-card__collage-cell:focus-within,
+.shc-collage__cell:hover,
+.shc-collage__cell:focus-within {
   border-color: rgba(255, 255, 255, 0.95);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.16),
@@ -1120,10 +1148,13 @@ button.hero-frost-panes__box {
     0 0 26px rgba(255, 255, 255, 0.16);
 }
 
-.about-me-collage__cell::after {
+.about-me-collage__cell::after,
+.project-card__collage .project-card__collage-cell::after,
+.shc-collage__cell::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
   background: linear-gradient(
     to top,
@@ -1144,6 +1175,28 @@ button.hero-frost-panes__box {
   height: auto;
   display: block;
   object-fit: contain;
+}
+
+/* Slow “flowing” motion + stagger (About Me, PBF 2×2, SHC grid) */
+.about-me-collage__media img,
+.about-me-collage__media video,
+.project-card__collage .project-card__collage-cell img,
+.shc-collage__cell img {
+  animation: collageImageFlow 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+.project-card__collage .project-card__collage-cell:nth-child(1) img {
+  animation-delay: 0s;
+}
+.project-card__collage .project-card__collage-cell:nth-child(2) img {
+  animation-delay: 0.4s;
+}
+.project-card__collage .project-card__collage-cell:nth-child(3) img {
+  animation-delay: 0.8s;
+}
+.project-card__collage .project-card__collage-cell:nth-child(4) img {
+  animation-delay: 1.2s;
 }
 
 .about-me-collage__cell--crop {
@@ -2065,18 +2118,96 @@ button.hero-frost-panes__box {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  /* Default; overridden when also [data-reveal] (see below) so scroll-reveal and glass glow both run */
   transition:
     border-color 0.25s var(--ease-out),
     box-shadow 0.25s var(--ease-out);
 }
 
-.project-card:hover {
+/*
+ * Project cards are also [data-reveal]. The generic [data-reveal] rule must not
+ * own their `transition` (it only listed opacity/transform, which overwrote the
+ * glass card’s border/box-shadow transition). Scoped here + :not(.project-card) below.
+ */
+.reveal-enabled .project-card[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 1.5rem, 0);
+  will-change: opacity, transform;
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.reveal-enabled .experience-card[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 1.5rem, 0);
+  will-change: opacity, transform;
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.reveal-enabled .contact-card[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 1.5rem, 0);
+  will-change: opacity, transform;
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.project-card:hover,
+.project-card:focus-within {
   border-color: rgba(255, 255, 255, 0.95);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.16),
     0 0 14px rgba(255, 255, 255, 0.32),
     0 0 26px rgba(255, 255, 255, 0.16),
-    0 28px 90px rgba(0, 0, 0, 0.6);
+    0 28px 90px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Rounder shell for Punjabi By Flavor (no extra wrapper) — do not set overflow: hidden
+   (it would clip the outer box-shadow and kill the card hover glow) */
+.project-card--pbf {
+  border-radius: clamp(20px, 3.2vw, 28px);
+}
+
+/* Punjabi: same treatment as :hover, extra outer bloom (matches contact / skill pill depth) */
+.project-card--pbf:hover,
+.project-card--pbf:focus-within {
+  border-color: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.22),
+    0 0 18px rgba(255, 255, 255, 0.4),
+    0 0 40px rgba(255, 255, 255, 0.2),
+    0 0 56px rgba(255, 255, 255, 0.1),
+    0 32px 100px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* PBF mark: rounded asset only—no glass frame or grey keyline on the logo box */
+.project-card--pbf .project-card__logo {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: clamp(12px, 2vw, 16px);
+  overflow: hidden;
+}
+
+.project-card--pbf .project-card__logo img {
+  object-fit: contain;
+  object-position: center;
+}
+
+.project-card--pbf .project-card__left-stack .project-card__logo {
+  padding: 0;
 }
 
 .project-card__name {
@@ -2121,9 +2252,24 @@ button.hero-frost-panes__box {
   display: block;
 }
 
+.project-card__logo > svg {
+  width: 58%;
+  height: auto;
+  flex-shrink: 0;
+  opacity: 0.88;
+}
+
 /* Side Hustle Club logo is black-on-white — invert so it reads on dark bg */
 .project-card__logo--invert img {
   filter: invert(1);
+}
+
+.project-card__text-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+  align-self: center;
 }
 
 .project-card__desc {
@@ -2134,6 +2280,17 @@ button.hero-frost-panes__box {
   line-height: 1.8;
   color: rgba(255, 255, 255, 0.72);
   align-self: center;
+}
+
+.project-card__text-stack .project-card__desc {
+  align-self: stretch;
+  text-align: left;
+}
+
+.project-card__desc--alpha-note {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #fff;
 }
 
 .project-card__cta {
@@ -2174,19 +2331,73 @@ button.hero-frost-panes__box {
   outline-offset: 3px;
 }
 
-/* ── CONTACT SECTION ── */
-.contact-main {
-  min-height: 100vh;
+.project-card__cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: auto;
+  width: 100%;
+}
+
+.project-card__cta-group .project-card__cta {
+  margin-top: 0;
+}
+
+/* External “Visit website” under PBF copy, before skill pills (no auto-push to card bottom) */
+.project-card__site-link {
+  align-self: flex-start;
+  margin: 0 0 clamp(0.5rem, 1.2vw, 0.9rem) 0;
+}
+
+.project-card__site-link .project-card__cta {
+  margin-top: 0;
+}
+
+/* ── CONTACT PAGE ── */
+.contact-page-main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 7rem 1.5rem 5rem;
+  width: 100%;
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+/* Full-viewport intro — content below animates in on scroll */
+.contact-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7.25rem 1.5rem 3rem;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(200, 200, 220, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0a0a 0%, #0d0d0d 45%, #111 100%);
+}
+
+.contact-hero__tagline {
+  max-width: 32rem;
+  margin: clamp(1.25rem, 3vw, 1.75rem) 0 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .contact-wrapper {
   width: 100%;
   max-width: 680px;
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+  padding: 0 1.5rem 2rem;
+  box-sizing: border-box;
 }
 
 .contact-heading {
@@ -2195,13 +2406,69 @@ button.hero-frost-panes__box {
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.92);
   text-transform: uppercase;
-  margin: 0 0 2.25rem;
+  margin: 0;
   line-height: 1;
   text-align: center;
 }
 
+/* Scroll-reveal — not glass cards (scoped [data-reveal] blocks above) */
+.reveal-enabled [data-reveal]:not(.project-card):not(.experience-card):not(.contact-card) {
+  opacity: 0;
+  transform: translate3d(0, 1.5rem, 0);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+  will-change: opacity, transform;
+}
+
+/* Slight stagger in hero: tagline after heading */
+.contact-hero [data-reveal] + [data-reveal] {
+  transition-delay: 0.1s;
+}
+
+/* Home: stagger project cards when they enter together */
+.featured-projects__grid .project-card[data-reveal]:nth-child(1) {
+  transition-delay: 0s;
+}
+.featured-projects__grid .project-card[data-reveal]:nth-child(2) {
+  transition-delay: 0.09s;
+}
+.featured-projects__grid .project-card[data-reveal]:nth-child(3) {
+  transition-delay: 0.18s;
+}
+
+.inner-page-stack .featured-projects__grid .project-card[data-reveal]:nth-child(1) {
+  transition-delay: 0s;
+}
+.inner-page-stack .featured-projects__grid .project-card[data-reveal]:nth-child(2) {
+  transition-delay: 0.09s;
+}
+
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  .about-me-collage__media img,
+  .about-me-collage__media video,
+  .project-card__collage .project-card__collage-cell img,
+  .shc-collage__cell img {
+    animation: none !important;
+    will-change: auto;
+  }
+}
+
 .contact-card {
   max-width: 680px;
+  margin: 0 auto;
   padding: clamp(2rem, 5vw, 3rem) clamp(1.75rem, 4vw, 2.75rem);
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.13);
@@ -2209,6 +2476,19 @@ button.hero-frost-panes__box {
   backdrop-filter: blur(28px) saturate(1.6);
   -webkit-backdrop-filter: blur(28px) saturate(1.6);
   box-shadow: 0 32px 96px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.contact-card:hover {
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 0 14px rgba(255, 255, 255, 0.32),
+    0 0 26px rgba(255, 255, 255, 0.16),
+    0 28px 90px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .contact-row {
@@ -2216,6 +2496,11 @@ button.hero-frost-panes__box {
   align-items: center;
   gap: 1.4rem;
   padding: 1.6rem 0;
+}
+
+.contact-row .project-card__cta {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .contact-row + .contact-row {
@@ -2267,6 +2552,32 @@ button.hero-frost-panes__box {
   align-items: center;
 }
 
+/* Match Featured Projects + Who I Am section titles; space before the card */
+.home-contact .contact-heading {
+  width: 100%;
+  max-width: min(1120px, 100%);
+  margin: 0 0 clamp(1.6rem, 2.8vh, 2.4rem);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.7rem, 5.6vw, 4.75rem);
+  line-height: 0.92;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+@media (max-width: 760px) {
+  .contact-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.8rem 1rem;
+  }
+
+  .contact-row .project-card__cta {
+    margin-left: calc(46px + 1rem);
+  }
+}
+
 /* ── SITE FOOTER ── */
 .site-footer {
   position: relative;
@@ -2277,7 +2588,7 @@ button.hero-frost-panes__box {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   background-color: #070707;
   padding: clamp(3rem, 6vw, 4.5rem) clamp(1.5rem, 6vw, 5rem) 0;
-  padding-bottom: clamp(9rem, 22vw, 18rem);
+  padding-bottom: clamp(11rem, 26vw, 22rem);
   overflow: hidden;
 }
 
@@ -2311,11 +2622,11 @@ button.hero-frost-panes__box {
 
 .site-footer__watermark {
   position: absolute;
-  bottom: 2.75rem;
+  bottom: 2.25rem;
   left: 50%;
   transform: translateX(-50%);
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: clamp(5rem, 12vw, 15rem);
+  font-size: clamp(6.5rem, 17vw, 22rem);
   letter-spacing: 0.03em;
   color: rgba(255, 255, 255, 0.05);
   white-space: nowrap;
@@ -2340,20 +2651,41 @@ button.hero-frost-panes__box {
   padding-right: clamp(1rem, 3vw, 2.5rem);
 }
 
-.site-footer__name {
-  font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.92);
-  text-transform: uppercase;
-  line-height: 1;
-  margin: 0 0 0.4rem;
-  text-decoration: none;
-  display: inline-block;
+/* Line + name: separates blurbs + nav from signature */
+.site-footer__name-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: clamp(1.35rem, 2.8vw, 2rem);
 }
 
-.site-footer__name:hover {
-  color: #fff;
+/* Hero-style hairline; full width within footer padding */
+.site-footer__rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  border: none;
+  border-radius: 999px;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 6%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(255, 255, 255, 0.55) 52%,
+    rgba(255, 255, 255, 0.1) 94%,
+    transparent 100%
+  );
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.22);
+  flex-shrink: 0;
+}
+
+.site-footer__rule--pre-name {
+  margin-bottom: clamp(0.7rem, 1.4vw, 0.95rem);
 }
 
 .site-footer__tagline {
@@ -2368,13 +2700,17 @@ button.hero-frost-panes__box {
 
 .site-footer__blurb {
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: clamp(1.25rem, 2vw, 1.8rem);
+  font-size: clamp(1.85rem, 3.2vw, 2.85rem);
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  line-height: 1.2;
+  line-height: 1.16;
   color: rgba(255, 255, 255, 0.92);
   margin: 0;
+}
+
+.site-footer__blurb--next {
+  margin-top: clamp(0.35rem, 0.9vw, 0.65rem);
 }
 
 .site-footer__nav {
@@ -2457,4 +2793,1057 @@ button.hero-frost-panes__box {
     gap: 0.4rem;
     text-align: center;
   }
+}
+
+/* ─── Inner pages: shared hero (image, frosted title, bottom gradient) ─ */
+.page-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: var(--page-hero-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(5.25rem, 11vh, 7.5rem) clamp(1.25rem, 4vw, 2rem) clamp(2.25rem, 4vh, 3rem);
+}
+
+.page-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #0a0a0a;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.page-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* Neutral grayscale only (no color bleeds) */
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.2) 28%,
+    rgba(0, 0, 0, 0.18) 48%,
+    rgba(0, 0, 0, 0.7) 70%,
+    #141414 86%,
+    var(--charcoal) 100%
+  );
+}
+
+.page-hero--wip .page-hero__media {
+  background-image: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 15% 25%, rgba(48, 48, 48, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 88% 78%, rgba(32, 32, 32, 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(24, 24, 24, 0.4) 0%, transparent 65%),
+    linear-gradient(165deg, #0a0a0a 0%, #080808 40%, #101010 100%);
+}
+
+/* Lighter scrim on WIP so the frosted card has something to blur */
+.page-hero--wip .page-hero__scrim {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.38) 0%,
+    rgba(0, 0, 0, 0.1) 34%,
+    rgba(0, 0, 0, 0.5) 72%,
+    #121212 88%,
+    var(--charcoal) 100%
+  );
+}
+
+/* Film grain over WIP / coming-soon heroes — grayscale so it never tints the scene */
+.page-hero--wip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.1;
+  filter: grayscale(1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* WIP: same block height as other inner pages; glass card fits long titles */
+.page-hero--wip {
+  min-height: var(--page-hero-h);
+  padding: clamp(5.25rem, 11vh, 7.5rem) clamp(1.25rem, 4vw, 2rem) clamp(2.25rem, 4vh, 3rem);
+  box-sizing: border-box;
+}
+
+.page-hero--wip .page-hero__inner {
+  max-width: min(54rem, 100%);
+  width: 100%;
+}
+
+.page-hero--wip .page-hero__card {
+  /* True frosted glass: let the layer behind (gradients + grain) read through */
+  container-type: inline-size;
+  container-name: hero-wip;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  backdrop-filter: blur(22px) saturate(0.88);
+  -webkit-backdrop-filter: blur(22px) saturate(0.88);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 20px 48px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: min(48rem, 100%);
+  margin-inline: auto;
+  padding: clamp(2.15rem, 5vw, 3.1rem) clamp(1.75rem, 5.4vw, 3rem);
+  border-radius: 1.1rem;
+}
+
+.page-hero--wip .page-hero__eyebrow {
+  font-size: clamp(0.72rem, 1.1vw, 0.84rem);
+  letter-spacing: 0.35em;
+  margin: 0 0 0.8rem;
+}
+
+.page-hero--wip .page-hero__title {
+  /* Scale with the card so long words (e.g. “Certifications”) never overflow */
+  max-width: 100%;
+  width: 100%;
+  margin-inline: auto;
+  box-sizing: border-box;
+  font-size: clamp(2.1rem, 6.6cqi, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: 0.06em;
+}
+
+@supports not (container-type: inline-size) {
+  .page-hero--wip .page-hero__title {
+    font-size: clamp(2.1rem, 4.8vw, 3.35rem);
+  }
+}
+
+.page-hero--wip .page-hero__title--compact {
+  font-size: clamp(1.9rem, 5.9cqi, 3.05rem);
+  max-width: 100%;
+}
+
+@supports not (container-type: inline-size) {
+  .page-hero--wip .page-hero__title--compact {
+    font-size: clamp(1.9rem, 4.1vw, 2.85rem);
+  }
+}
+
+.page-hero--wip .page-hero__sub {
+  font-size: clamp(0.96rem, 1.45vw, 1.12rem);
+  line-height: 1.6;
+  max-width: 38ch;
+  margin-top: 1.15rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-hero--apps .page-hero__media { background-image: url("../images/heroes/apps.png"); }
+.page-hero--data-viz .page-hero__media { background-image: url("../images/heroes/data-viz.png"); }
+.page-hero--design .page-hero__media { background-image: url("../images/heroes/design.png"); }
+.page-hero--businesses .page-hero__media { background-image: url("../images/heroes/businesses.png"); }
+.page-hero--jobs .page-hero__media { background-image: url("../images/heroes/jobs.png"); }
+.page-hero--leadership .page-hero__media { background-image: url("../images/heroes/leadership.png"); }
+.page-hero--about .page-hero__media { background-image: url("../images/heroes/about.png"); }
+
+.page-hero__inner {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 52rem;
+}
+
+.page-hero__card {
+  /* saturate() off — avoids picking up a cool cast from the photo in Safari/Chrome */
+  backdrop-filter: blur(16px) saturate(0.92);
+  -webkit-backdrop-filter: blur(16px) saturate(0.92);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1rem;
+  padding: clamp(1.1rem, 2.2vw, 1.5rem) clamp(1.5rem, 3.5vw, 2.5rem);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 20px 50px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.page-hero__title {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(2.5rem, 6.2vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.96);
+  margin: 0;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
+}
+
+.page-hero__title--compact {
+  font-size: clamp(1.85rem, 4.1vw, 3.25rem);
+  letter-spacing: 0.06em;
+  max-width: 18ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-hero__eyebrow {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 0.5rem;
+}
+
+.page-hero__sub {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.58);
+  margin: 0.85rem 0 0;
+  max-width: 28ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-hero__card--soon .page-hero__title {
+  margin-top: 0.15rem;
+}
+
+.page-body {
+  min-height: min(50vh, 28rem);
+  background: var(--charcoal);
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 4vw, 2.5rem) clamp(3.5rem, 8vh, 5rem);
+}
+
+.page-body--collapsed {
+  min-height: 0;
+  padding: 0;
+}
+
+/* ── Inner pages: project / experience stacks (below hero) ─ */
+.inner-page-stack {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.inner-page-stack .featured-projects__grid {
+  margin: 0;
+}
+
+.page-body > .inner-page-stack:first-child {
+  margin-top: 0;
+}
+
+.project-card__badge-soon {
+  margin: 0;
+  align-self: center;
+}
+
+.project-card__badge-soon span {
+  display: inline-block;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.38rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Inner project cards: not-yet-launched (no description) */
+.project-card__body.project-card__body--soon-only {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 2vw, 1.25rem);
+  min-height: clamp(200px, 28vh, 340px);
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.project-card__soon-mega {
+  margin: 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.75rem, 12vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.16);
+  text-align: center;
+  user-select: none;
+}
+
+/* Logo + collage (left) + copy (right) */
+.project-card__body.project-card__body--media-split {
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.25rem, 3vw, 2rem) clamp(1.5rem, 3.5vw, 2.5rem);
+}
+
+.project-card__left-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(1rem, 2.2vw, 1.4rem);
+  min-width: 0;
+  width: 100%;
+}
+
+.project-card__left-stack .project-card__logo {
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0.4rem;
+  box-sizing: border-box;
+}
+
+.project-card__left-stack .project-card__logo img {
+  object-fit: contain;
+}
+
+.project-card__copy-col {
+  min-width: 0;
+  align-self: center;
+}
+
+.project-card__body.project-card__body--media-split .project-card__desc {
+  align-self: start;
+  text-align: left;
+}
+
+.project-card__collage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* Cell chrome, hover, ::after, and image animation live with About Me (see .about-me-collage__cell) */
+.project-card__collage .project-card__collage-cell img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Skills: look like controls but are not interactive (no <button>) */
+.project-skill-pills {
+  list-style: none;
+  margin: clamp(1.1rem, 2.2vw, 1.5rem) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.55rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.project-skill-pill {
+  display: inline-block;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(0.7rem, 0.6rem + 0.4vw, 0.8rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  transition:
+    color 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out),
+    text-shadow 0.2s var(--ease-out);
+  cursor: default;
+}
+
+li:hover > .project-skill-pill {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.9);
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.75),
+    0 0 22px rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 0 18px rgba(255, 255, 255, 0.2);
+}
+
+.experience-card .project-skill-pills {
+  margin-top: clamp(1.1rem, 2.2vw, 1.5rem);
+  max-width: none;
+}
+
+.shc-feature .project-skill-pills {
+  margin-top: clamp(1.5rem, 2.8vw, 2rem);
+  padding-top: clamp(1.1rem, 2.2vw, 1.5rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Design page: chapters, tiles, placeholders ─ */
+.design-page-stack {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 5vw, 3.75rem);
+}
+
+.design-chapter__heading {
+  margin: 0 0 clamp(1.25rem, 2.5vw, 1.75rem);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.2rem, 4.8vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.94);
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.design-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2.2vw, 1.35rem);
+}
+
+.design-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.design-mini__title {
+  margin: 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.design-mini__desc {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(0.88rem, 1.35vw, 0.98rem);
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.68);
+  flex: 1;
+}
+
+.design-media-slot {
+  position: relative;
+  margin-top: auto;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.35);
+  min-height: clamp(9rem, 22vw, 13rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.design-media-slot__label {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  text-align: center;
+  padding: 0.75rem;
+}
+
+.design-work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.35rem);
+}
+
+.design-work-grid--single {
+  grid-template-columns: 1fr;
+  max-width: 36rem;
+}
+
+.design-tile {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.1rem, 2vw, 1.45rem);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.design-tile:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 28px 90px rgba(0, 0, 0, 0.55);
+}
+
+.design-tile__media {
+  border-radius: 12px;
+  margin-bottom: 0.85rem;
+  overflow: hidden;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.35);
+  min-height: clamp(10rem, 24vw, 14rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.design-tile__name {
+  margin: 0 0 0.45rem;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.design-tile__desc {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.design-cta-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.85rem, 2vw, 1.15rem);
+}
+
+.design-cta-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: clamp(1.25rem, 2.5vw, 1.65rem);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.45);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.design-cta-block:hover,
+.design-cta-block:focus-visible {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 22px 70px rgba(0, 0, 0, 0.55);
+}
+
+.design-cta-block:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 3px;
+}
+
+.design-cta-block__label {
+  margin: 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.design-cta-block__hint {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.design-cta-block__go {
+  margin-top: 0.15rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ── Jobs: experience card ─ */
+.experience-card {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: clamp(1.35rem, 2.8vw, 1.85rem);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.experience-card:hover,
+.experience-card:focus-within {
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 0 14px rgba(255, 255, 255, 0.32),
+    0 0 26px rgba(255, 255, 255, 0.16),
+    0 28px 90px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.experience-card__title {
+  margin: 0 0 0.35rem;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.experience-card__org {
+  margin: 0 0 1rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.experience-card__desc {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 72ch;
+}
+
+/* ── Leadership: Side Hustle Club feature spread ─ */
+.shc-feature {
+  position: relative;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(ellipse 55% 80% at 0% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 60% at 100% 20%, rgba(255, 255, 255, 0.04) 0%, transparent 45%),
+    rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.shc-feature:hover,
+.shc-feature:focus-within {
+  border-color: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 0 22px rgba(255, 255, 255, 0.2),
+    0 0 42px rgba(255, 255, 255, 0.14),
+    0 34px 90px rgba(0, 0, 0, 0.56);
+  transform: translateY(-2px);
+}
+
+.shc-feature::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.065;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+.shc-feature::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 20%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.12) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.shc-feature > * {
+  position: relative;
+  z-index: 2;
+}
+
+.shc-feature__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3.5vw, 2.75rem);
+  align-items: start;
+}
+
+.shc-feature__left-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 2.2vw, 1.5rem);
+  min-width: 0;
+}
+
+.shc-feature__left-col .shc-collage {
+  margin-left: 0;
+  max-width: 100%;
+  transform: none;
+}
+
+.shc-feature__logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(196px, 100%);
+  padding: 0;
+}
+
+.shc-feature__logo-wrap svg {
+  width: min(180px, 100%);
+  height: auto;
+  display: block;
+}
+
+.shc-feature__logo-wrap img {
+  width: min(180px, 100%);
+  height: auto;
+  display: block;
+  object-fit: contain;
+  border-radius: 16px;
+}
+
+.shc-feature__logo-wrap--invert img {
+  filter: invert(1);
+}
+
+.shc-feature__logo-wrap:hover,
+.shc-feature__logo-wrap:focus-within {
+  box-shadow: none;
+}
+
+.shc-feature__main {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.shc-feature__kicker {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.shc-feature__title {
+  margin: 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.75rem, 7vw, 4.75rem);
+  line-height: 0.92;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.shc-feature__rule {
+  width: min(12rem, 55%);
+  height: 1px;
+  margin: 0;
+  border: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+}
+
+.shc-feature__copy {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(0.95rem, 1.55vw, 1.08rem);
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.74);
+  max-width: 52ch;
+}
+
+.shc-feature__copy--block {
+  max-width: 58ch;
+}
+
+.shc-feature__mid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  align-items: start;
+}
+
+.shc-collage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+  margin-left: auto;
+  transform: none;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+}
+
+/* Shared frame with About + PBF (earlier in file); only layout helpers here */
+.shc-collage__cell {
+  min-height: 0;
+  border-radius: 14px;
+  aspect-ratio: 16 / 10;
+  transition:
+    border-color 0.22s var(--ease-out),
+    box-shadow 0.22s var(--ease-out),
+    transform 0.22s var(--ease-out);
+}
+
+.shc-collage__cell--tall {
+  min-height: 0;
+}
+
+.shc-collage__cell--sq {
+  aspect-ratio: 16 / 10;
+}
+
+.shc-collage__cell--sq2 {
+  aspect-ratio: 16 / 10;
+}
+
+.shc-collage__cell--land {
+  aspect-ratio: 16 / 10;
+}
+
+.shc-collage__cell span {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.shc-collage__cell img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  animation: none;
+  transition: transform 0.25s var(--ease-out), filter 0.25s var(--ease-out);
+}
+
+.shc-collage__cell:hover,
+.shc-collage__cell:focus-within {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 14px rgba(255, 255, 255, 0.24),
+    0 0 24px rgba(255, 255, 255, 0.12),
+    0 16px 36px rgba(0, 0, 0, 0.38);
+}
+
+.shc-collage__cell:hover img,
+.shc-collage__cell:focus-within img {
+  transform: scale(1.04);
+  filter: saturate(1.04) brightness(1.03);
+}
+
+.shc-feature__stat {
+  margin: 0;
+  padding: clamp(0.85rem, 1.8vw, 1.1rem) clamp(1rem, 2vw, 1.35rem);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.35);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(0.88rem, 1.4vw, 0.98rem);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 40rem;
+}
+
+.shc-feature__stat strong {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+@media (max-width: 860px) {
+  .project-card__body.project-card__body--media-split {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card__left-stack {
+    max-width: min(100%, 300px);
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .design-mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .design-work-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shc-feature__grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .shc-feature__logo-wrap {
+    justify-content: center;
+  }
+
+  .shc-feature__rule {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .shc-feature__copy {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .shc-feature__mid {
+    grid-template-columns: 1fr;
+  }
+
+  .shc-collage {
+    margin: 0 auto;
+    transform: rotate(0);
+    max-width: 320px;
+  }
+
+  .shc-feature__stat {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .project-card__body {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .project-card__body.project-card__body--media-split {
+    justify-items: stretch;
+  }
+
+  .project-card__desc {
+    text-align: center;
+  }
+
+  .project-card__text-stack .project-card__desc {
+    text-align: center;
+  }
+
+  .project-card__body.project-card__body--media-split .project-card__desc {
+    text-align: center;
+  }
+
+  .project-card__cta {
+    align-self: center;
+  }
+
+  .project-card__cta-group {
+    align-items: center;
+    align-self: center;
+  }
+
+  .project-card__site-link {
+    align-self: center;
+  }
+
+  .design-cta-row {
+    grid-template-columns: 1fr;
+  }
+
 }

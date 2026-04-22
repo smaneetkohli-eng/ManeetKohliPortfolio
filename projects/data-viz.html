@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/styles.css?v=10" />
+    <link rel="stylesheet" href="../css/styles.css?v=14" />
   </head>
   <body>
     <header class="site-header">
@@ -52,15 +52,28 @@
       </nav>
     </header>
 
-    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:5rem;">
-      <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,5rem);letter-spacing:0.08em;color:rgba(255,255,255,0.12);text-transform:uppercase;margin:0;">Data &amp; Visualization</h1>
+    <main>
+      <section class="page-hero page-hero--wip" aria-labelledby="page-hero-title">
+        <div class="page-hero__media" aria-hidden="true"></div>
+        <div class="page-hero__scrim" aria-hidden="true"></div>
+        <div class="page-hero__inner">
+          <div class="page-hero__card page-hero__card--soon">
+            <p class="page-hero__eyebrow">Coming soon</p>
+            <h1 id="page-hero-title" class="page-hero__title page-hero__title--compact">Data &amp; Visualization</h1>
+            <p class="page-hero__sub">This page is in progress&mdash;dashboards, case studies, and visual narratives will be here soon.</p>
+          </div>
+        </div>
+      </section>
+      <div class="page-body page-body--collapsed"></div>
     </main>
 
 
-    <footer class="site-footer">
+    <footer class="site-footer" data-reveal>
       <div class="site-footer__watermark" aria-hidden="true">Maneet Kohli</div>
       <div class="site-footer__top">
-        <div class="site-footer__brand">          <p class="site-footer__blurb">Go explore more of my website. I&rsquo;m making constant design changes and adding more projects as I complete them.</p>
+        <div class="site-footer__brand">
+          <p class="site-footer__blurb">Go explore more of my website.</p>
+          <p class="site-footer__blurb site-footer__blurb--next">I&rsquo;m making constant design changes and adding more projects as I complete them. Stay tuned.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <div>
@@ -90,11 +103,14 @@
           </div>
         </nav>
       </div>
+      <div class="site-footer__name-row">
+        <hr class="site-footer__rule site-footer__rule--pre-name" aria-hidden="true" />
+      </div>
       <div class="site-footer__bottom">
         <p class="site-footer__copy">&copy; 2026 Maneet Kohli. All rights reserved.</p>
         <p class="site-footer__bottom-note">AI-focused. Data-driven. Business-minded.</p>
       </div>
     </footer>
-    <script src="../js/main.js"></script>
+    <script src="../js/main.js?v=10"></script>
   </body>
 </html>
