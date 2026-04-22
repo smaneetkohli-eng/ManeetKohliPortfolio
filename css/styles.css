@@ -2083,8 +2083,12 @@ button.hero-frost-panes__box {
 }
 
 .project-card:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 0 14px rgba(255, 255, 255, 0.32),
+    0 0 26px rgba(255, 255, 255, 0.16),
+    0 28px 90px rgba(0, 0, 0, 0.6);
 }
 
 .project-card__name {
