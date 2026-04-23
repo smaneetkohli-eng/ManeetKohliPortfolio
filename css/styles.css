@@ -3964,6 +3964,70 @@ li:hover > .project-skill-pill {
   border-color: rgba(255, 255, 255, 0.65);
 }
 
+/* Data tracking: spreadsheet + two stacked charts */
+.bcom-entry__media--chart-grid,
+.bcom-entry__media--email-grid {
+  aspect-ratio: auto;
+  padding: 0;
+}
+
+.bcom-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.bcom-chart-grid__spreadsheet {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bcom-chart-grid__charts {
+  display: flex;
+  flex-direction: column;
+}
+
+.bcom-chart-grid__charts img {
+  width: 100%;
+  flex: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.bcom-chart-grid__charts img + img {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Email: feedback screenshot + rewritten email side by side */
+.bcom-email-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.bcom-email-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+.bcom-email-grid img + img {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 @media (max-width: 700px) {
   .bcom-entry,
   .bcom-entry--flip {
