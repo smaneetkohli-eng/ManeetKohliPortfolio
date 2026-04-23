@@ -1087,7 +1087,7 @@ button.hero-frost-panes__box {
 
 .about-me {
   width: min(1120px, 100%);
-  margin: clamp(1.75rem, 4.5vh, 4rem) auto 0;
+  margin: clamp(3rem, 7vh, 6rem) auto 0;
 }
 
 .about-me__title {
@@ -4003,18 +4003,24 @@ li:hover > .project-skill-pill {
   object-fit: cover;
 }
 
-/* Email: stacked feedback pair left, rewritten right */
+/* Email: larger rewritten card on top, feedback pair below */
 .bcom-media-cluster--email {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: clamp(0.6rem, 1.2vw, 0.9rem);
   align-items: start;
 }
 
 .bcom-media-email-stack {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.6rem, 1.2vw, 0.9rem);
+}
+
+.bcom-media-img--email-rewritten {
+  width: 100%;
+  max-height: clamp(20rem, 40vw, 28rem);
+  object-position: top;
 }
 
 /* Dual links row */
@@ -4036,6 +4042,10 @@ li:hover > .project-skill-pill {
 
   .bcom-entry__title {
     font-size: clamp(2.2rem, 9vw, 3rem);
+  }
+
+  .bcom-media-email-stack {
+    grid-template-columns: 1fr;
   }
 
 }
