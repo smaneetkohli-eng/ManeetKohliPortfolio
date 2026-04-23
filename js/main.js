@@ -207,6 +207,7 @@
   var videoClose   = document.getElementById("intro-video-close");
   var videoModal   = document.getElementById("intro-video-modal");
   var videoPlayer  = document.getElementById("intro-video-player");
+  var resumeLink   = document.getElementById("resume-link");
 
   function openVideoModal() {
     if (!videoOverlay) return;
@@ -253,6 +254,26 @@
   if (videoOverlay) {
     videoOverlay.addEventListener("click", function (e) {
       if (e.target === videoOverlay) closeVideoModal();
+    });
+  }
+
+  if (resumeLink) {
+    resumeLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      var pdfUrl = resumeLink.getAttribute("href");
+      if (!pdfUrl) return;
+
+      window.open(pdfUrl, "_blank", "noopener,noreferrer");
+
+      var downloadAnchor = document.createElement("a");
+      downloadAnchor.href = pdfUrl;
+      downloadAnchor.download =
+        resumeLink.getAttribute("download") || "Maneet-Kohli-Resume.pdf";
+      downloadAnchor.rel = "noopener noreferrer";
+      downloadAnchor.style.display = "none";
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      document.body.removeChild(downloadAnchor);
     });
   }
 
