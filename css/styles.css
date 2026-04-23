@@ -3964,68 +3964,51 @@ li:hover > .project-skill-pill {
   border-color: rgba(255, 255, 255, 0.65);
 }
 
-/* Data tracking: spreadsheet + two stacked charts */
-.bcom-entry__media--chart-grid,
-.bcom-entry__media--email-grid {
-  aspect-ratio: auto;
-  padding: 0;
+/* BCom: individual image cards arranged in clusters */
+.bcom-media-cluster {
+  grid-area: media;
 }
 
-.bcom-chart-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 0;
+.bcom-media-img {
+  display: block;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: inherit;
-}
-
-.bcom-chart-grid__spreadsheet {
-  width: 100%;
-  height: 100%;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
   object-fit: cover;
   object-position: top;
-  display: block;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.bcom-chart-grid__charts {
+/* Data tracking: spreadsheet left, two charts stacked right */
+.bcom-media-cluster--data {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: clamp(0.6rem, 1.2vw, 0.9rem);
+  align-items: stretch;
+}
+
+.bcom-media-img--spreadsheet {
+  height: 100%;
+  object-position: top center;
+}
+
+.bcom-media-chart-stack {
   display: flex;
   flex-direction: column;
+  gap: clamp(0.6rem, 1.2vw, 0.9rem);
 }
 
-.bcom-chart-grid__charts img {
-  width: 100%;
+.bcom-media-chart-stack .bcom-media-img {
   flex: 1;
   object-fit: cover;
-  display: block;
 }
 
-.bcom-chart-grid__charts img + img {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Email: feedback screenshot + rewritten email side by side */
-.bcom-email-grid {
+/* Email: two screenshots side by side */
+.bcom-media-cluster--email {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: inherit;
-}
-
-.bcom-email-grid img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-  display: block;
-}
-
-.bcom-email-grid img + img {
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  gap: clamp(0.6rem, 1.2vw, 0.9rem);
+  align-items: start;
 }
 
 @media (max-width: 700px) {
