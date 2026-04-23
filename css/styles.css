@@ -4003,12 +4003,26 @@ li:hover > .project-skill-pill {
   object-fit: cover;
 }
 
-/* Email: two screenshots side by side */
+/* Email: stacked feedback pair left, rewritten right */
 .bcom-media-cluster--email {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(0.6rem, 1.2vw, 0.9rem);
   align-items: start;
+}
+
+.bcom-media-email-stack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 1.2vw, 0.9rem);
+}
+
+/* Dual links row */
+.bcom-entry__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  margin-top: 0.4rem;
 }
 
 @media (max-width: 700px) {
