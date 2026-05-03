@@ -216,6 +216,9 @@
     videoOverlay.removeAttribute("aria-hidden");
     document.body.style.overflow = "hidden";
     if (videoClose) videoClose.focus();
+    if (videoPlayer) {
+      videoPlayer.play().catch(function () {});
+    }
   }
 
   function closeVideoModal() {
