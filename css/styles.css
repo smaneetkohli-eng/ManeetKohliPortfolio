@@ -733,6 +733,12 @@ a { color: inherit; text-decoration: none; }
   outline: none;
   box-shadow: none;
   filter: none;
+  /*
+   * Parent .hero-figure uses pointer-events: none so clicks pass through to
+   * frosted panes (resume / intro). Images default to pointer-events: auto,
+   * which would steal hits for the whole figure box — block intro + resume.
+   */
+  pointer-events: none;
 }
 
 /* ─── Frosted callouts — side columns (split + below stacked, no overlap) ─ */

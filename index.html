@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=22" />
+    <link rel="stylesheet" href="css/styles.css?v=23" />
   </head>
   <body>
     <!-- Blur fill only (sharp edges): blur then clip to original alpha -->
@@ -396,7 +396,7 @@
               <div class="about-me-collage__col">
                 <div class="about-me-collage__cell about-me-collage__cell--crop about-me-collage__cell--crop-palm"><div class="about-me-collage__media"><img src="images/about/home/palm-walk.png" alt="Walking near palm trees" loading="lazy" decoding="async" /></div></div>
                 <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/home/sixflags-couple.png" alt="Couple selfie at Six Flags" loading="lazy" decoding="async" /></div></div>
-                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/gym-selfie.png" alt="Gym mirror selfie" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/home/gym-selfie.png" alt="Gym mirror selfie" loading="lazy" decoding="async" /></div></div>
                 <div class="about-me-collage__cell about-me-collage__cell--stretch about-me-collage__cell--stretch-drinks"><div class="about-me-collage__media"><img src="images/about/home/steak-plate.png" alt="Plated steak dish on green plate" loading="lazy" decoding="async" /></div></div>
               </div>
             </div>
@@ -573,9 +573,17 @@
             <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </button>
-        <!-- TODO: Replace with actual video path or URL -->
-        <video class="intro-video-player" id="intro-video-player" controls preload="metadata">
-          <source src="placeholder.mp4" type="video/mp4">
+        <video
+          class="intro-video-player"
+          id="intro-video-player"
+          controls
+          playsinline
+          preload="metadata"
+        >
+          <source
+            src="images/Video/Movie%20on%205-3-26%20at%203.12%E2%80%AFPM%20%234.mov"
+            type="video/quicktime"
+          />
         </video>
       </div>
     </div>
@@ -625,6 +633,6 @@
         <p class="site-footer__bottom-note">AI-focused. Data-driven. Business-minded.</p>
       </div>
     </footer>
-    <script src="js/main.js?v=10"></script>
+    <script src="js/main.js?v=11"></script>
   </body>
 </html>
