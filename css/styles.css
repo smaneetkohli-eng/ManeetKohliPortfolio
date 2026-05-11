@@ -1117,31 +1117,82 @@ button.hero-frost-panes__box {
   transform: scale(0.98);
 }
 
-.secret-tab-video-wrap {
-  padding: 0;
+/* Post-unlock: full-bleed panel (no glass modal) with Drive link. */
+.secret-tab-drive-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right))
+    max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+  background: #060608;
 }
 
-.secret-tab-player {
-  border-radius: 0;
+.secret-tab-drive-shell[hidden] {
+  display: none !important;
 }
 
-/* Video + backdrop-filter on ancestors often freezes playback (esp. Safari). */
+.secret-tab-drive-shell .intro-video-close {
+  position: absolute;
+  top: max(0.85rem, env(safe-area-inset-top));
+  right: max(0.85rem, env(safe-area-inset-right));
+  z-index: 6;
+}
+
+.secret-tab-drive-panel {
+  text-align: center;
+  max-width: 22rem;
+  padding: 0 1rem;
+}
+
+.secret-tab-drive-heading {
+  margin: 0 0 0.5rem;
+  font-family: "Bebas Neue", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.secret-tab-drive-lead {
+  margin: 0 0 1.35rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.secret-tab-drive-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.72rem 1.35rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 10px;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.secret-tab-drive-btn:hover {
+  background: #fff;
+}
+
+.secret-tab-drive-btn:active {
+  transform: scale(0.98);
+}
+
+/* Plain overlay while Drive panel is up (skip extra blur work). */
 .secret-tab-overlay.is-open.secret-tab-overlay--video {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-}
-
-.secret-tab-modal.secret-tab-modal--video {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: rgba(10, 10, 12, 0.97);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 32px 80px rgba(0, 0, 0, 0.65);
-}
-
-.secret-tab-modal--video .secret-tab-player {
-  transform: translateZ(0);
 }
 
 /* ─── Dark panel (flows after the split) ─────────────────── */

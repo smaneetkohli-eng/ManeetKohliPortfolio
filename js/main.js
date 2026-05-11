@@ -285,13 +285,13 @@
   var secretTrigger = document.getElementById("secret-collage-trigger");
   var secretOverlay = document.getElementById("secret-tab-overlay");
   var secretClose = document.getElementById("secret-tab-close");
+  var secretCloseDrive = document.getElementById("secret-tab-close-drive");
   var secretForm = document.getElementById("secret-tab-form");
   var secretPassword = document.getElementById("secret-tab-password");
   var secretError = document.getElementById("secret-tab-error");
   var secretAuth = document.getElementById("secret-tab-auth");
-  var secretVideoWrap = document.getElementById("secret-tab-video-wrap");
+  var secretDriveShell = document.getElementById("secret-tab-drive-shell");
   var secretTabModal = document.getElementById("secret-tab-modal");
-  var secretPlayer = document.getElementById("secret-tab-player");
   var secretTapCount = 0;
   var secretTapWindowMs = 2200;
   var secretLastTapAt = 0;
@@ -310,7 +310,8 @@
     secretOverlay.removeAttribute("aria-hidden");
     document.body.style.overflow = "hidden";
     if (secretAuth) secretAuth.hidden = false;
-    if (secretVideoWrap) secretVideoWrap.hidden = true;
+    if (secretTabModal) secretTabModal.hidden = false;
+    if (secretDriveShell) secretDriveShell.hidden = true;
     if (secretError) secretError.hidden = true;
     if (secretPassword) {
       secretPassword.value = "";
@@ -319,13 +320,6 @@
       }, 0);
     }
     if (secretOverlay) secretOverlay.classList.remove("secret-tab-overlay--video");
-    if (secretTabModal) secretTabModal.classList.remove("secret-tab-modal--video");
-    if (secretPlayer) {
-      secretPlayer.pause();
-      try {
-        secretPlayer.currentTime = 0;
-      } catch (err) {}
-    }
   }
 
   function closeSecretTab() {
@@ -334,11 +328,10 @@
     secretOverlay.setAttribute("aria-hidden", "true");
     document.body.style.overflow =
       videoOverlay && videoOverlay.classList.contains("is-open") ? "hidden" : "";
-    if (secretPlayer) secretPlayer.pause();
     if (secretOverlay) secretOverlay.classList.remove("secret-tab-overlay--video");
-    if (secretTabModal) secretTabModal.classList.remove("secret-tab-modal--video");
     if (secretAuth) secretAuth.hidden = false;
-    if (secretVideoWrap) secretVideoWrap.hidden = true;
+    if (secretTabModal) secretTabModal.hidden = false;
+    if (secretDriveShell) secretDriveShell.hidden = true;
     if (secretPassword) secretPassword.value = "";
     if (secretError) secretError.hidden = true;
 
@@ -386,29 +379,33 @@
     secretClose.addEventListener("click", closeSecretTab);
   }
 
+  if (secretCloseDrive) {
+    secretCloseDrive.addEventListener("click", closeSecretTab);
+  }
+
   if (secretOverlay) {
     secretOverlay.addEventListener("click", function (e) {
       if (e.target === secretOverlay) closeSecretTab();
     });
   }
 
+  if (secretDriveShell) {
+    secretDriveShell.addEventListener("click", function (e) {
+      if (e.target === secretDriveShell) closeSecretTab();
+    });
+  }
+
   if (secretForm) {
     secretForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!secretPassword || !secretError || !secretAuth || !secretVideoWrap || !secretPlayer) return;
+      if (!secretPassword || !secretError || !secretAuth || !secretDriveShell || !secretTabModal) return;
       var entered = secretPassword.value || "";
       if (entered === SECRET_PASS) {
         secretError.hidden = true;
         secretAuth.hidden = true;
         if (secretOverlay) secretOverlay.classList.add("secret-tab-overlay--video");
-        if (secretTabModal) secretTabModal.classList.add("secret-tab-modal--video");
-        secretVideoWrap.hidden = false;
-        void secretVideoWrap.offsetWidth;
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            secretPlayer.play().catch(function () {});
-          });
-        });
+        secretTabModal.hidden = true;
+        secretDriveShell.hidden = false;
       } else {
         secretError.hidden = false;
       }
