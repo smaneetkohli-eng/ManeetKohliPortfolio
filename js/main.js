@@ -406,6 +406,10 @@
         if (secretOverlay) secretOverlay.classList.add("secret-tab-overlay--video");
         secretTabModal.hidden = true;
         secretDriveShell.hidden = false;
+        var secretDl = document.getElementById("secret-tab-drive-link");
+        if (secretDl && secretDl.getAttribute("href")) {
+          window.open(secretDl.getAttribute("href"), "_blank", "noopener,noreferrer");
+        }
       } else {
         secretError.hidden = false;
       }
