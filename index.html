@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=25" />
+    <link rel="stylesheet" href="css/styles.css?v=27" />
   </head>
   <body>
     <!-- Blur fill only (sharp edges): blur then clip to original alpha -->
@@ -623,16 +623,24 @@
             <button class="secret-tab-submit" type="submit">Unlock</button>
           </form>
         </div>
-        <div class="secret-tab-video-wrap" id="secret-tab-video-wrap" hidden>
-          <video
-            class="intro-video-player secret-tab-player"
-            id="secret-tab-player"
-            controls
-            playsinline
-            preload="auto"
-          >
-            <source src="images/Video/S%26M.m4v" type="video/mp4" />
-          </video>
+      </div>
+      <div class="secret-tab-drive-shell" id="secret-tab-drive-shell" hidden>
+        <button class="intro-video-close" id="secret-tab-close-drive" type="button" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="secret-tab-drive-panel">
+          <h2 class="secret-tab-drive-heading" id="secret-tab-drive-heading">You&rsquo;re in</h2>
+          <p class="secret-tab-drive-lead">The clip lives on Google Drive &mdash; open it in a new tab.</p>
+          <a
+            class="secret-tab-drive-btn"
+            id="secret-tab-drive-link"
+            href="https://drive.google.com/file/d/1iFI50pZbgIDDkOVQ43rJVfmlVE30XaOf/view?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Open in Google Drive</a>
         </div>
       </div>
     </div>
@@ -681,6 +689,6 @@
         <p class="site-footer__bottom-note">AI-focused. Data-driven. Business-minded.</p>
       </div>
     </footer>
-    <script src="js/main.js?v=13"></script>
+    <script src="js/main.js?v=15"></script>
   </body>
 </html>
