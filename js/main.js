@@ -290,6 +290,7 @@
   var secretError = document.getElementById("secret-tab-error");
   var secretAuth = document.getElementById("secret-tab-auth");
   var secretVideoWrap = document.getElementById("secret-tab-video-wrap");
+  var secretTabModal = document.getElementById("secret-tab-modal");
   var secretPlayer = document.getElementById("secret-tab-player");
   var secretTapCount = 0;
   var secretTapWindowMs = 2200;
@@ -317,6 +318,8 @@
         secretPassword.focus();
       }, 0);
     }
+    if (secretOverlay) secretOverlay.classList.remove("secret-tab-overlay--video");
+    if (secretTabModal) secretTabModal.classList.remove("secret-tab-modal--video");
     if (secretPlayer) {
       secretPlayer.pause();
       try {
@@ -332,6 +335,8 @@
     document.body.style.overflow =
       videoOverlay && videoOverlay.classList.contains("is-open") ? "hidden" : "";
     if (secretPlayer) secretPlayer.pause();
+    if (secretOverlay) secretOverlay.classList.remove("secret-tab-overlay--video");
+    if (secretTabModal) secretTabModal.classList.remove("secret-tab-modal--video");
     if (secretAuth) secretAuth.hidden = false;
     if (secretVideoWrap) secretVideoWrap.hidden = true;
     if (secretPassword) secretPassword.value = "";
@@ -395,8 +400,15 @@
       if (entered === SECRET_PASS) {
         secretError.hidden = true;
         secretAuth.hidden = true;
+        if (secretOverlay) secretOverlay.classList.add("secret-tab-overlay--video");
+        if (secretTabModal) secretTabModal.classList.add("secret-tab-modal--video");
         secretVideoWrap.hidden = false;
-        secretPlayer.play().catch(function () {});
+        void secretVideoWrap.offsetWidth;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            secretPlayer.play().catch(function () {});
+          });
+        });
       } else {
         secretError.hidden = false;
       }

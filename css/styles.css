@@ -1125,6 +1125,25 @@ button.hero-frost-panes__box {
   border-radius: 0;
 }
 
+/* Video + backdrop-filter on ancestors often freezes playback (esp. Safari). */
+.secret-tab-overlay.is-open.secret-tab-overlay--video {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.secret-tab-modal.secret-tab-modal--video {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(10, 10, 12, 0.97);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 32px 80px rgba(0, 0, 0, 0.65);
+}
+
+.secret-tab-modal--video .secret-tab-player {
+  transform: translateZ(0);
+}
+
 /* ─── Dark panel (flows after the split) ─────────────────── */
 .hero-bottom {
   position: relative;
