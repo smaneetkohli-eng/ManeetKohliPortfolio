@@ -1023,6 +1023,108 @@ button.hero-frost-panes__box {
   background: #000;
 }
 
+/* Secret tab overlay (same treatment as intro video; stacks above it) */
+.secret-tab-overlay {
+  z-index: 410;
+}
+
+.secret-tab-auth {
+  padding: 2.5rem 2rem 2.25rem;
+  max-width: 22rem;
+  margin: 0 auto;
+}
+
+.secret-tab-heading {
+  margin: 0 0 0.35rem;
+  font-family: "Bebas Neue", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.secret-tab-lead {
+  margin: 0 0 1.25rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.45;
+}
+
+.secret-tab-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.secret-tab-label {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.secret-tab-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.95rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.secret-tab-input:focus {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.secret-tab-error {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.82rem;
+  color: #ffb4b4;
+}
+
+.secret-tab-submit {
+  margin-top: 0.35rem;
+  padding: 0.65rem 1rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+  background: rgba(255, 255, 255, 0.88);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.secret-tab-submit:hover {
+  background: #fff;
+}
+
+.secret-tab-submit:active {
+  transform: scale(0.98);
+}
+
+.secret-tab-video-wrap {
+  padding: 0;
+}
+
+.secret-tab-player {
+  border-radius: 0;
+}
+
 /* ─── Dark panel (flows after the split) ─────────────────── */
 .hero-bottom {
   position: relative;
