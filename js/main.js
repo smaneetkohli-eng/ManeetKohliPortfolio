@@ -225,7 +225,8 @@
     if (!videoOverlay) return;
     videoOverlay.classList.remove("is-open");
     videoOverlay.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
+    document.body.style.overflow =
+      secretOverlay && secretOverlay.classList.contains("is-open") ? "hidden" : "";
     if (videoPlayer) videoPlayer.pause();
     if (videoBtn) videoBtn.focus();
 
@@ -280,8 +281,135 @@
     });
   }
 
+  // ── Secret tab (four consecutive taps on Six Flags collage image) ─
+  var secretTrigger = document.getElementById("secret-collage-trigger");
+  var secretOverlay = document.getElementById("secret-tab-overlay");
+  var secretClose = document.getElementById("secret-tab-close");
+  var secretForm = document.getElementById("secret-tab-form");
+  var secretPassword = document.getElementById("secret-tab-password");
+  var secretError = document.getElementById("secret-tab-error");
+  var secretAuth = document.getElementById("secret-tab-auth");
+  var secretVideoWrap = document.getElementById("secret-tab-video-wrap");
+  var secretPlayer = document.getElementById("secret-tab-player");
+  var secretTapCount = 0;
+  var secretTapWindowMs = 2200;
+  var secretLastTapAt = 0;
+  var SECRET_PASS = "Manu&Suhe";
+
+  function resetSecretTapState() {
+    secretTapCount = 0;
+    secretLastTapAt = 0;
+  }
+
+  function openSecretTab() {
+    if (!secretOverlay) return;
+    resetSecretTapState();
+    secretOverlay.style.display = "flex";
+    secretOverlay.classList.add("is-open");
+    secretOverlay.removeAttribute("aria-hidden");
+    document.body.style.overflow = "hidden";
+    if (secretAuth) secretAuth.hidden = false;
+    if (secretVideoWrap) secretVideoWrap.hidden = true;
+    if (secretError) secretError.hidden = true;
+    if (secretPassword) {
+      secretPassword.value = "";
+      window.setTimeout(function () {
+        secretPassword.focus();
+      }, 0);
+    }
+    if (secretPlayer) {
+      secretPlayer.pause();
+      try {
+        secretPlayer.currentTime = 0;
+      } catch (err) {}
+    }
+  }
+
+  function closeSecretTab() {
+    if (!secretOverlay) return;
+    secretOverlay.classList.remove("is-open");
+    secretOverlay.setAttribute("aria-hidden", "true");
+    document.body.style.overflow =
+      videoOverlay && videoOverlay.classList.contains("is-open") ? "hidden" : "";
+    if (secretPlayer) secretPlayer.pause();
+    if (secretAuth) secretAuth.hidden = false;
+    if (secretVideoWrap) secretVideoWrap.hidden = true;
+    if (secretPassword) secretPassword.value = "";
+    if (secretError) secretError.hidden = true;
+
+    function hideSecretWhenClosed() {
+      if (!secretOverlay.classList.contains("is-open")) {
+        secretOverlay.style.display = "none";
+      }
+    }
+    secretOverlay.addEventListener(
+      "transitionend",
+      function (e) {
+        if (e.target === secretOverlay && e.propertyName === "opacity") {
+          hideSecretWhenClosed();
+        }
+      },
+      { once: true }
+    );
+    window.setTimeout(hideSecretWhenClosed, 450);
+  }
+
+  function onSecretTriggerClick() {
+    var now = Date.now();
+    if (now - secretLastTapAt > secretTapWindowMs) {
+      secretTapCount = 0;
+    }
+    secretTapCount += 1;
+    secretLastTapAt = now;
+    if (secretTapCount >= 4) {
+      resetSecretTapState();
+      openSecretTab();
+    }
+  }
+
+  if (secretTrigger) {
+    secretTrigger.addEventListener("click", onSecretTriggerClick);
+  }
+
+  document.addEventListener("click", function (e) {
+    if (!secretTrigger || secretTapCount === 0) return;
+    if (e.target === secretTrigger) return;
+    resetSecretTapState();
+  });
+
+  if (secretClose) {
+    secretClose.addEventListener("click", closeSecretTab);
+  }
+
+  if (secretOverlay) {
+    secretOverlay.addEventListener("click", function (e) {
+      if (e.target === secretOverlay) closeSecretTab();
+    });
+  }
+
+  if (secretForm) {
+    secretForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!secretPassword || !secretError || !secretAuth || !secretVideoWrap || !secretPlayer) return;
+      var entered = secretPassword.value || "";
+      if (entered === SECRET_PASS) {
+        secretError.hidden = true;
+        secretAuth.hidden = true;
+        secretVideoWrap.hidden = false;
+        secretPlayer.play().catch(function () {});
+      } else {
+        secretError.hidden = false;
+      }
+    });
+  }
+
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && videoOverlay && videoOverlay.classList.contains("is-open")) {
+    if (e.key !== "Escape") return;
+    if (secretOverlay && secretOverlay.classList.contains("is-open")) {
+      closeSecretTab();
+      return;
+    }
+    if (videoOverlay && videoOverlay.classList.contains("is-open")) {
       closeVideoModal();
     }
   });

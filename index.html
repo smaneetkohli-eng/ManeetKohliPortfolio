@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=23" />
+    <link rel="stylesheet" href="css/styles.css?v=24" />
   </head>
   <body>
     <!-- Blur fill only (sharp edges): blur then clip to original alpha -->
@@ -395,7 +395,7 @@
               </div>
               <div class="about-me-collage__col">
                 <div class="about-me-collage__cell about-me-collage__cell--crop about-me-collage__cell--crop-palm"><div class="about-me-collage__media"><img src="images/about/home/palm-walk.png" alt="Walking near palm trees" loading="lazy" decoding="async" /></div></div>
-                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/home/sixflags-couple.png" alt="Couple selfie at Six Flags" loading="lazy" decoding="async" /></div></div>
+                <div class="about-me-collage__cell"><div class="about-me-collage__media"><img id="secret-collage-trigger" src="images/about/home/sixflags-couple.png" alt="Couple selfie at Six Flags" loading="lazy" decoding="async" /></div></div>
                 <div class="about-me-collage__cell"><div class="about-me-collage__media"><img src="images/about/home/gym-selfie.png" alt="Gym mirror selfie" loading="lazy" decoding="async" /></div></div>
                 <div class="about-me-collage__cell about-me-collage__cell--stretch about-me-collage__cell--stretch-drinks"><div class="about-me-collage__media"><img src="images/about/home/steak-plate.png" alt="Plated steak dish on green plate" loading="lazy" decoding="async" /></div></div>
               </div>
@@ -588,6 +588,54 @@
       </div>
     </div>
 
+    <!-- Secret tab (four quick taps on Six Flags collage photo) -->
+    <div
+      class="intro-video-overlay secret-tab-overlay"
+      id="secret-tab-overlay"
+      style="display: none"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="secret-tab-heading"
+      aria-hidden="true"
+    >
+      <div class="intro-video-modal secret-tab-modal" id="secret-tab-modal">
+        <button class="intro-video-close" id="secret-tab-close" type="button" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="secret-tab-auth" id="secret-tab-auth">
+          <h2 class="secret-tab-heading" id="secret-tab-heading">Private</h2>
+          <p class="secret-tab-lead">Enter the passphrase to continue.</p>
+          <form class="secret-tab-form" id="secret-tab-form" novalidate>
+            <label class="secret-tab-label" for="secret-tab-password">Password</label>
+            <input
+              class="secret-tab-input"
+              id="secret-tab-password"
+              name="secret-password"
+              type="password"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+            />
+            <p class="secret-tab-error" id="secret-tab-error" role="alert" hidden>That didn&rsquo;t match. Try again.</p>
+            <button class="secret-tab-submit" type="submit">Unlock</button>
+          </form>
+        </div>
+        <div class="secret-tab-video-wrap" id="secret-tab-video-wrap" hidden>
+          <video
+            class="intro-video-player secret-tab-player"
+            id="secret-tab-player"
+            controls
+            playsinline
+            preload="metadata"
+          >
+            <source src="images/Video/S%26M.m4v" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </div>
 
     <footer class="site-footer" data-reveal>
       <div class="site-footer__watermark" aria-hidden="true">Maneet Kohli</div>
@@ -633,6 +681,6 @@
         <p class="site-footer__bottom-note">AI-focused. Data-driven. Business-minded.</p>
       </div>
     </footer>
-    <script src="js/main.js?v=11"></script>
+    <script src="js/main.js?v=12"></script>
   </body>
 </html>
