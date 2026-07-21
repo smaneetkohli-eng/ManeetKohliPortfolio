@@ -1,0 +1,5 @@
+# macOS Finder junk
+.DS_Store
+
+# Claude Code session worktrees
+.claude/worktrees/

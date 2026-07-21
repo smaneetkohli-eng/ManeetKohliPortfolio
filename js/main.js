@@ -519,6 +519,9 @@
       });
       return;
     }
+    /* CSS hides [data-reveal] only under .reveal-enabled, so no-JS /
+     * reduced-motion / no-IO paths always show content. */
+    document.documentElement.classList.add("reveal-enabled");
     /* threshold 0 = any pixel visible. A single value like 0.06 breaks very tall
      * sections: the visible slice can be <6% of element height while clearly on screen. */
     var io = new IntersectionObserver(

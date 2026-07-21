@@ -2589,8 +2589,9 @@ button.hero-frost-panes__box {
   text-align: center;
 }
 
-/* Scroll-reveal — not glass cards (scoped [data-reveal] blocks above) */
-.reveal-enabled [data-reveal]:not(.project-card):not(.experience-card):not(.contact-card) {
+/* Scroll-reveal — not glass cards (scoped [data-reveal] blocks above).
+   :where() keeps the :not() chain at zero specificity so .is-revealed can win. */
+.reveal-enabled [data-reveal]:where(:not(.project-card):not(.experience-card):not(.contact-card)) {
   opacity: 0;
   transform: translate3d(0, 1.5rem, 0);
   transition:
@@ -2622,6 +2623,8 @@ button.hero-frost-panes__box {
   transition-delay: 0.09s;
 }
 
+/* Must out-rank both the generic rule above and the per-card hidden rules. */
+.reveal-enabled [data-reveal].is-revealed,
 [data-reveal].is-revealed {
   opacity: 1;
   transform: translate3d(0, 0, 0);
@@ -4227,15 +4230,79 @@ li:hover > .project-skill-pill {
   }
 
 }
-  .bcom-entry--flip {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "media"
-      "text";
-  }
 
-  .bcom-entry__title {
-    font-size: clamp(2.2rem, 9vw, 3rem);
-  }
+/* ─── Polish: selection, scrollbar, micro-interactions ───── */
+::selection {
+  background: rgba(255, 255, 255, 0.9);
+  color: #111;
+  text-shadow: none;
+}
 
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) #0a0a0a;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  border: 2px solid #0a0a0a;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.32); }
+
+.logo {
+  transition: text-shadow 0.3s var(--ease-out);
+}
+
+.logo:hover,
+.logo:focus-visible {
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.6),
+    0 0 24px rgba(255, 255, 255, 0.28);
+}
+
+/* Pill CTAs: faint lift to pair with the existing glow */
+.project-card__cta,
+.about-me__story-link {
+  transition:
+    color 0.25s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    text-shadow 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.project-card__cta:hover,
+.project-card__cta:focus-visible,
+.about-me__story-link:hover,
+.about-me__story-link:focus-visible {
+  transform: translateY(-1.5px);
+}
+
+/* BCom media cards: same lift-and-glow language as the collage cells */
+.bcom-media-img {
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.bcom-media-img:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 10px 32px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(255, 255, 255, 0.14);
+  transform: translateY(-2px);
+}
+
+/* Coming-soon eyebrow: slow breathing glow */
+.page-hero__card--soon .page-hero__eyebrow {
+  animation: soonPulse 3.4s ease-in-out infinite;
+}
+
+@keyframes soonPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
