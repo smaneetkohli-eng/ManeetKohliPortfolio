@@ -1,6 +1,6 @@
 # CLAUDE.md — Portfolio Website
 *Maneet Kohli's personal portfolio site. Pure HTML/CSS/JS. No framework, no build tool.*
-*Last updated: May 2026*
+*Last updated: September 2026*
 
 ---
 
@@ -18,8 +18,8 @@ Working directory: `/Users/maneetkohli/Desktop/ALG/PROFESSIONAL-HUB/PORTFOLIO/`
 | Layer | Detail |
 |---|---|
 | Markup | Vanilla HTML5 (`.html` files per page) |
-| Styles | Single file: `css/styles.css` (~4,200 lines) |
-| Scripts | Single file: `js/main.js` (~600 lines) |
+| Styles | Single file: `css/styles.css` (~3,900 lines) |
+| Scripts | Single file: `js/main.js` (~420 lines) |
 | Fonts | Bebas Neue (display/hero text) + Inter 400/500/600 (body) via Google Fonts |
 | Version control | Git, `main` branch |
 | Hosting | Implied static hosting (maneetkohli.com) |
@@ -60,7 +60,7 @@ No transpilation, no PostCSS, no Sass. What you write is what ships.
 ```
 css/styles.css          — single global stylesheet
 js/main.js              — single global script
-files/AR.pdf            — resume PDF (linked from hero frost pane)
+files/AR.pdf            — resume PDF (not linked from the hero since Sept 2026)
 images/
   favicon.svg           — MK monogram favicon (linked from every page)
   mountain-bg.png       — hero background (also used for name fill effect)
@@ -81,11 +81,14 @@ images/
 ### Variables (`:root` in styles.css)
 All layout tokens are CSS custom properties. Key ones:
 ```css
---split: 70vh            /* height of the mountain hero top section */
---figure-height: 92vh    /* hero figure height */
---figure-overhang: 30vh  /* how far below the split line the figure hangs */
---hero-figure-w          /* figure width — used to size side frost panels */
+--split: 70vh / 70svh    /* height of the mountain hero top section (svh declared after vh as the fallback pair) */
+--figure-height: 92vh    /* hero figure height (same vh/svh pair) */
+--figure-overhang: 30vh  /* how far below the split line the figure hangs (same pair) */
+--hero-figure-w          /* figure width — the social rail is positioned off this box */
 --hero-name-size         /* clamp-based responsive name font size */
+--hero-name-lines        /* 1 desktop, 2 on mobile (first/last stacked) — feeds --name-bottom */
+--arc-sag                /* how much higher the glowing arc sits at the viewport edges than at centre */
+--social-tile            /* social rail tile size */
 --ease-out               /* cubic-bezier(0.22, 1, 0.36, 1) — use for all transitions */
 --charcoal: #111         /* primary dark background */
 --line-glow              /* white glow box-shadow for the dividing line */
@@ -94,16 +97,20 @@ All layout tokens are CSS custom properties. Key ones:
 
 ### z-index Map (documented in styles.css, never deviate)
 ```
-0    .hero-top__bg-clip     mountain bg (clipped)
-4    .hero-top::after       figure shadow on mountain
-5    .hero-name-layer       name text — behind the figure
-11   .dividing-line         glowing horizontal line at hero split
-15   .hero-bottom           dark panel background
-25   .skills-marquee        frosted skill pill rows — behind figure
-26   .hero-subtitle         tagline — above marquee
-28   .hero-frost-panes      frosted callout boxes flanking figure
-30   .hero-figure           person image — above everything in hero
+page-stage level:
+15   .hero-bottom           dark panel — pulled up under the arc by --arc-sag
+16   .hero-top              stacking context: mountain + arc paint over the panel's corners
+30   .hero-figure           person image — above both sections
+32   .social-rail           social tiles — right of the figure, above it
 200  .site-header           nav
+
+inside .hero-top (its own stack; the figure is always above all of these):
+0    .hero-top__bg-clip     mountain bg — ellipse-clipped so its bottom edge is the U
+4    .hero-top::after       figure shadow on mountain
+5    .hero-name-layer       name text
+6    .name-rule             rule under the tagline
+11   .hero-arc              glowing arc (SVG lens along the curve)
+36   .hero-subtitle         tagline
 ```
 If you need a new stacked element, pick a z-index that fits this map. Never move existing values.
 
@@ -140,9 +147,9 @@ Replace `page-hero--wip` with the page-specific modifier (e.g., `page-hero--abou
 
 Every page links the stylesheet with a version query string:
 ```html
-<link rel="stylesheet" href="css/styles.css?v=28" />
+<link rel="stylesheet" href="css/styles.css?v=29" />
 ```
-All pages are synced at `styles.css?v=28` and `main.js?v=18` (normalized July 2026). When you edit `styles.css` or `main.js`, bump the version number on EVERY page that uses it, or the browser will serve stale styles from cache.
+All pages are synced at `styles.css?v=29` and `main.js?v=19` (September 2026). When you edit `styles.css` or `main.js`, bump the version number on EVERY page that uses it, or the browser will serve stale styles from cache.
 
 **Whenever you touch styles.css or main.js: update ALL version numbers across all HTML files to the next increment.**
 
@@ -160,12 +167,13 @@ All code is in a single IIFE: `(function() { "use strict"; })();`
 
 Key systems in main.js:
 1. **Header scroll** — `.site-header` gets `.is-scrolled` after 48px scroll
-2. **Skills marquee** — shuffles pill order on load, handles CSS animation playback rate (intro speed → gradual slowdown)
-3. **Nav dropdowns** — keyboard-accessible, click-outside to close, hamburger for mobile
-4. **Scroll reveal** — IntersectionObserver on `[data-reveal]` elements
-5. **Intro video modal** — `#intro-video-btn` triggers a modal with an intro video
-6. **Secret easter egg** — `#secret-collage-trigger` (the Six Flags photo in the home collage) opens a password-protected modal. Password unlocks a private video via Google Drive. Don't remove or alter this trigger.
-7. **Year** — `#year` element gets current year injected
+2. **Nav dropdowns** — keyboard-accessible, click-outside to close, hamburger for mobile
+3. **Scroll reveal** — IntersectionObserver on `[data-reveal]` elements
+4. **Intro video modal** — `#intro-video-btn` opens a modal with the intro video. The modal markup and JS are still in place, but the hero no longer has a trigger (removed with the frost cards, Sept 2026). Add any element with `id="intro-video-btn"` to bring it back.
+5. **Secret easter egg** — `#secret-collage-trigger` (the Six Flags photo in the home collage) opens a password-protected modal. Password unlocks a private video via Google Drive. Don't remove or alter this trigger.
+6. **Year** — `#year` element gets current year injected
+
+The hero itself is pure CSS: no JS drives the arc, the figure, or the social rail.
 
 **No external JS libraries.** Keep it that way unless there's a strong reason — vanilla is fast, dependency-free, and already working.
 
@@ -228,10 +236,22 @@ All images use `loading="lazy"` and `decoding="async"` except the hero figure (a
 
 ---
 
-## Known State (May 2026)
+## Hero Anatomy (September 2026)
+
+Top to bottom, nothing else: name (mountain-texture fill) → tagline → name rule → the figure, leaning on a glowing arc → social rail to the figure's right. The left side is intentionally empty.
+
+- **Arc.** The split line is a wide, shallow U. `.hero-top__bg-clip` is clipped to a giant ellipse (Rx 300vw, Ry 72 × `--arc-sag`) whose bottom passes through the split at centre and sits `--arc-sag` higher at the edges. `.hero-bottom` is pulled up by `--arc-sag` and `.hero-top` is a stacking context above it, so the dark panel's own gradient fills the corners (no colour matching, no seam). `.hero-arc` is an SVG lens (viewBox `0 0 1000 300`, `preserveAspectRatio="none"`) along the same curve: zero width at the edges, widest under the figure, with a horizontal opacity gradient. The box is 3 × sag tall and hangs 1 × sag below the split so the curve lines up with the clip.
+- **Social rail.** `<ul class="social-rail">` with four glass tiles (LinkedIn, YouTube, TikTok, Instagram), positioned at `left: 50% + --hero-figure-w × 0.36` just under the arc, with a hairline up to the line. Labels slide out on hover/focus (hidden ≤768px). On mobile it pins to the right edge, clear of the figure's faded arm.
+- **Mobile name.** ≤640px the name stacks first/last on two lines (`--hero-name-lines: 2`); `--name-bottom` accounts for the extra line so the tagline and rule stay below it.
+- **Load animations.** name → tagline → rule → figure → arc (scaleX from centre) → rail tiles staggered. All in CSS; `prefers-reduced-motion` collapses them.
+
+If you change `--arc-sag`, both the ellipse clip and the SVG box scale with it automatically. If you change the SVG curve control points, the ellipse no longer matches — keep the curve at y=100 (edges) / y=200 (centre).
+
+## Known State (September 2026)
 
 **Done and stable:**
-- `index.html` — full hero with figure, skills marquee, frost panes, about collage, featured projects, contact, footer, secret easter egg, intro video modal
+- `index.html` — hero (name, tagline, rule, figure, arc, social rail), about collage, featured projects, contact, footer, secret easter egg. Intro video modal markup/JS retained without a hero trigger.
+- Social rail URLs: LinkedIn and Instagram are confirmed. **YouTube (`youtube.com/@maneetkohli07`) and TikTok (`tiktok.com/@maneetkohli07`) are placeholders that need confirming.**
 - `projects/apps.html` — Bani AI + Tesseract cards
 - `projects/bcom.html` — BCom projects with real imagery
 - `experience/` — all three pages done
