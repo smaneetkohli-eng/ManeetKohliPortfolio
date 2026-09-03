@@ -99,10 +99,12 @@ All layout tokens are CSS custom properties. Key ones:
 5    .hero-name-layer       name text — behind the figure
 11   .dividing-line         glowing horizontal line at hero split
 15   .hero-bottom           dark panel background
-25   .skills-marquee        frosted skill pill rows — behind figure
-26   .hero-subtitle         tagline — above marquee
+25   .hero-skill-cloud--back   rear skill pills — behind figure (body occludes them)
+26   .hero-subtitle         tagline — above rear pills
 28   .hero-frost-panes      frosted callout boxes flanking figure
-30   .hero-figure           person image — above everything in hero
+30   .hero-figure           person image
+31   .hero-skill-cloud--front  front skill pills — overlap safe body edges only
+35   .scroll-indicator      scroll affordance — above front pills
 200  .site-header           nav
 ```
 If you need a new stacked element, pick a z-index that fits this map. Never move existing values.
@@ -111,9 +113,19 @@ If you need a new stacked element, pick a z-index that fits this map. Never move
 BEM-style throughout. Pattern: `.block__element--modifier`
 - `.hero-frost-panes__col--left`
 - `.project-card--pbf`
-- `.skills-marquee__row--l1`
+- `.hero-skill-cloud__pill--ai`
 
 Stick to this pattern for any new classes.
+
+### Hero Skill Constellation (index.html)
+Replaced the old 3-row skills marquee (September 2026). Two sibling layers, `.hero-skill-cloud--back` (z 25) and `.hero-skill-cloud--front` (z 31), share the exact `.hero-figure` box, so pills are anchored to the **body**, not the viewport. `hero6.png` is 2560×1080 and the box is always taller than the image aspect, so 1080 image px == `--figure-height` on both axes.
+
+Each `.hero-skill-cloud__pill--*` modifier carries:
+- `--x` — horizontal anchor as a fraction of `--figure-height` from the centre line (negative = left). `--l` pills anchor their **right** edge, `--r` pills their **left** edge, so the overlap with the body is fixed regardless of label width. `--edge-r` anchors to the viewport's right edge instead (`--edge`).
+- `--y` — vertical centre as a fraction of `--figure-height` from the box top.
+- `--i` entrance order, `--dx / --dy / --rot / --dur / --phase` drift signature (outer span = position + entrance, inner `__label` = glass + drift, so the two transforms never fight).
+
+Silhouette reference (fraction of height): hat 0.40–0.53, shoulders 0.54–0.59, arms spread to ±0.25 by 0.70, hands 0.70–0.83, torso ±0.12. Front pills must never cross face, neck, hands, chest, tagline, or scroll indicator. Visible set per breakpoint: desktop 10 (6 back / 4 front), ≥19:10 aspect 8, ≤1024px 8, ≤768px 8, ≤640px 6. Reduced motion disables drift and entrance and shows the static set. Layers are `aria-hidden` + `pointer-events: none`; the sr-only skills paragraph remains the accessible list.
 
 ### Scroll Animations
 Add `data-reveal` to any section/element you want to fade in on scroll. The JS in `main.js` handles the IntersectionObserver automatically. Nothing else needed.
@@ -140,9 +152,9 @@ Replace `page-hero--wip` with the page-specific modifier (e.g., `page-hero--abou
 
 Every page links the stylesheet with a version query string:
 ```html
-<link rel="stylesheet" href="css/styles.css?v=28" />
+<link rel="stylesheet" href="css/styles.css?v=29" />
 ```
-All pages are synced at `styles.css?v=28` and `main.js?v=18` (normalized July 2026). When you edit `styles.css` or `main.js`, bump the version number on EVERY page that uses it, or the browser will serve stale styles from cache.
+All pages are synced at `styles.css?v=29` and `main.js?v=19` (bumped September 2026 for the hero skill constellation). When you edit `styles.css` or `main.js`, bump the version number on EVERY page that uses it, or the browser will serve stale styles from cache.
 
 **Whenever you touch styles.css or main.js: update ALL version numbers across all HTML files to the next increment.**
 
@@ -160,12 +172,13 @@ All code is in a single IIFE: `(function() { "use strict"; })();`
 
 Key systems in main.js:
 1. **Header scroll** — `.site-header` gets `.is-scrolled` after 48px scroll
-2. **Skills marquee** — shuffles pill order on load, handles CSS animation playback rate (intro speed → gradual slowdown)
-3. **Nav dropdowns** — keyboard-accessible, click-outside to close, hamburger for mobile
-4. **Scroll reveal** — IntersectionObserver on `[data-reveal]` elements
-5. **Intro video modal** — `#intro-video-btn` triggers a modal with an intro video
-6. **Secret easter egg** — `#secret-collage-trigger` (the Six Flags photo in the home collage) opens a password-protected modal. Password unlocks a private video via Google Drive. Don't remove or alter this trigger.
-7. **Year** — `#year` element gets current year injected
+2. **Nav dropdowns** — keyboard-accessible, click-outside to close, hamburger for mobile
+3. **Scroll reveal** — IntersectionObserver on `[data-reveal]` elements
+4. **Intro video modal** — `#intro-video-btn` triggers a modal with an intro video
+5. **Secret easter egg** — `#secret-collage-trigger` (the Six Flags photo in the home collage) opens a password-protected modal. Password unlocks a private video via Google Drive. Don't remove or alter this trigger.
+6. **Year** — `#year` element gets current year injected
+
+The hero skill constellation has **no JS** — placement, entrance stagger, and drift are pure CSS (see below).
 
 **No external JS libraries.** Keep it that way unless there's a strong reason — vanilla is fast, dependency-free, and already working.
 
@@ -231,7 +244,7 @@ All images use `loading="lazy"` and `decoding="async"` except the hero figure (a
 ## Known State (May 2026)
 
 **Done and stable:**
-- `index.html` — full hero with figure, skills marquee, frost panes, about collage, featured projects, contact, footer, secret easter egg, intro video modal
+- `index.html` — full hero with figure, skill constellation, frost panes, about collage, featured projects, contact, footer, secret easter egg, intro video modal
 - `projects/apps.html` — Bani AI + Tesseract cards
 - `projects/bcom.html` — BCom projects with real imagery
 - `experience/` — all three pages done

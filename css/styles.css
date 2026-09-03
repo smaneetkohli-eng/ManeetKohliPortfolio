@@ -56,36 +56,16 @@
   --hero-name-pad-top: clamp(4.75rem, 7vw, 6rem);
   --name-tagline-gap: clamp(0.6rem, 1.4vh, 0.95rem);
   --name-tagline-side-gap: calc(var(--name-tagline-gap) * 0.6);
-  --tagline-carousel-gap: clamp(0.3rem, 0.7vh, 0.55rem);
-  --carousel-mini-gap: clamp(0.8rem, 1.8vh, 1.25rem);
-  --carousel-line-gap: clamp(0.5rem, 1.1vh, 0.8rem);
   --name-bottom: calc(
     var(--hero-name-pad-top) + var(--hero-name-size) * var(--hero-name-ink-below)
   );
   --hero-tagline-top: calc(var(--name-bottom) + var(--name-tagline-side-gap));
   --hero-tagline-bottom: calc(var(--hero-tagline-top) + var(--tagline-zone-h));
   --name-rule-top: calc(var(--hero-tagline-bottom) + var(--name-tagline-side-gap));
-  --carousel-top-separator: calc(var(--name-rule-top) + var(--carousel-line-gap));
-  --carousel-bottom-bound: calc(var(--split) - var(--carousel-line-gap));
-  --carousel-available-h: max(0px, calc(var(--carousel-bottom-bound) - var(--carousel-top-separator)));
-  --carousel-render-h: min(var(--carousel-zone-h), var(--carousel-available-h));
-  --carousel-top-bound: calc(
-    var(--carousel-top-separator)
-    + ((var(--carousel-available-h) - var(--carousel-render-h)) / 2)
-  );
-  /* Skill marquee: 3 rows (bigger pills), above the glowing line */
-  --skills-marquee-h: 36vh;
-  --skills-marquee-gap: 1.25vh;
-  /* Shift band down to sit more centered between name-rule and bottom line */
-  --skills-marquee-nudge: 2.75vh;
   --tagline-zone-h: clamp(2.25rem, 4.5vh, 3.5rem);
-  --carousel-zone-h: clamp(15rem, 31vh, 24rem);
-  --skills-pill-font-size: clamp(0.7rem, 0.6rem + 0.58vh, 1rem);
-  --skills-pill-pad-y: clamp(0.34rem, 0.2rem + 0.38vh, 0.56rem);
-  --skills-pill-pad-x: clamp(0.8rem, 0.56rem + 0.56vw, 1.24rem);
-  --skills-row-gap: clamp(1.2rem, 0.56rem + 1.12vh, 2rem);
-  --skills-band-pad-block: clamp(0.24rem, 0.1rem + 0.42vh, 0.52rem);
-  --skills-marquee-edge-w: clamp(2rem, 12vw, 7.5rem);
+  /* Hero skill constellation: pill type scales with the figure, capped on
+     narrow viewports so long labels never reach the screen edge */
+  --skill-pill-font-size: clamp(10px, min(var(--figure-height) * 0.0165, 1.05vw), 14px);
   /* Inner page heroes (image + frosted title) */
   --page-hero-h: clamp(22rem, 52vh, 40rem);
 }
@@ -228,11 +208,13 @@ a { color: inherit; text-decoration: none; }
    5   .hero-name-layer     name text — behind the figure
    11  .dividing-line       glowing line
    15  .hero-bottom         dark panel bg + card (below figure)
-   25  .skills-marquee      frosted skill rows — behind figure
-   26  .hero-subtitle       tagline — above marquee, above figure
+   25  .hero-skill-cloud--back   skill pills — behind figure
+   26  .hero-subtitle       tagline — above rear pills, above figure
    28  .hero-frost-panes    frosted callouts — straddle split, flank figure
    30  .hero-figure         person — above BOTH sections so full
                             body is always visible
+   31  .hero-skill-cloud--front  skill pills — in front of figure
+   35  .scroll-indicator    scroll affordance — above front pills
    200 .site-header         nav
    ─────────────────────────────────────────────────────────── */
 
@@ -424,7 +406,7 @@ a { color: inherit; text-decoration: none; }
   text-align: center;
   white-space: nowrap;
   pointer-events: none;
-  /* above carousel and figure */
+  /* above skill pills and figure */
   z-index: 36;
 }
 
@@ -462,143 +444,194 @@ a { color: inherit; text-decoration: none; }
   transform-origin: center;
 }
 
-/* ─── Frosted skill marquee (behind figure, between split zones) ─ */
-.skills-marquee {
+/* ─── Hero skill constellation ───────────────────────────────
+   A small set of floating glass pills art-directed around the figure.
+   Two sibling layers share the exact .hero-figure box:
+     .hero-skill-cloud--back   z 25 — behind the figure (body occludes pills)
+     .hero-skill-cloud--front  z 31 — just in front (pills overlap safe edges)
+
+   hero6.png is 2560×1080 and the figure box is always taller than the image
+   aspect, so 1080 image px == var(--figure-height) on BOTH axes. Each pill
+   is therefore anchored to the body, not the viewport:
+     --x  horizontal anchor, fraction of --figure-height from the centre line
+          (negative = left). Left-side pills (--l) anchor their RIGHT edge,
+          right-side pills (--r) their LEFT edge, so the overlap / occlusion
+          with the body is fixed regardless of label width.
+     --y  vertical centre, fraction of --figure-height from the box top.
+   Silhouette reference (fraction of height): hat 0.40–0.53, shoulders
+   0.54–0.59, arms spread to ±0.25 by 0.70, hands 0.70–0.83, torso ±0.12.
+   Every breakpoint recomposes the set (which pills show, and where).     */
+.hero-skill-cloud {
   position: absolute;
+  top: calc(var(--split) - var(--figure-height) + var(--figure-overhang));
   left: 50%;
-  right: auto;
-  width: 100vw;
-  margin-left: -50vw;
-  top: var(--carousel-top-bound);
-  height: max(0px, var(--carousel-render-h));
-  z-index: 25;
-  overflow: hidden;
+  width: var(--hero-figure-w);
+  height: var(--figure-height);
+  transform: translateX(-50%);
+  overflow: visible;
   pointer-events: none;
-}
-
-.skills-marquee__band {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--skills-row-gap);
-  height: 100%;
-  padding-block: calc(var(--skills-band-pad-block) + 0.2rem);
-}
-
-.skills-marquee__row {
-  overflow: hidden;
-  width: 100%;
-  padding-block: 2px;
-  /* Fade moving pills at both row edges (not the whole section background) */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black var(--skills-marquee-edge-w),
-    black calc(100% - var(--skills-marquee-edge-w)),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black var(--skills-marquee-edge-w),
-    black calc(100% - var(--skills-marquee-edge-w)),
-    transparent 100%
-  );
-}
-
-.skills-marquee__strip {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-  animation:
-    skills-row-in-from-right var(--skills-intro-duration, 78s) linear 0.25s both,
-    skills-marqueeL var(--skills-loop-duration, 155s) linear calc(var(--skills-intro-duration, 78s) + 0.25s) infinite;
-}
-
-.skills-marquee__row--r .skills-marquee__strip {
-  animation:
-    skills-row-in-from-left var(--skills-intro-duration, 155s) linear 0.25s both,
-    skills-marqueeR var(--skills-loop-duration, 155s) linear calc(var(--skills-intro-duration, 155s) + 0.25s) infinite;
-}
-
-.skills-marquee__row--l2 .skills-marquee__strip {
-  animation:
-    skills-row-in-from-right var(--skills-intro-duration, 78s) linear 0.25s both,
-    skills-marqueeL var(--skills-loop-duration, 155s) linear calc(var(--skills-intro-duration, 78s) + 0.25s) infinite;
-}
-
-@keyframes skills-row-in-from-right {
-  from {
-    transform: translateX(100vw);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes skills-row-in-from-left {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes skills-marqueeL {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-@keyframes skills-marqueeR {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0); }
-}
-
-.skills-marquee__group {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.28rem;
-  flex-shrink: 0;
-  padding-right: 0.85rem;
-}
-
-.skills-marquee__word {
-  display: inline-flex;
-  align-items: center;
-  line-height: 1.15;
-  padding: var(--skills-pill-pad-y) var(--skills-pill-pad-x);
-  border-radius: 999px;
-  font-family: "Inter", system-ui, sans-serif;
-  font-size: var(--skills-pill-font-size);
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.94);
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(42px) saturate(1.75);
-  -webkit-backdrop-filter: blur(42px) saturate(1.75);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 6px 36px rgba(0, 0, 0, 0.35);
-  white-space: nowrap;
-}
-
-.skills-marquee__dot {
-  color: rgba(255, 255, 255, 0.35);
-  padding: 0 0.35rem;
-  font-weight: 300;
-  font-size: 0.9em;
   user-select: none;
 }
 
+.hero-skill-cloud--back  { z-index: 25; }
+.hero-skill-cloud--front { z-index: 31; }
+
+/* Anchor + entrance (outer). Drift lives on the inner label so the two
+   transforms never fight. */
+.hero-skill-cloud__pill {
+  position: absolute;
+  top: calc(var(--y) * var(--figure-height));
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-50%);
+  animation: skillPillIn 0.9s var(--ease-out) calc(1.2s + var(--i, 0) * 0.08s) both;
+}
+
+.hero-skill-cloud__pill--l { right: calc(50% - var(--x) * var(--figure-height)); }
+.hero-skill-cloud__pill--r { left:  calc(50% + var(--x) * var(--figure-height)); }
+
+/* Far-out pills that never touch the body anchor to the viewport edge instead
+   (--edge = distance from the viewport's right edge). */
+.hero-skill-cloud__pill--edge-r {
+  left: auto;
+  right: calc((100% - 100vw) / 2 + var(--edge));
+}
+
+.hero-skill-cloud__label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.48em 1em;
+  border-radius: 999px;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: var(--skill-pill-font-size);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 10px 28px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  will-change: transform;
+  animation: skillPillDrift var(--dur, 12s) ease-in-out var(--phase, 0s) infinite;
+}
+
+/* Rear pills: softer, lower contrast, slower */
+.hero-skill-cloud--back .hero-skill-cloud__label {
+  opacity: 0.74;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 8px 22px rgba(0, 0, 0, 0.24);
+}
+
+/* Front pills: brighter, sharper, a touch larger, deeper cast shadow */
+.hero-skill-cloud--front .hero-skill-cloud__label {
+  font-size: calc(var(--skill-pill-font-size) * 1.04);
+  background: rgba(255, 255, 255, 0.17);
+  border-color: rgba(255, 255, 255, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 14px 34px rgba(0, 0, 0, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes skillPillIn {
+  from { opacity: 0; transform: translateY(calc(-50% + 12px)) scale(0.96); }
+  to   { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+/* Slow buoyancy: each pill supplies its own --dx / --dy / --rot / --dur /
+   --phase so no two move in sync. Only transform is animated. */
+@keyframes skillPillDrift {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  32%  { transform: translate3d(var(--dx), calc(var(--dy) * -1), 0) rotate(var(--rot)); }
+  68%  { transform: translate3d(calc(var(--dx) * -0.55), calc(var(--dy) * 0.7), 0) rotate(calc(var(--rot) * -0.6)); }
+  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+
+/* ── Per-pill placement (large desktop) + motion signature ─────────────── */
+/* BACK */
+.hero-skill-cloud__pill--ai        { --x: -0.16;  --y: 0.452; --i: 4;  --dx: 3px;  --dy: 6px;  --rot: 0.4deg;   --dur: 14s;   --phase: -3s; }
+.hero-skill-cloud__pill--strategy  { --x: -0.33;  --y: 0.515; --i: 6;  --dx: -2px; --dy: 5px;  --rot: -0.5deg;  --dur: 12s;   --phase: -7s; }
+.hero-skill-cloud__pill--analytics { --x: -0.085; --y: 0.578; --i: 1;  --dx: 4px;  --dy: -5px; --rot: 0.3deg;   --dur: 13s;   --phase: -1.5s; }
+.hero-skill-cloud__pill--video     { --x: -0.15;  --y: 0.745; --i: 9;  --dx: -3px; --dy: 4px;  --rot: -0.35deg; --dur: 15s;   --phase: -9s; }
+.hero-skill-cloud__pill--web       { --x: -0.20;  --y: 0.43;  --i: 8;  --dx: -2px; --dy: 5px;  --rot: 0.3deg;   --dur: 12.5s; --phase: -4s; display: none; }
+.hero-skill-cloud__pill--ml        { --x: 0.17;   --y: 0.478; --i: 2;  --dx: -4px; --dy: 6px;  --rot: -0.4deg;  --dur: 11s;   --phase: -5s; }
+.hero-skill-cloud__pill--bi        { --edge: 11vw; --y: 0.60;  --i: 7;  --dx: 3px;  --dy: -7px; --rot: 0.5deg;   --dur: 14.5s; --phase: -11s; }
+.hero-skill-cloud__pill--azure     { --x: 0.10;   --y: 0.43;  --i: 5;  --dx: 2px;  --dy: -4px; --rot: -0.3deg;  --dur: 10.5s; --phase: -2s; display: none; }
+/* FRONT */
+.hero-skill-cloud__pill--python     { --x: -0.19; --y: 0.636; --i: 3;  --dx: 3px;  --dy: -5px; --rot: 0.6deg;   --dur: 8.5s;  --phase: -2.5s; }
+.hero-skill-cloud__pill--product    { --x: 0.09;  --y: 0.572; --i: 5;  --dx: -3px; --dy: -6px; --rot: -0.45deg; --dur: 10.5s; --phase: -6.5s; }
+.hero-skill-cloud__pill--automation { --x: 0.145; --y: 0.632; --i: 7;  --dx: 4px;  --dy: 6px;  --rot: 0.5deg;   --dur: 9.5s;  --phase: -1s; }
+.hero-skill-cloud__pill--sql        { --x: 0.075; --y: 0.73;  --i: 0;  --dx: -2px; --dy: 4px;  --rot: -0.7deg;  --dur: 7.5s;  --phase: -5.5s; }
+
+/* ── Very wide + short (≥ 19:10): the tagline already sits over the head
+   here, so the two head-level pills go. ─────────────────────────────── */
+@media (min-aspect-ratio: 19/10) {
+  .hero-skill-cloud__pill--ai,
+  .hero-skill-cloud__pill--ml { display: none; }
+}
+
+/* ── Laptop (≤ 1024px): 8 pills. Drop the two long/low ones. ──────────── */
+@media (max-width: 1024px) {
+  .hero-skill-cloud__pill--video,
+  .hero-skill-cloud__pill--bi { display: none; }
+  .hero-skill-cloud__pill--analytics { --x: -0.11; }
+}
+
+/* ── Tablet (≤ 768px): 8 short pills. AI out, Web Design in. ──────────── */
+@media (max-width: 768px) {
+  .hero-skill-cloud__pill--ai { display: none; }
+  .hero-skill-cloud__pill--web        { display: block; --x: -0.20; --y: 0.43; }
+  .hero-skill-cloud__pill--strategy   { --x: -0.14; --y: 0.50; }
+  .hero-skill-cloud__pill--analytics  { --x: -0.12; --y: 0.578; }
+  .hero-skill-cloud__pill--ml         { --x: 0.17; --y: 0.478; }
+  .hero-skill-cloud__pill--python     { --x: -0.19; --y: 0.636; }
+  .hero-skill-cloud__pill--product    { --x: 0.09; --y: 0.572; }
+  .hero-skill-cloud__pill--automation { --x: 0.145; --y: 0.632; }
+  .hero-skill-cloud__pill--sql        { --x: 0.075; --y: 0.73; }
+}
+
+/* ── Mobile (≤ 640px): 6 pills, head and shoulder line kept clear. ────── */
+@media (max-width: 640px) {
+  .hero-skill-cloud__pill--analytics,
+  .hero-skill-cloud__pill--ml,
+  .hero-skill-cloud__pill--product { display: none; }
+  .hero-skill-cloud__pill--strategy   { --x: -0.09; --y: 0.40; }
+  .hero-skill-cloud__pill--azure      { display: block; --x: 0.10; --y: 0.43; }
+  .hero-skill-cloud__pill--web        { --x: -0.135; --y: 0.53; }
+  .hero-skill-cloud__pill--python     { --x: -0.18; --y: 0.636; }
+  .hero-skill-cloud__pill--automation { --x: 0.12; --y: 0.62; }
+  .hero-skill-cloud__pill--sql        { --x: 0.075; --y: 0.73; }
+  .hero-skill-cloud__label {
+    backdrop-filter: blur(8px) saturate(1.3);
+    -webkit-backdrop-filter: blur(8px) saturate(1.3);
+  }
+}
+
+/* No backdrop-filter support: lean on a stronger translucent fill */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero-skill-cloud__label { background: rgba(255, 255, 255, 0.2); }
+  .hero-skill-cloud--back .hero-skill-cloud__label { background: rgba(255, 255, 255, 0.15); }
+}
+
+/* Reduced motion: static, fully readable composition */
 @media (prefers-reduced-motion: reduce) {
-  .skills-marquee__strip {
-    animation-duration: 360s !important;
-    animation-iteration-count: infinite !important;
+  .hero-skill-cloud__pill {
+    animation: none !important;
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+  .hero-skill-cloud__label {
+    animation: none !important;
+    will-change: auto;
   }
 }
 
@@ -1721,16 +1754,6 @@ button.hero-frost-panes__box {
     --hero-name-size: clamp(136px, 19.5vw, 320px);
     --hero-name-pad-top: clamp(4.4rem, 6.8vw, 5.6rem);
     --name-tagline-gap: clamp(0.55rem, 1.2vh, 0.8rem);
-    --tagline-carousel-gap: clamp(0.28rem, 0.62vh, 0.5rem);
-    --carousel-mini-gap: clamp(0.65rem, 1.5vh, 0.95rem);
-    --carousel-line-gap: clamp(0.45rem, 0.95vh, 0.7rem);
-    /*
-     * Marquee height reduced so it fits cleanly between the subtitle
-     * and the glowing split line without overlapping either.
-     */
-    --skills-marquee-h: 26vh;
-    --skills-marquee-gap: 1.1vh;
-    --skills-marquee-nudge: 2.5vh;
     /* Frost pane positioning */
     --hero-frost-split-nudge: 1.6vh;
     --hero-frost-split-box-half: clamp(3.5rem, 9vh, 5.75rem);
@@ -1746,12 +1769,6 @@ button.hero-frost-panes__box {
     /* Shadow */
     --figure-cast-shadow-w: min(75vw, 720px);
     --tagline-zone-h: clamp(2rem, 4.2vh, 3.1rem);
-    --carousel-zone-h: clamp(13rem, 26vh, 18rem);
-    --skills-pill-font-size: clamp(0.64rem, 0.56rem + 0.46vh, 0.88rem);
-    --skills-pill-pad-y: clamp(0.3rem, 0.18rem + 0.3vh, 0.46rem);
-    --skills-pill-pad-x: clamp(0.72rem, 0.54rem + 0.38vw, 1.04rem);
-    --skills-row-gap: clamp(0.92rem, 0.32rem + 0.76vh, 1.4rem);
-    --skills-band-pad-block: clamp(0.18rem, 0.08rem + 0.28vh, 0.38rem);
   }
 
   /* Frost split card: constrained to available gutter */
@@ -1788,12 +1805,6 @@ button.hero-frost-panes__box {
     --hero-name-size: clamp(110px, 21.5vw, 250px);
     --hero-name-pad-top: clamp(4.1rem, 7vw, 5rem);
     --name-tagline-gap: clamp(0.5rem, 1.05vh, 0.72rem);
-    --tagline-carousel-gap: clamp(0.24rem, 0.56vh, 0.44rem);
-    --carousel-mini-gap: clamp(0.58rem, 1.3vh, 0.82rem);
-    --carousel-line-gap: clamp(0.4rem, 0.85vh, 0.62rem);
-    --skills-marquee-h: 24vh;
-    --skills-marquee-gap: 1vh;
-    --skills-marquee-nudge: 2.25vh;
     --hero-frost-split-nudge: 1.35vh;
     --hero-frost-split-box-half: clamp(3rem, 8vh, 5rem);
     --hero-frost-col-shift: clamp(1.5rem, 3vh, 2.35rem);
@@ -1807,12 +1818,6 @@ button.hero-frost-panes__box {
     );
     --figure-cast-shadow-w: min(88vw, 640px);
     --tagline-zone-h: clamp(1.85rem, 3.8vh, 2.8rem);
-    --carousel-zone-h: clamp(11.5rem, 23vh, 16rem);
-    --skills-pill-font-size: clamp(0.58rem, 0.5rem + 0.36vh, 0.8rem);
-    --skills-pill-pad-y: clamp(0.26rem, 0.15rem + 0.24vh, 0.38rem);
-    --skills-pill-pad-x: clamp(0.62rem, 0.46rem + 0.28vw, 0.88rem);
-    --skills-row-gap: clamp(0.68rem, 0.2rem + 0.8vh, 1.12rem);
-    --skills-band-pad-block: clamp(0.14rem, 0.06rem + 0.2vh, 0.28rem);
   }
 
   .hero-frost-panes__box--split {
@@ -1864,12 +1869,6 @@ button.hero-frost-panes__box {
     --hero-name-size: clamp(88px, 22.5vw, 210px);
     --hero-name-pad-top: 4.5rem;
     --name-tagline-gap: clamp(0.44rem, 0.95vh, 0.64rem);
-    --tagline-carousel-gap: clamp(0.2rem, 0.5vh, 0.38rem);
-    --carousel-mini-gap: clamp(0.48rem, 1.1vh, 0.72rem);
-    --carousel-line-gap: clamp(0.34rem, 0.72vh, 0.52rem);
-    --skills-marquee-h: 30vh;
-    --skills-marquee-gap: 1vh;
-    --skills-marquee-nudge: 2vh;
     --figure-cast-shadow-w: min(92vw, 560px);
     --figure-cast-shadow-h: clamp(14vh, 36vw, 24vh);
     --figure-cast-shadow-blur: 28px;
@@ -1886,12 +1885,6 @@ button.hero-frost-panes__box {
     );
     --hero-frost-col-shift: clamp(1.55rem, 3.1vh, 2.45rem);
     --tagline-zone-h: clamp(1.7rem, 3.3vh, 2.35rem);
-    --carousel-zone-h: clamp(10.5rem, 21vh, 14.5rem);
-    --skills-pill-font-size: clamp(0.54rem, 0.47rem + 0.28vh, 0.72rem);
-    --skills-pill-pad-y: clamp(0.22rem, 0.14rem + 0.18vh, 0.3rem);
-    --skills-pill-pad-x: clamp(0.54rem, 0.42rem + 0.24vw, 0.78rem);
-    --skills-row-gap: clamp(0.64rem, 0.18rem + 0.72vh, 1.04rem);
-    --skills-band-pad-block: clamp(0.1rem, 0.05rem + 0.16vh, 0.24rem);
   }
 
   .site-nav { gap: 0.2rem; font-size: 0.65rem; }
