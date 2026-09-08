@@ -263,7 +263,7 @@ function makeHero() {
    ===================================================================== */
 const rand = (a, b) => a + Math.random() * (b - a);
 
-/* cubic-bezier(0.76, 0, 0.24, 1) — the track's curve, for JS tweens. */
+/* The track's curve (--page-ease in site.css), for JS tweens. */
 function cubicBezier(x1, y1, x2, y2) {
   const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
   const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
@@ -283,7 +283,7 @@ function cubicBezier(x1, y1, x2, y2) {
     return sampleY(Math.min(1, Math.max(0, t)));
   };
 }
-const PAGE_EASE = cubicBezier(0.76, 0, 0.24, 1);
+const PAGE_EASE = cubicBezier(0.45, 0, 0.2, 1);
 const PAGE_MS = 1100;
 
 /* =====================================================================
@@ -679,6 +679,161 @@ function makePlanes(svg) {
   };
 }
 
+/* ---- Resume: three columns of grey text typing themselves ------------
+   Left: the resume. Middle (mostly behind the slab): the agent's trace.
+   Right: the cover letter. Each column streams its lines in word-sized
+   chunks, holds, fades, and starts over, staggered so something is always
+   being written. */
+const RESUME_DOC = [
+  ["name", "Maneet Kohli"],
+  ["meta", "Dallas, TX  ·  maneetkohli.com  ·  linkedin.com/in/maneet-kohli"],
+  ["h", "Education"],
+  ["role", "The University of Texas at Dallas  ·  B.S. Business Analytics and Artificial Intelligence"],
+  ["li", "–  Naveen Jindal School of Management  ·  Expected May 2027  ·  GPA 3.87"],
+  ["h", "Experience"],
+  ["role", "Sky Automations  ·  Co-founder"],
+  ["li", "–  Marketing automation for home service contractors with no online presence"],
+  ["li", "–  Built the GoHighLevel snapshot: pipelines, follow-up flows, onboarding and reporting"],
+  ["li", "–  Own positioning, outreach and the client-facing site"],
+  ["role", "Punjabi By Flavor  ·  2023 – 2026"],
+  ["li", "–  Content, marketing and day-to-day operations"],
+  ["h", "Projects"],
+  ["role", "Bani AI  ·  Real-time Gurbani companion"],
+  ["li", "–  Speech-to-text matching pipeline that identifies the live shabad and displays it for Gurdwara screens"],
+  ["li", "–  FastAPI backend, React + TypeScript frontend, self-hosted BaniDB"],
+  ["role", "Meridian  ·  Educational roadmap app"],
+  ["li", "–  Direction, not content: Next.js and Supabase"],
+  ["h", "Skills"],
+  ["p", "Python  ·  SQL  ·  Power BI  ·  Azure  ·  FastAPI  ·  React  ·  TypeScript  ·  Prompt engineering"],
+];
+const TRACE_DOC = [
+  ["cmd", "$ resume-agent build --role \"Data Analyst Intern\""],
+  ["p", "› reading the job description"],
+  ["p", "› reading databank: projects/, skills.md, rules/"],
+  ["p", "› gaps: none blocking · framing: analytics first"],
+  ["p", "› matching skills → SQL, Python, Power BI, Azure"],
+  ["p", "› selecting: Sky Automations, Bani AI, Meridian"],
+  ["p", "› rewriting every bullet for this posting"],
+  ["p", "› building from Resume Template.docx"],
+  ["p", "› one page: ok"],
+  ["p", "› converting → PDF"],
+  ["p", "› drafting the cover letter"],
+  ["p", "› scoring: quality · fit · match"],
+  ["ok", "✓ Company_MK_Resume.pdf"],
+  ["ok", "✓ Company_MK_CoverLetter.pdf"],
+  ["gap", ""],
+  ["cmd", "$ resume-agent build --role \"Business Analyst Intern\""],
+  ["p", "› reading the job description"],
+  ["p", "› matching skills → SQL, Excel, stakeholder work"],
+  ["p", "› selecting: Sky Automations, Meridian, ALIAS"],
+  ["p", "› rewriting every bullet for this posting"],
+  ["p", "› one page: ok"],
+  ["ok", "✓ Company_MK_Resume.pdf"],
+];
+const LETTER_DOC = [
+  ["role", "Dear Hiring Team,"],
+  ["gap", ""],
+  ["p", "I build things with data and I ship them. At Sky Automations I turned a marketing problem for small contractors into a working product. With Bani AI I built a real-time pipeline that listens, matches and displays, and it runs in front of real people every week."],
+  ["p", "What I want from this role is the same thing I want from every project: a hard problem, real users, and a team that cares about the details."],
+  ["p", "I study Business Analytics and AI at UT Dallas. I am comfortable in SQL and Python, I like a clean dashboard, and I do not need to be told twice."],
+  ["p", "I would love to talk."],
+  ["gap", ""],
+  ["role", "Maneet Kohli"],
+];
+
+function makeResume(host) {
+  const specs = [
+    { cls: "resume__page--resume", lines: RESUME_DOC, tick: 0.05, delay: 0 },
+    { cls: "resume__page--trace", lines: TRACE_DOC, tick: 0.07, delay: 3.5 },
+    { cls: "resume__page--letter", lines: LETTER_DOC, tick: 0.045, delay: 7 },
+  ];
+  const cols = specs.map((sp) => {
+    const el = document.createElement("div");
+    el.className = `resume__page ${sp.cls}`;
+    host.appendChild(el);
+    const caret = document.createElement("span");
+    caret.className = "resume__caret";
+    return { ...sp, el, caret, li: 0, ci: 0, cur: null, wait: sp.delay, phase: "type", acc: 0 };
+  });
+  let raf = 0, last = 0;
+
+  function lineEl(col, kind) {
+    const div = document.createElement("div");
+    div.className = `resume__line resume__line--${kind}`;
+    const txt = document.createElement("span");
+    div.appendChild(txt);
+    div.appendChild(col.caret);
+    col.el.appendChild(div);
+    return { div, txt };
+  }
+
+  function advance(col, dt) {
+    if (col.wait > 0) { col.wait -= dt; return; }
+    if (col.phase === "hold") { col.phase = "clear"; col.wait = 3.2; return; }
+    if (col.phase === "clear") { col.el.classList.add("is-clearing"); col.phase = "reset"; col.wait = 0.7; return; }
+    if (col.phase === "reset") {
+      col.el.replaceChildren();
+      col.el.classList.remove("is-clearing");
+      col.li = 0; col.ci = 0; col.cur = null; col.acc = 0;
+      col.phase = "type"; col.wait = 0.5;
+      return;
+    }
+    col.acc += dt;
+    while (col.acc >= col.tick) {
+      col.acc -= col.tick;
+      if (col.li >= col.lines.length) { col.caret.remove(); col.phase = "hold"; col.wait = 0; return; }
+      const [kind, text] = col.lines[col.li];
+      if (!col.cur) col.cur = lineEl(col, kind);
+      if (kind === "gap" || !text) { col.li++; col.cur = null; continue; }
+      col.ci = Math.min(text.length, col.ci + 2 + Math.floor(Math.random() * 5));
+      col.cur.txt.textContent = text.slice(0, col.ci);
+      if (col.ci >= text.length) {
+        col.li++; col.ci = 0; col.cur = null;
+        col.acc -= col.tick * rand(1, 5);   // breathe between lines
+      }
+    }
+  }
+
+  function frame(t) {
+    const dt = Math.min((t - last) / 1000, 0.05);
+    last = t;
+    for (const c of cols) advance(c, dt);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function paintAll() {
+    for (const col of cols) {
+      col.el.replaceChildren();
+      for (const [kind, text] of col.lines) {
+        const div = document.createElement("div");
+        div.className = `resume__line resume__line--${kind}`;
+        div.textContent = text;
+        col.el.appendChild(div);
+      }
+      // leave the column finished, so a restart holds and retypes cleanly
+      col.li = col.lines.length; col.ci = 0; col.cur = null; col.acc = 0;
+      col.phase = "hold"; col.wait = 3;
+    }
+  }
+
+  const api = {
+    start() {
+      if (reducedMotion?.matches) { paintAll(); return; }
+      if (!raf) {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    },
+    stop() {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    },
+    paint: paintAll,   // console: __resume.paint() shows every column finished
+  };
+  window.__resume = api;
+  return api;
+}
+
 /* =====================================================================
    PAGE CONTROLLERS — one per page that needs JS. Shape:
    { start(), stop(), setStep?(step, dir, animate), theme?(step) }
@@ -842,9 +997,9 @@ function makeAbout(page) {
   };
 }
 
-/* ---- Projects: flipping slab + crossfading backgrounds --------------- */
+/* ---- Projects: flipping slab + page-turn backgrounds ----------------- */
 function makeProjects(page) {
-  const THEMES = ["dark", "dark", "light"];
+  const THEMES = ["dark", "dark", "light", "mono"];
   const bgs = [...page.querySelectorAll(".project__bg")];
   const ribbons = [...page.querySelectorAll(".ribbon")];
   const templates = [...page.querySelectorAll("template[data-card]")];
@@ -855,6 +1010,7 @@ function makeProjects(page) {
     if (bg.querySelector("[data-sky]")) return makeSky(bg.querySelector("[data-sky]"));
     if (bg.querySelector("[data-nebula]")) return makeGalaxy(bg.querySelector("[data-nebula]"), bg.querySelector("[data-stars]"));
     if (bg.querySelector("[data-planes]")) return makePlanes(bg.querySelector("[data-planes]"));
+    if (bg.querySelector("[data-resume]")) return makeResume(bg.querySelector("[data-resume]"));
     return null;
   });
 
@@ -868,19 +1024,39 @@ function makeProjects(page) {
   function fill(face, s) {
     const tpl = templates.find((t) => Number(t.dataset.card) === s);
     face.replaceChildren(tpl ? tpl.content.cloneNode(true) : "");
+    face.dataset.project = String(s);   // the face owns its palette
   }
 
-  function paintScene(prev) {
+  /* The slab is already turning when this runs. Set the direction first
+     and flush, so the incoming background starts closed on the correct
+     edge, then swap the classes: incoming .is-on wipes in over the
+     outgoing .is-off (see the Backgrounds block in site.css). */
+  function paintScene(prev, dir, animate) {
     page.dataset.project = String(step);
-    bgs.forEach((b) => b.classList.toggle("is-on", Number(b.dataset.project) === step));
+    // Apply the direction with transitions off and flush, so the hidden
+    // layers snap to that direction's closed state instead of starting
+    // a transition towards it (which the class swap below would retarget).
+    page.classList.add("is-instant");
+    page.dataset.dir = dir < 0 ? "back" : "forward";
+    void page.offsetHeight;
+    if (animate) page.classList.remove("is-instant");
+    bgs.forEach((b) => {
+      const n = Number(b.dataset.project);
+      b.classList.toggle("is-on", n === step);
+      b.classList.toggle("is-off", animate && n === prev && prev !== step);
+    });
     ribbons.forEach((r) => r.classList.toggle("is-on", Number(r.dataset.project) === step));
+    if (!animate) {
+      void page.offsetHeight;
+      page.classList.remove("is-instant");
+    }
     if (live) {
       engines[step]?.start();
       clearTimeout(stopTimer);
       if (prev !== step) {
         stopTimer = setTimeout(() => {
           if (prev !== step) engines[prev]?.stop();
-        }, PAGE_MS);
+        }, PAGE_MS + 300);
       }
     }
   }
@@ -893,7 +1069,7 @@ function makeProjects(page) {
     theme: (s) => THEMES[s] || "dark",
     start() {
       live = true;
-      paintScene(step);
+      paintScene(step, 1, false);
     },
     stop() {
       live = false;
@@ -903,14 +1079,15 @@ function makeProjects(page) {
     setStep(s, dir, animate) {
       const prev = step;
       step = s;
-      if (!animate || reducedMotion?.matches) {
+      const moving = animate && !reducedMotion?.matches && prev !== s;
+      if (!moving) {
         fill(faces[frontIndex()], s);
       } else {
         fill(faces[1 - frontIndex()], s);
         angle += (dir >= 0 ? 1 : -1) * 180;
         inner.style.setProperty("--flip-angle", `${angle}deg`);
       }
-      paintScene(prev);
+      paintScene(prev, dir, moving);
     },
   };
 }
@@ -929,8 +1106,8 @@ function makeProjects(page) {
   const dots = document.getElementById("dots");
   const dotEls = dots ? [...dots.querySelectorAll(".dots__dot")] : [];
   const STEP_MS = 1000;
-  const COOLDOWN = 1200; // absorbs momentum after a move
-  const THRESHOLD = 40;  // wheel delta needed to trigger a move
+  const COOLDOWN = 900;  // after a move: ignore the momentum tail this long
+  const THRESHOLD = 10;  // wheel delta needed to trigger a move (one or two events)
 
   const ctrl = pages.map((page) => {
     switch (page.dataset.bg) {
@@ -951,6 +1128,8 @@ function makeProjects(page) {
   let quietUntil = 0;
   let acc = 0;
   let accTimer = 0;
+  let lastWheelAt = 0;
+  let lastWheelMag = 0;
 
   function paintTrack(instant) {
     track.classList.toggle("is-instant", !!instant);
@@ -1049,19 +1228,37 @@ function makeProjects(page) {
     return goPage(at.page, at.step, opts);
   }
 
-  /* wheel */
+  /* wheel. A move fires on the first event or two of a gesture. After a
+     move, the trackpad keeps sending a decaying momentum tail; those are
+     ignored during the cooldown, but a fresh gesture (a pause since the
+     last event, or a delta that jumps well above the tail) cuts the
+     cooldown short so the site never feels like it is ignoring you. */
   window.addEventListener(
     "wheel",
     (e) => {
       e.preventDefault();
       const now = performance.now();
-      if (locked || now < quietUntil) {
+      let dy = e.deltaY;
+      if (e.deltaMode === 1) dy *= 16;
+      else if (e.deltaMode === 2) dy *= window.innerHeight;
+      const mag = Math.abs(dy);
+      const fresh = now - lastWheelAt > 140 || mag > lastWheelMag * 1.8 + 4;
+      lastWheelAt = now;
+      lastWheelMag = mag;
+      if (locked) {
         acc = 0;
         return;
       }
-      acc += e.deltaY;
+      if (now < quietUntil) {
+        if (!fresh) {
+          acc = 0;
+          return;
+        }
+        quietUntil = 0;
+      }
+      acc += dy;
       clearTimeout(accTimer);
-      accTimer = setTimeout(() => (acc = 0), 200);
+      accTimer = setTimeout(() => (acc = 0), 150);
       if (Math.abs(acc) >= THRESHOLD) {
         const dir = acc > 0 ? 1 : -1;
         acc = 0;
@@ -1132,6 +1329,29 @@ function makeProjects(page) {
   /* initial page from the hash */
   const at = locate(location.hash.slice(1));
   goPage(at?.page ?? 0, at?.step ?? 0, { instant: true, force: true });
+
+  /* Dock: "About me" swaps the link row for its own two options in place.
+     Picking one navigates (the in-page link handler above) and the row
+     returns to the main set a beat later. Escape or a click outside the
+     bar also return it. */
+  (function dock() {
+    const nav = document.querySelector("[data-dock-nav]");
+    if (!nav) return;
+    const panels = [...nav.querySelectorAll(".dock__panel")];
+    const show = (name) => panels.forEach((p) => p.classList.toggle("is-on", p.dataset.panel === name));
+    nav.addEventListener("click", (e) => {
+      const t = e.target instanceof Element ? e.target : null;
+      const open = t?.closest("[data-open]");
+      if (open) { show(open.dataset.open); return; }
+      if (t?.closest("[data-close]")) { show("main"); return; }
+      const link = t?.closest("a.dock__link");
+      if (link && link.closest(".dock__panel")?.dataset.panel !== "main") setTimeout(() => show("main"), 450);
+    });
+    document.addEventListener("click", (e) => {
+      if (!(e.target instanceof Element && e.target.closest(".dock"))) show("main");
+    });
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape") show("main"); });
+  })();
 
   // Exposed for tuning from the console.
   window.__pager = {

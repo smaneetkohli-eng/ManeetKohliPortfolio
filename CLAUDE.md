@@ -1,6 +1,6 @@
 # CLAUDE.md — Portfolio Website
 *Maneet Kohli's personal portfolio site. Pure HTML/CSS/JS. No framework, no build tool.*
-*Last updated: September 8, 2026*
+*Last updated: September 9, 2026*
 
 ---
 
@@ -41,22 +41,28 @@ Pages are `<section class="page">` inside `<main class="pages" id="pages">`, in 
 |---|---|---|---|---|
 | 0 | `#hero` | — | `makeHero` | Wave shader, split name MANEET / KOHLI, figure, torso cycle + scroll prompt |
 | 1 | `#bio` | — | `makeEdgeWaves` | One bold six-line statement between two white edge waves |
-| 2 | `#about` | `#vision` `#me` `#people` | `makeAbout` | Photo helix left, copy right; each step scrolls the helix and swaps the copy |
-| 3 | `#projects` | `#youtube` `#bani-ai` `#regal` | `makeProjects` | One flipping glass slab; backgrounds and ribbon crossfade per step |
+| 2 | `#projects` | `#youtube` `#bani-ai` `#regal` `#resume-agent` | `makeProjects` | One flipping glass slab; each step is a page turn (slab flips, background wipes after it, ribbon swaps at the midpoint) |
+| 3 | `#about` | `#vision` `#me` `#people` | `makeAbout` | Photo helix left, copy right; each step scrolls the helix and swaps the copy |
 
 Landing rules: arriving from above lands on step 0, arriving from below lands on the last step. Deep links work for both page ids and step ids. The hash is kept in sync with `history.replaceState`.
 
-Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown only on pages with steps), `.edge-blur` (bottom progressive blur), `.cursor` (inverting dot).
+Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown only on pages with steps), `.edge-blur` (bottom progressive blur), `.hero-status` (cycling line + scroll prompt, z 56 so it sits above the blur; leaves via `html[data-page]`), `.cursor` (inverting dot).
 
 ---
 
 ## How the Pager Works (`js/site.js`)
 
 - State is `(index, step)`. `next()` / `prev()` step inside the page first, then change page.
-- Page moves translate `.pages` by whole viewports (`transform`, 1.1s, `cubic-bezier(0.76, 0, 0.24, 1)`). Steps take 1.0s. A 1.2s cooldown absorbs trackpad momentum.
+- Page moves translate `.pages` by whole viewports (`transform`, 1.1s, `--page-ease` = `cubic-bezier(0.45, 0, 0.2, 1)`, a quick ramp so motion shows within ~150ms). Steps take 1.0s.
+- Wheel: a move fires at 10 units of `deltaY` (one or two trackpad events). After a move a 0.9s cooldown ignores the decaying momentum tail, but a fresh gesture (140ms pause, or a delta jumping well above the tail) cuts the cooldown short. `PAGE_EASE` in JS must match `--page-ease`.
 - Every page gets one of three classes: `.is-active`, `.is-above` (already passed), `.is-below` (still to come). **All enter/leave choreography is CSS transitions keyed off those classes.** Look in `site.css` from the "PAGE STATES" banner onward.
 - Controllers expose `{ start, stop, setStep(step, dir, animate), theme(step) }`. Only the active page's engine runs. `theme` sets `html[data-theme]` (Regal is `light`).
-- Console handles: `window.__pager.go(page, step)`, `.goTo('hash-id')`, `.next()`, `.prev()`, `.index`, `.step`. Shader mounts: `__wave` (hero), `__edges` (bio, array of two), `__nebula` (Bani AI). Tune with `mount.setUniforms({ u_scale, u_offsetY, ... })`.
+- Console handles: `window.__pager.go(page, step)`, `.goTo('hash-id')`, `.next()`, `.prev()`, `.index`, `.step`. Shader mounts: `__wave` (hero), `__edges` (bio, array of two), `__nebula` (Bani AI). Tune with `mount.setUniforms({ u_scale, u_offsetY, ... })`. `__resume.paint()` renders the Resume Agent columns finished.
+
+## Dock
+
+- Links: Home (`#hero`), About me, Projects (`#projects`). Contact is still a placeholder. No Journal.
+- `.dock__nav` stacks two `.dock__panel` rows in one grid cell. Clicking **About me** swaps the row in place (no dropdown): a dim crumb "About me" (click to go back), then **Hello there** (`#bio`) and **About me** (`#vision`, always the first About step). Picking one navigates and the row returns to the main set ~0.45s later; Escape or a click outside also returns it. Logic is the `dock()` IIFE inside the pager.
 
 ---
 
@@ -65,7 +71,7 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 - **Wave**: GrainGradient `shape: "wave"`, params copied from midu.design, white palette. Static CSS fallback if WebGL fails (`.is-fallback`).
 - **Name**: Archivo 900 / 125 wdth, `mix-blend-mode: difference`, one word in each gutter beside the turban. Size is computed in `:root` from the figure width; do not hardcode.
 - **Figure**: `images/hero-figure.png`, real alpha, bottom-anchored, masked so the head is solid and the torso lets the wave ghost through. Wrapped in `.hero__figure-wrap` so the exit transform never fights the load animation.
-- **Exit** (page `.is-above`), copied from tanweer.framer.ai: `.hero__name` translates up ~58vh and blurs out (about 1.5× page speed), `.hero__figure-wrap` lags 26vh and dissolves (about 0.75×), the wave canvas dims, `.hero-status__inner` leaves first. Reversed on return.
+- **Exit** (page `.is-above`), copied from tanweer.framer.ai: `.hero__name` translates up ~58vh and blurs out (about 1.5× page speed), `.hero__figure-wrap` lags 26vh and dissolves (about 0.75×), the wave canvas dims. `.hero-status__inner` (fixed chrome, not in the track) leaves first via `html[data-page]:not([data-page="hero"])`. Reversed on return.
 - Load animations (`name-in`, `figure-in`, `wave-in`, `dock-in`) use `animation-fill-mode: forwards`. **Never put an exit transform on an element that owns a load animation**; put it on a wrapper.
 
 ## Bio (page 1)
@@ -74,20 +80,24 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 - Odd lines enter from the left, even from the right, staggered 60ms. Kicker "Hello, I'm Maneet" fades up.
 - Edge waves: the hero shader (`EDGE_WAVE` params: scale 1.55, offsetY 0.58) mounted in two `.bio__wave-host` boxes sized 100vh × 100vw and rotated ±90° so the wave band lands on the left / right screen edge, then masked to fade toward the centre. Mounted lazily on first visit, paused when off page.
 
-## About (page 2)
+## About (page 3)
 
 - **Helix**: 24 `.helix__photo` figures in `[data-helix]`, 8 per step in order vision → what I do → my people. Photos live in `images/about/helix/{v,d,p}1-8.jpg` (480×600 portrait or 600×480 landscape crops; add `helix__photo--land` for landscape). Two strands (odd/even index), one `.helix__rung` per pair, real 3D via `perspective` on `.helix`. Idle spin 0.11 rad/s; each step tweens the visible band up one group with an extra 0.9 rad twist. Depth shading via `--shade` on the figure's `::after`.
 - **Copy**: three `.about__block` articles stacked in one grid cell; `.is-current / .is-prev / .is-next` move them ±9vh with blur. Text is Maneet's v1 "Who I Am" copy, rewritten without em dashes. It speaks as him; read `ALG/voice-principles.md` before editing it.
 - To add a photo group: 8 more images, 8 more figures, bump `data-steps`, `data-step-ids`, `data-step-labels`, and add a block.
 
-## Projects (page 3)
+## Projects (page 2)
 
-- **Slab**: `.flip > .flip__inner` rotates about X by `--flip-angle` in 180° increments (accumulates, never resets). `.flip__face--a` is in flow and sets the height; `.flip__face--b` is pre-rotated 180° behind it; two `.flip__edge` hairlines give it 14px of thickness. Before each flip the hidden face is filled from `<template data-card="N">`, so the card content for each project lives in those templates in `index.html`.
-- **Backgrounds**: three `.project__bg` layers (sky canvas, nebula shader + star canvas, paper grain + SVG planes) crossfade with `.is-on`. Engines: `makeSky`, `makeGalaxy`, `makePlanes`. Only the current one runs; the previous stops after the 1.1s crossfade.
-- **Ribbons**: three `.ribbon` layers, `.is-on` fades and lifts the active one.
-- **Theme**: `page.dataset.project` drives the light palette for Regal via `.page--projects[data-project="2"]`; `html[data-theme]` recolours the dots.
+Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal Internship, Resume Agent.
+
+- **Slab**: `.flip > .flip__inner` rotates about X by `--flip-angle` in 180° increments (accumulates, never resets). `.flip__face--a` is in flow and sets the height; `.flip__face--b` is pre-rotated 180° behind it; two `.flip__edge` hairlines give it 14px of thickness. Before each flip the hidden face is filled from `<template data-card="N">` and given `data-project="N"`, so each face carries its own palette and nothing recolours mid-flip. Card content lives in those templates in `index.html`.
+- **Page turn**: the slab starts flipping at 0. The incoming `.project__bg` gets `.is-on` (z 2) and wipes over the outgoing `.is-off` (z 1, unmasked) with a soft-edged mask: a gradient three viewports tall whose `mask-position` slides one viewport, 0.85s on `--page-ease` after a 0.3s delay, so the slab is visibly turning before the background moves. `page.dataset.dir` (`forward`: bottom to top, `back`: top to bottom) picks the mask direction; `paintScene` sets it with `.is-instant` on and flushes before swapping classes, otherwise the hidden layer starts a transition towards the closed state and the swap retargets from the wrong value. Layers that are neither on nor off are `visibility: hidden`. Landing on the page uses `.is-instant` (no wipe).
+- **Ribbons**: the outgoing one drops 5vh and fades in 0.4s; the incoming one rises in from 0.45s (after the slab passes halfway), from below going forward and from above going back. Each copy of the name is separated by a `.ribbon__sep` glyph: YouTube mark (SVG), Ek Onkar (`ੴ`, Noto Sans Gurmukhi subset loaded via a `text=` Google Fonts link), paper plane (SVG), page (SVG). `--ribbon-speed` is set per ribbon so every one drifts at roughly the same px/s regardless of name length.
+- **Backgrounds**: four `.project__bg` layers. Engines: `makeSky`, `makeGalaxy`, `makePlanes`, `makeResume`. Only the current one runs; the previous stops 1.4s after the step.
+- **Resume Agent** (`makeResume`): white sheet (`#f7f7f7`), three grey columns typing themselves in word-sized chunks (the resume, the agent's trace in monospace behind the slab, the cover letter), each holding, fading and restarting on a stagger. Content is the `RESUME_DOC` / `TRACE_DOC` / `LETTER_DOC` arrays of `[kind, text]`; kinds map to `.resume__line--{kind}`. `.resume` is blurred 0.6px and `.resume__glow` whitens the area behind the slab. Reduced motion paints everything at once.
+- **Theme**: palettes live on `[data-project="N"]` (faces, ribbons, backgrounds, and the page for the slab edges). `html[data-theme]` recolours the dots: `dark`, `light` (Regal, maroon), `mono` (Resume Agent, near-black).
 - **Clouds**: pre-rendered sprites. Puffs sit under a dome envelope, base is flattened with a `destination-out` gradient, underside shaded with `source-atop`, then one blur pass. The sprite canvas is sized from the puffs plus padding so nothing clips. If clouds look wrong, fix `sprite()` in `makeSky`, not the draw loop.
-- Placeholders: card tags say `Demo`, ↗ links point at `#`, previews are empty tinted panels. Journal and Contact in the dock go nowhere yet.
+- Placeholders: card tags say `Demo`, ↗ links point at `#`, previews are empty tinted panels. Contact in the dock goes nowhere yet.
 
 ---
 
@@ -102,7 +112,7 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=12` and `js/site.js?v=4`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+`index.html` links `css/site.css?v=14` and `js/site.js?v=7`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html
@@ -128,7 +138,7 @@ Make new helix crops with PIL: `ImageOps.exif_transpose`, then `ImageOps.fit` to
 
 ## Verifying Motion
 
-The Claude desktop Browser pane usually runs hidden and **freezes CSS animation clocks and requestAnimationFrame while hidden**. Screenshots then show only settled states, never mid-transition frames, and pager locks (setTimeout) release late. To check choreography: call `window.__pager.goTo(id)` in one `javascript_tool` call, immediately `pause()` the resulting `CSSTransition`s from `document.getAnimations()`, set `currentTime` to sample points, and read `getComputedStyle`. Leave about 3s between pager calls. For real feel, open the site in a visible browser.
+The Claude desktop Browser pane usually runs hidden and **freezes CSS animation clocks and requestAnimationFrame while hidden**. Screenshots then show only settled states, never mid-transition frames, and pager locks (setTimeout) release late. To check choreography: call `window.__pager.goTo(id)` in one `javascript_tool` call, immediately `pause()` the resulting `CSSTransition`s from `document.getAnimations()`, set `currentTime` to sample points, and read `getComputedStyle`. Leave about 3s between pager calls. Caveat: a transition started earlier and frozen at its start value is what the next transition on that property retargets *from*, so a sampled value can read as the stale one (e.g. a `transform` reading identity when CSS says 5vh). Reload between choreography checks, and for real feel open the site in a visible browser.
 
 ---
 
