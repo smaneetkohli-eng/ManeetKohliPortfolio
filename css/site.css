@@ -925,8 +925,15 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
   .cursor__arrow,
   .cursor__label,
   .card__icon,
+  .card__word,
+  .card__pen,
+  .card__plane,
   .projects__title {
     transition: none;
+  }
+  .card__trail--ink,
+  .card__trail-mask {
+    animation: none;
   }
   .cursor__ring {
     animation: none;
@@ -1302,17 +1309,15 @@ body {
   background: var(--preview-tint);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.04);
 }
-/* Resume Agent preview: white sheet, RESUME on top, AGENT below, the mark
-   across the middle. Type is the hero's Archivo; the mark is black with
-   white separation strokes so it stays readable over the letters. */
-.card__preview--resume {
+/* Word-and-mark previews (Resume Agent, Regal): a big word above, another
+   below, an illustrated mark sitting across both. Type is the hero's
+   Archivo. Hover: the words ease apart and the mark's trail redraws. */
+.card__preview--resume,
+.card__preview--regal {
   position: relative;
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #fff;
-  border-color: rgb(0 0 0 / 0.08);
-  color: #000;
   --word-size: calc(var(--card-w) * 0.15);
 }
 .card__word {
@@ -1328,6 +1333,9 @@ body {
   letter-spacing: -0.02em;
   text-transform: uppercase;
   user-select: none;
+  transition:
+    transform 0.7s var(--ease-out),
+    letter-spacing 0.7s var(--ease-out);
 }
 .card__word--top {
   top: 9%;
@@ -1335,17 +1343,99 @@ body {
 .card__word--bottom {
   bottom: 9%;
 }
+.card:hover .card__word--top {
+  transform: translateY(-4px);
+}
+.card:hover .card__word--bottom {
+  transform: translateY(4px);
+}
 .card__icon {
   position: relative;
   z-index: 1;
-  width: 40%;
+  width: 46%;
   height: auto;
+  overflow: visible;
   transform: translateY(2%);
-  transition: transform 0.6s var(--ease-out);
 }
-.card:hover .card__icon {
-  transform: translateY(-1%) scale(1.04) rotate(-2deg);
+.card__trail {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
 }
+.card__trail-mask {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+/* Redraw the trail on every hover: jump to hidden, then draw. */
+.card:hover .card__trail--ink,
+.card:hover .card__trail-mask {
+  animation: trail-draw 1.1s var(--ease-out) forwards;
+}
+@keyframes trail-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Resume Agent: white sheet, black ink. */
+.card__preview--resume {
+  background: #fff;
+  border-color: rgb(0 0 0 / 0.08);
+  color: #000;
+}
+.card__pen {
+  transition: transform 0.7s var(--ease-out);
+}
+.card:hover .card__pen {
+  transform: translate(99px, 63px) rotate(26deg);
+}
+
+/* Regal: craft paper, maroon ink, a stitched inner border, the plane on a
+   dotted flight line. Cozy on purpose. */
+.card__preview--regal {
+  background: #efe5cf;
+  border-color: rgb(122 31 43 / 0.2);
+  color: #7a1f2b;
+}
+.card__preview--regal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.30  0 0 0 0 0.20  0 0 0 0.42 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 320px 320px;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.card__preview--regal::after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1.5px dashed rgb(122 31 43 / 0.34);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.card__preview--regal .card__word {
+  color: #7a1f2b;
+}
+.card__preview--regal .card__word--bottom {
+  bottom: 11%;
+  font-size: calc(var(--word-size) * 0.56);
+  letter-spacing: 0.1em;
+}
+.card__icon--plane {
+  width: 50%;
+  transform: translate(3%, 1%);
+}
+.card__plane {
+  transition: transform 0.8s var(--ease-out);
+}
+.card:hover .card__plane {
+  transform: translate(5px, -5px) rotate(-3deg);
+}
+
 /* The card is an <a>; only faces with a real href get a link cursor. */
 .card {
   display: flex;
