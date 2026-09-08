@@ -27,7 +27,7 @@
      the photo's height: chin ≈ 55%, shoulders begin ≈ 62%. */
   --head-solid-until: 52%;
   --torso-from: 64%;
-  --torso-opacity: 0.82;
+  --torso-opacity: 0.92;
   --figure-fade-start: 84%;
 
   /* Where the head sits inside the photo at eye level, as fractions of
