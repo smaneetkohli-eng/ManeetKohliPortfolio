@@ -10,10 +10,10 @@
   --black: #000;
   --white: #fff;
 
-  /* Name: "smoked glass" ink. Blended with `difference`, so on black it
-     reads as this grey, and over the white wave it darkens by the same
-     amount. Raise for more presence, lower for more ghost. */
-  --name-ink: rgb(30 30 30);
+  /* Name ink. Blended with `difference`: on black the letters show as this
+     colour; over the white wave they invert to (255 - ink), so near-white
+     ink reads near-black through the wave. */
+  --name-ink: rgb(238 238 238);
   --name-tracking: -0.025em;
 
   --edge: clamp(24px, 3vw, 48px);   /* padding from the four sides */
@@ -21,7 +21,14 @@
   --figure-h: 80vh;              /* hero photo height, bottom-anchored */
   --figure-aspect: 1.1833;       /* hero-figure.png width / height */
   --figure-w: calc(var(--figure-h) * var(--figure-aspect));
-  --figure-fade-start: 80%;      /* where the chest starts dissolving */
+  /* Figure mask, top to bottom: head fully opaque, torso dropped to
+     --torso-opacity so the wave shows through the suit, then a dissolve
+     at the very bottom to hide the photo's hard cut. Percentages are of
+     the photo's height: chin ≈ 55%, shoulders begin ≈ 62%. */
+  --head-solid-until: 52%;
+  --torso-from: 64%;
+  --torso-opacity: 0.82;
+  --figure-fade-start: 84%;
 
   /* Where the head sits inside the photo at eye level, as fractions of
      the photo width measured from its horizontal centre. Left edge of the
@@ -184,10 +191,22 @@ ul {
   transform: translateX(-50%);
   user-select: none;
   -webkit-user-drag: none;
-  /* Dissolve the chest so the photo's hard bottom cut never shows against
-     the wave, and so the last name reads through the shoulders. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 var(--figure-fade-start), transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 var(--figure-fade-start), transparent 100%);
+  /* Head solid, torso translucent so the wave moves through the suit,
+     bottom dissolved so the photo's hard cut never shows. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 var(--head-solid-until),
+    rgb(0 0 0 / var(--torso-opacity)) var(--torso-from),
+    rgb(0 0 0 / var(--torso-opacity)) var(--figure-fade-start),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 var(--head-solid-until),
+    rgb(0 0 0 / var(--torso-opacity)) var(--torso-from),
+    rgb(0 0 0 / var(--torso-opacity)) var(--figure-fade-start),
+    transparent 100%
+  );
   opacity: 0;
   animation: figure-in 1.4s var(--ease-out) 0.2s forwards;
 }
