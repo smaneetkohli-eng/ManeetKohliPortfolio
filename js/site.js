@@ -1002,7 +1002,7 @@ function makeAbout(page) {
 
 /* ---- Projects: flipping slab + page-turn backgrounds ----------------- */
 function makeProjects(page) {
-  const THEMES = ["dark", "dark", "light", "mono"];
+  const THEMES = ["dark", "dark", "dark", "dark"];   // dots stay white on every project
   const bgs = [...page.querySelectorAll(".project__bg")];
   const templates = [...page.querySelectorAll("template[data-card]")];
   const inner = page.querySelector(".flip__inner");

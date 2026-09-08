@@ -56,7 +56,7 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 - Page moves translate `.pages` by whole viewports (`transform`, 1.1s, `--page-ease` = `cubic-bezier(0.45, 0, 0.2, 1)`, a quick ramp so motion shows within ~150ms). Steps take 1.0s.
 - Wheel: a move fires at 10 units of `deltaY` (one or two trackpad events). After a move a 0.9s cooldown ignores the decaying momentum tail, but a fresh gesture (140ms pause, or a delta jumping well above the tail) cuts the cooldown short. `PAGE_EASE` in JS must match `--page-ease`.
 - Every page gets one of three classes: `.is-active`, `.is-above` (already passed), `.is-below` (still to come). **All enter/leave choreography is CSS transitions keyed off those classes.** Look in `site.css` from the "PAGE STATES" banner onward.
-- Controllers expose `{ start, stop, setStep(step, dir, animate), theme(step) }`. Only the active page's engine runs. `theme` sets `html[data-theme]` (Regal is `light`).
+- Controllers expose `{ start, stop, setStep(step, dir, animate), theme(step) }`. Only the active page's engine runs. `theme` sets `html[data-theme]` (currently always `dark`; the hook is there for a future light page).
 - Console handles: `window.__pager.go(page, step)`, `.goTo('hash-id')`, `.next()`, `.prev()`, `.index`, `.step`. Shader mounts: `__wave` (hero), `__edges` (bio, array of two), `__nebula` (Bani AI). Tune with `mount.setUniforms({ u_scale, u_offsetY, ... })`. `__resume.paint()` renders the Resume Agent columns finished.
 
 ## Dock
@@ -97,7 +97,7 @@ Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal In
 - **Backgrounds**: four `.project__bg` layers. Engines: `makeSky`, `makeGalaxy`, `makePlanes`, `makeResume`. Only the current one runs; the previous stops 1.4s after the step.
 - **Sky** (Authentic Intelligence): gradient, cloud canvas, then `.sky__hills`, an inline SVG (viewBox 1440×420, `preserveAspectRatio="none"`, 36vh tall, min 220px) pinned to the bottom over the clouds: three rolling hill paths lit from the top right (yellow-green `#d9dc4c` ridges down to olive `#43602e` shadow, `userSpaceOnUse` gradients), a radial sun patch on the far ridge, and an `feTurbulence` grain rect multiplied over the hills for grass. Edit the paths and stops in `index.html`.
 - **Resume Agent** (`makeResume`): white sheet (`#f7f7f7`), three grey columns typing themselves in word-sized chunks (the resume, the agent's trace in monospace behind the slab, the cover letter), each holding, fading and restarting on a stagger. Content is the `RESUME_DOC` / `TRACE_DOC` / `LETTER_DOC` arrays of `[kind, text]`; kinds map to `.resume__line--{kind}`. The text is decoration only: `.resume` is blurred 3.2px and the name / heading / role lines carry extra blur so nothing is legible, just the shape of a document being written. `.resume__glow` whitens the area behind the slab. Reduced motion paints everything at once.
-- **Theme**: `html[data-theme]` recolours the dots only: `dark`, `light` (Regal, maroon), `mono` (Resume Agent, near-black). The faces still get `data-project="N"` from `fill()` but nothing styles on it now.
+- **Theme**: every project reports `dark`; the dots stay white on all four. The faces still get `data-project="N"` from `fill()` but nothing styles on it now.
 - **Clouds**: pre-rendered sprites. Puffs sit under a dome envelope, base is flattened with a `destination-out` gradient, underside shaded with `source-atop`, then one blur pass. The sprite canvas is sized from the puffs plus padding so nothing clips. If clouds look wrong, fix `sprite()` in `makeSky`, not the draw loop.
 - Placeholders: card tags say `Demo`, ↗ links point at `#`, previews are empty tinted panels. Contact in the dock goes nowhere yet.
 
@@ -114,7 +114,7 @@ Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal In
 
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=19` and `js/site.js?v=9`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+`index.html` links `css/site.css?v=20` and `js/site.js?v=10`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html

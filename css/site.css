@@ -1260,12 +1260,6 @@ body {
   transition: opacity 0.5s var(--ease-out);
   --dots-ink: #fff;
 }
-html[data-theme="light"] .dots {
-  --dots-ink: #7a1f2b;
-}
-html[data-theme="mono"] .dots {
-  --dots-ink: #111;
-}
 .dots__dot[hidden] {
   display: none;
 }
