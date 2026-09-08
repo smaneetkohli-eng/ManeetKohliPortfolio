@@ -14,7 +14,13 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=26" />
+    <!-- Card previews only: a typewriter face for RESUME / AGENT and a
+         handwritten one for "Internship", each subset to its own letters. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@600&text=RESUMAGNTInterships&display=swap"
+    />
+    <link rel="stylesheet" href="css/site.css?v=27" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -219,7 +225,7 @@
           <svg class="card__icon card__icon--pen" viewBox="0 0 132 100" aria-hidden="true">
             <!-- the line the pen has drawn; redraws on hover -->
             <path class="card__trail card__trail--ink" d="M6 78 C 24 58, 40 98, 58 74 S 82 50, 96 66" fill="none" stroke="#000" stroke-width="3.6" stroke-linecap="round" pathLength="1"/>
-            <circle cx="6" cy="78" r="2.6" fill="#000"/>
+            <circle class="card__trail-dot" cx="6" cy="78" r="2.6" fill="#000"/>
             <!-- fountain pen, nib on the end of the line -->
             <g class="card__pen" transform="translate(96 66) rotate(30)" fill="#000" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke">
               <path d="M-7.5 -16 L0 0 L7.5 -16 Z"/>
