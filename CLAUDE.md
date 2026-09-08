@@ -1,15 +1,19 @@
 # CLAUDE.md — Portfolio Website
 *Maneet Kohli's personal portfolio site. Pure HTML/CSS/JS. No framework, no build tool.*
-*Last updated: September 2026*
+*Last updated: September 8, 2026*
 
 ---
 
 ## What This Is
 
-A dark-themed cinematic portfolio site built from scratch. Vanilla HTML, CSS, and JavaScript only. No React, no Vue, no bundler, no npm. Single stylesheet, single JS file. Git initialized on `main` branch.
+A dark, cinematic, single-page portfolio built as a stack of full-viewport **pages** moved by a JS pager: one wheel gesture, swipe, arrow key, or dot click equals one move. Vanilla HTML, CSS, and JavaScript. One stylesheet, one script, one external library (Paper Shaders, loaded from jsDelivr as an ES module). Git on `main`.
 
 Live at: `maneetkohli.com`
 Working directory: `/Users/maneetkohli/Desktop/ALG/PROFESSIONAL-HUB/PORTFOLIO/`
+
+**v1 is archived.** The old multi-page site (arc hero, nav dropdowns, `about.html`, `projects/*`, `experience/*`) lives on git branch `archive/v1`. Its files (`css/styles.css`, `js/main.js`, the subpage HTML) are still in the tree only so old links resolve. Do not build on them. Everything below describes v2.
+
+Desktop first. Mobile is deliberately out of scope until asked.
 
 ---
 
@@ -17,267 +21,123 @@ Working directory: `/Users/maneetkohli/Desktop/ALG/PROFESSIONAL-HUB/PORTFOLIO/`
 
 | Layer | Detail |
 |---|---|
-| Markup | Vanilla HTML5 (`.html` files per page) |
-| Styles | Single file: `css/styles.css` (~3,900 lines) |
-| Scripts | Single file: `js/main.js` (~420 lines) |
-| Fonts | Bebas Neue (display/hero text) + Inter 400/500/600 (body) via Google Fonts |
-| Version control | Git, `main` branch |
-| Hosting | Implied static hosting (maneetkohli.com) |
+| Markup | `index.html` (the whole site) |
+| Styles | `css/site.css` (~1,500 lines) |
+| Script | `js/site.js` (~1,150 lines, ES module) |
+| Shader | `@paper-design/shaders@0.0.80` GrainGradient via `https://cdn.jsdelivr.net/npm/...+esm`. The only approved external lib. |
+| Fonts | Archivo 900 (wdth 100–125, display) + Inter 400/500 (body) + Instrument Serif italic (accents, ribbon) via Google Fonts |
+| Hosting | Static (maneetkohli.com) |
+| Preview | `.claude/launch.json` → "Portfolio Static Server" (python3 http.server, port 8080) |
 
-No transpilation, no PostCSS, no Sass. What you write is what ships.
-
----
-
-## File Map
-
-### Root pages (served from `/`)
-| File | Status | Notes |
-|---|---|---|
-| `index.html` | ✅ Done | Home — hero, about collage, featured projects, contact |
-| `about.html` | 🚧 WIP | Has `page-hero--wip` placeholder — not fully built |
-| `branding.html` | 🚧 WIP | Has `page-hero--wip` placeholder |
-| `certifications.html` | 🚧 WIP | Placeholder state |
-| `contact.html` | ✅ Done | Contact form/info |
-| `bio-brainstorm.html` | 📝 Scratch | NOT production — brainstorm file, don't link to it |
-| `projects-brainstorm.html` | 📝 Scratch | NOT production — brainstorm file, don't link to it |
-
-### Projects (served from `/projects/`)
-| File | Status | Notes |
-|---|---|---|
-| `projects/apps.html` | ✅ Done | Apps — Bani AI, Tesseract featured |
-| `projects/data-viz.html` | 🚧 WIP | Placeholder state |
-| `projects/design.html` | 🚧 WIP | Placeholder state |
-| `projects/bcom.html` | ✅ Done | BCom projects with real imagery |
-
-### Experience (served from `/experience/`)
-| File | Status | Notes |
-|---|---|---|
-| `experience/businesses.html` | ✅ Done | Sky Automations, Punjabi By Flavor |
-| `experience/jobs.html` | ✅ Done | Jobs & Internships |
-| `experience/leadership.html` | ✅ Done | Side Hustle Club etc. |
-
-### Assets
-```
-css/styles.css          — single global stylesheet
-js/main.js              — single global script
-files/AR.pdf            — resume PDF (not linked from the hero since Sept 2026)
-images/
-  favicon.svg           — MK monogram favicon (linked from every page)
-  mountain-bg.png       — hero background (also used for name fill effect)
-  hero.png – hero6.png  — hero figure images (index.html uses hero6.png)
-  hero-name-title.png   — (legacy, name now rendered in CSS)
-  heroes/               — per-page hero background images (about, apps, businesses, etc.)
-  projects/home/        — project card logos (logo-bani-ai.png, etc.)
-  about/home/           — home page collage photos
-  about/about-main/     — about.html staging photos (raw, page not built yet)
-  bcom/                 — BCom page images (data/, email/ subfolders) — lowercase, matches HTML refs
-  Video/intro.mp4       — intro modal video (H.264/AAC, remuxed from the old .mov)
-```
+No transpilation, no PostCSS, no Sass, no npm. What you write is what ships.
 
 ---
 
-## CSS Architecture
+## Page Map
 
-### Variables (`:root` in styles.css)
-All layout tokens are CSS custom properties. Key ones:
-```css
---split: 70vh / 70svh    /* height of the mountain hero top section (svh declared after vh as the fallback pair) */
---figure-height: 92vh    /* hero figure height (same vh/svh pair) */
---figure-overhang: 30vh  /* how far below the split line the figure hangs (same pair) */
---hero-figure-w          /* figure width — the social rail is positioned off this box */
---hero-name-size         /* clamp-based responsive name font size */
---hero-name-lines        /* 1 desktop, 2 on mobile (first/last stacked) — feeds --name-bottom */
---arc-sag                /* how much higher the glowing arc sits at the viewport edges than at centre */
---social-tile            /* social rail tile size */
---ease-out               /* cubic-bezier(0.22, 1, 0.36, 1) — use for all transitions */
---charcoal: #111         /* primary dark background */
---line-glow              /* white glow box-shadow for the dividing line */
-```
-**Don't hardcode these values elsewhere — always reference the variable.**
+Pages are `<section class="page">` inside `<main class="pages" id="pages">`, in this order. A page can declare `data-steps="N"` to hold several states; gestures step through them before moving to the next page.
 
-### z-index Map (documented in styles.css, never deviate)
-```
-page-stage level:
-15   .hero-bottom           dark panel — pulled up under the arc by --arc-sag
-16   .hero-top              stacking context: mountain + arc paint over the panel's corners
-30   .hero-figure           person image — above both sections
-32   .social-rail           social tiles — right of the figure, above it
-200  .site-header           nav
+| # | id | Steps (hash ids) | Controller in site.js | What it is |
+|---|---|---|---|---|
+| 0 | `#hero` | — | `makeHero` | Wave shader, split name MANEET / KOHLI, figure, torso cycle + scroll prompt |
+| 1 | `#bio` | — | `makeEdgeWaves` | One bold six-line statement between two white edge waves |
+| 2 | `#about` | `#vision` `#me` `#people` | `makeAbout` | Photo helix left, copy right; each step scrolls the helix and swaps the copy |
+| 3 | `#projects` | `#youtube` `#bani-ai` `#regal` | `makeProjects` | One flipping glass slab; backgrounds and ribbon crossfade per step |
 
-inside .hero-top (its own stack; the figure is always above all of these):
-0    .hero-top__bg-clip     mountain bg — ellipse-clipped so its bottom edge is the U
-4    .hero-top::after       figure shadow on mountain
-5    .hero-name-layer       name text
-6    .name-rule             rule under the tagline
-11   .hero-arc              glowing arc (SVG lens along the curve)
-36   .hero-subtitle         tagline
-```
-If you need a new stacked element, pick a z-index that fits this map. Never move existing values.
+Landing rules: arriving from above lands on step 0, arriving from below lands on the last step. Deep links work for both page ids and step ids. The hash is kept in sync with `history.replaceState`.
 
-### Class Naming
-BEM-style throughout. Pattern: `.block__element--modifier`
-- `.hero-frost-panes__col--left`
-- `.project-card--pbf`
-- `.skills-marquee__row--l1`
-
-Stick to this pattern for any new classes.
-
-### Scroll Animations
-Add `data-reveal` to any section/element you want to fade in on scroll. The JS in `main.js` handles the IntersectionObserver automatically. Nothing else needed.
-
-### Safari Fallbacks
-`main.js` adds `.is-safari` to `<html>` on Safari. CSS has `.is-safari .name-display { ... }` fallback for the mountain-texture name fill (which uses SVG filter + background-clip — Safari handles it differently). When adding complex visual effects, add a `.is-safari` fallback if needed.
-
-### WIP Pages
-Pages not yet built use this placeholder pattern:
-```html
-<section class="page-hero page-hero--wip" aria-labelledby="page-hero-title">
-  <div class="page-hero__media" aria-hidden="true"></div>
-  <div class="page-hero__scrim" aria-hidden="true"></div>
-  <div class="page-hero__inner">
-    <!-- WIP content -->
-  </div>
-</section>
-```
-Replace `page-hero--wip` with the page-specific modifier (e.g., `page-hero--about`) when building the page out.
+Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown only on pages with steps), `.edge-blur` (bottom progressive blur), `.cursor` (inverting dot).
 
 ---
 
-## ⚠️ CSS Cache-Busting — CRITICAL
+## How the Pager Works (`js/site.js`)
 
-Every page links the stylesheet with a version query string:
-```html
-<link rel="stylesheet" href="css/styles.css?v=29" />
-```
-All pages are synced at `styles.css?v=29` and `main.js?v=19` (September 2026). When you edit `styles.css` or `main.js`, bump the version number on EVERY page that uses it, or the browser will serve stale styles from cache.
+- State is `(index, step)`. `next()` / `prev()` step inside the page first, then change page.
+- Page moves translate `.pages` by whole viewports (`transform`, 1.1s, `cubic-bezier(0.76, 0, 0.24, 1)`). Steps take 1.0s. A 1.2s cooldown absorbs trackpad momentum.
+- Every page gets one of three classes: `.is-active`, `.is-above` (already passed), `.is-below` (still to come). **All enter/leave choreography is CSS transitions keyed off those classes.** Look in `site.css` from the "PAGE STATES" banner onward.
+- Controllers expose `{ start, stop, setStep(step, dir, animate), theme(step) }`. Only the active page's engine runs. `theme` sets `html[data-theme]` (Regal is `light`).
+- Console handles: `window.__pager.go(page, step)`, `.goTo('hash-id')`, `.next()`, `.prev()`, `.index`, `.step`. Shader mounts: `__wave` (hero), `__edges` (bio, array of two), `__nebula` (Bani AI). Tune with `mount.setUniforms({ u_scale, u_offsetY, ... })`.
 
-**Whenever you touch styles.css or main.js: update ALL version numbers across all HTML files to the next increment.**
+---
 
-To find all version references fast:
+## Hero (page 0)
+
+- **Wave**: GrainGradient `shape: "wave"`, params copied from midu.design, white palette. Static CSS fallback if WebGL fails (`.is-fallback`).
+- **Name**: Archivo 900 / 125 wdth, `mix-blend-mode: difference`, one word in each gutter beside the turban. Size is computed in `:root` from the figure width; do not hardcode.
+- **Figure**: `images/hero-figure.png`, real alpha, bottom-anchored, masked so the head is solid and the torso lets the wave ghost through. Wrapped in `.hero__figure-wrap` so the exit transform never fights the load animation.
+- **Exit** (page `.is-above`), copied from tanweer.framer.ai: `.hero__name` translates up ~58vh and blurs out (about 1.5× page speed), `.hero__figure-wrap` lags 26vh and dissolves (about 0.75×), the wave canvas dims, `.hero-status__inner` leaves first. Reversed on return.
+- Load animations (`name-in`, `figure-in`, `wave-in`, `dock-in`) use `animation-fill-mode: forwards`. **Never put an exit transform on an element that owns a load animation**; put it on a wrapper.
+
+## Bio (page 1)
+
+- `.bio__statement`: six `.bio__line` spans with hand-placed breaks and `white-space: nowrap`. Keep each line under ~28 characters or it overflows at 4.7vw. `.bio__accent` is Instrument Serif italic.
+- Odd lines enter from the left, even from the right, staggered 60ms. Kicker "Hello, I'm Maneet" fades up.
+- Edge waves: the hero shader (`EDGE_WAVE` params: scale 1.55, offsetY 0.58) mounted in two `.bio__wave-host` boxes sized 100vh × 100vw and rotated ±90° so the wave band lands on the left / right screen edge, then masked to fade toward the centre. Mounted lazily on first visit, paused when off page.
+
+## About (page 2)
+
+- **Helix**: 24 `.helix__photo` figures in `[data-helix]`, 8 per step in order vision → what I do → my people. Photos live in `images/about/helix/{v,d,p}1-8.jpg` (480×600 portrait or 600×480 landscape crops; add `helix__photo--land` for landscape). Two strands (odd/even index), one `.helix__rung` per pair, real 3D via `perspective` on `.helix`. Idle spin 0.11 rad/s; each step tweens the visible band up one group with an extra 0.9 rad twist. Depth shading via `--shade` on the figure's `::after`.
+- **Copy**: three `.about__block` articles stacked in one grid cell; `.is-current / .is-prev / .is-next` move them ±9vh with blur. Text is Maneet's v1 "Who I Am" copy, rewritten without em dashes. It speaks as him; read `ALG/voice-principles.md` before editing it.
+- To add a photo group: 8 more images, 8 more figures, bump `data-steps`, `data-step-ids`, `data-step-labels`, and add a block.
+
+## Projects (page 3)
+
+- **Slab**: `.flip > .flip__inner` rotates about X by `--flip-angle` in 180° increments (accumulates, never resets). `.flip__face--a` is in flow and sets the height; `.flip__face--b` is pre-rotated 180° behind it; two `.flip__edge` hairlines give it 14px of thickness. Before each flip the hidden face is filled from `<template data-card="N">`, so the card content for each project lives in those templates in `index.html`.
+- **Backgrounds**: three `.project__bg` layers (sky canvas, nebula shader + star canvas, paper grain + SVG planes) crossfade with `.is-on`. Engines: `makeSky`, `makeGalaxy`, `makePlanes`. Only the current one runs; the previous stops after the 1.1s crossfade.
+- **Ribbons**: three `.ribbon` layers, `.is-on` fades and lifts the active one.
+- **Theme**: `page.dataset.project` drives the light palette for Regal via `.page--projects[data-project="2"]`; `html[data-theme]` recolours the dots.
+- **Clouds**: pre-rendered sprites. Puffs sit under a dome envelope, base is flattened with a `destination-out` gradient, underside shaded with `source-atop`, then one blur pass. The sprite canvas is sized from the puffs plus padding so nothing clips. If clouds look wrong, fix `sprite()` in `makeSky`, not the draw loop.
+- Placeholders: card tags say `Demo`, ↗ links point at `#`, previews are empty tinted panels. Journal and Contact in the dock go nowhere yet.
+
+---
+
+## CSS Conventions
+
+- **Tokens** live in `:root` blocks next to the section that uses them (`--edge`, `--figure-h`, `--name-size`, `--page-ease`, `--page-ms`, `--card-w`, `--helix-photo-h`, `--slab-depth`, …). Reference the variable; never hardcode a duplicate.
+- **BEM**: `.block__element--modifier`. State classes are `is-*`.
+- **z-maps** are documented in comments above each section (hero, page level, projects). Read them before adding a stacked element; never move existing values.
+- **Motion**: transitions use `var(--page-ease)` and `var(--page-ms)` so everything rides the same curve as the track. `prefers-reduced-motion` collapses all of it; keep that block current when adding transitions.
+
+---
+
+## ⚠️ Cache-Busting — CRITICAL
+
+`index.html` links `css/site.css?v=12` and `js/site.js?v=4`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+
 ```bash
-grep -rn 'styles.css?v=' .
-grep -rn 'main.js?v=' .
+grep -n 'site.css?v=\|site.js?v=' index.html
 ```
 
 ---
 
-## JS Architecture (`js/main.js`)
+## Images
 
-All code is in a single IIFE: `(function() { "use strict"; })();`
-
-Key systems in main.js:
-1. **Header scroll** — `.site-header` gets `.is-scrolled` after 48px scroll
-2. **Nav dropdowns** — keyboard-accessible, click-outside to close, hamburger for mobile
-3. **Scroll reveal** — IntersectionObserver on `[data-reveal]` elements
-4. **Intro video modal** — `#intro-video-btn` opens a modal with the intro video. The modal markup and JS are still in place, but the hero no longer has a trigger (removed with the frost cards, Sept 2026). Add any element with `id="intro-video-btn"` to bring it back.
-5. **Secret easter egg** — `#secret-collage-trigger` (the Six Flags photo in the home collage) opens a password-protected modal. Password unlocks a private video via Google Drive. Don't remove or alter this trigger.
-6. **Year** — `#year` element gets current year injected
-
-The hero itself is pure CSS: no JS drives the arc, the figure, or the social rail.
-
-**No external JS libraries.** Keep it that way unless there's a strong reason — vanilla is fast, dependency-free, and already working.
-
----
-
-## Nav Pattern
-
-The nav is copy-pasted across all pages. It's identical on every file. When adding a new page to the nav or changing a nav link, **update every single HTML file**. There's no shared include system — it's static HTML.
-
-Nav structure:
-```html
-<header class="site-header" id="top">
-  <a class="logo" href="index.html">Maneet Kohli</a>  <!-- or "../index.html" for subpages -->
-  <button class="nav-hamburger" ...>...</button>
-  <nav class="site-nav" id="primary-nav" aria-label="Primary">
-    <!-- Projects dropdown -->
-    <!-- Experience dropdown -->
-    <!-- Branding, Certifications, About Me, Contact links -->
-  </nav>
-</header>
+```
+images/hero-figure.png        hero photo, real alpha
+images/signature.png          dock signature (white ink)
+images/favicon.svg            MK monogram
+images/about/helix/           24 helix crops (v1-8, d1-8, p1-8)
+images/about/home/            source photos (v1 collage), keep
+images/about/about-main/      raw staging photos, huge originals, keep out of the page
+images/heroes/, projects/, bcom/, hero*.png, mountain-bg.png, Video/   v1 assets, unused by v2
 ```
 
-For **root-level pages** (index.html, about.html, etc.), hrefs are relative: `projects/apps.html`
-For **subpages** (projects/*, experience/*), hrefs are: `../projects/apps.html`, `../index.html`
+Make new helix crops with PIL: `ImageOps.exif_transpose`, then `ImageOps.fit` to 480×600 (portrait) or 600×480 (landscape), JPEG quality 84.
 
 ---
 
-## Footer Pattern
+## Verifying Motion
 
-Same deal — copy-pasted across all pages, fully static. The footer has:
-- `.site-footer__watermark` — large "Maneet Kohli" background text (decorative)
-- `.site-footer__top` — blurb + nav columns (Projects, Experience, Explore)
-- `.site-footer__bottom` — copyright + tagline
-
-Footer nav also uses relative paths depending on page depth.
-
----
-
-## Adding a New Page — Checklist
-
-1. Copy an existing done page (e.g., `experience/businesses.html`) as the starting template
-2. Update `<title>` to `[Page Name] — Maneet Kohli`
-3. Fix all relative paths in nav and footer hrefs (root vs. subpage depth)
-4. Replace the `page-hero--wip` modifier with a new BEM modifier (e.g., `page-hero--design`)
-5. Add a corresponding `.page-hero--design` CSS rule in styles.css with the right hero image
-6. Bump `?v=N` on the stylesheet link for all modified pages
-7. If it's a new nav item, update nav in ALL html files
-
----
-
-## Image Conventions
-
-- Hero background images: `images/heroes/[pagename].png` — used in `.page-hero__media` via CSS `background-image`
-- Home page collage: `images/about/home/*.png`
-- Project logos (featured cards): `images/projects/home/logo-[name].png`
-- Hero figure: `images/hero6.png` (index.html)
-- Resume PDF: `files/AR.pdf` — update this file when a new resume is generated
-
-All images use `loading="lazy"` and `decoding="async"` except the hero figure (above the fold).
-
----
-
-## Hero Anatomy (September 2026)
-
-Top to bottom, nothing else: name (mountain-texture fill) → tagline → name rule → the figure, leaning on a glowing arc → social rail to the figure's right. The left side is intentionally empty.
-
-- **Arc.** The split line is a wide, shallow U. `.hero-top__bg-clip` is clipped to a giant ellipse (Rx 300vw, Ry 72 × `--arc-sag`) whose bottom passes through the split at centre and sits `--arc-sag` higher at the edges. `.hero-bottom` is pulled up by `--arc-sag` and `.hero-top` is a stacking context above it, so the dark panel's own gradient fills the corners (no colour matching, no seam). `.hero-arc` is an SVG lens (viewBox `0 0 1000 300`, `preserveAspectRatio="none"`) along the same curve: zero width at the edges, widest under the figure, with a horizontal opacity gradient. The box is 3 × sag tall and hangs 1 × sag below the split so the curve lines up with the clip.
-- **Social rail.** `<ul class="social-rail">` with four glass tiles (LinkedIn, YouTube, TikTok, Instagram), positioned at `left: 50% + --hero-figure-w × 0.36` just under the arc, with a hairline up to the line. Labels slide out on hover/focus (hidden ≤768px). On mobile it pins to the right edge, clear of the figure's faded arm.
-- **Mobile name.** ≤640px the name stacks first/last on two lines (`--hero-name-lines: 2`); `--name-bottom` accounts for the extra line so the tagline and rule stay below it.
-- **Load animations.** name → tagline → rule → figure → arc (scaleX from centre) → rail tiles staggered. All in CSS; `prefers-reduced-motion` collapses them.
-
-If you change `--arc-sag`, both the ellipse clip and the SVG box scale with it automatically. If you change the SVG curve control points, the ellipse no longer matches — keep the curve at y=100 (edges) / y=200 (centre).
-
-## Known State (September 2026)
-
-**Done and stable:**
-- `index.html` — hero (name, tagline, rule, figure, arc, social rail), about collage, featured projects, contact, footer, secret easter egg. Intro video modal markup/JS retained without a hero trigger.
-- Social rail URLs: LinkedIn and Instagram are confirmed. **YouTube (`youtube.com/@maneetkohli07`) and TikTok (`tiktok.com/@maneetkohli07`) are placeholders that need confirming.**
-- `projects/apps.html` — Bani AI + Tesseract cards
-- `projects/bcom.html` — BCom projects with real imagery
-- `experience/` — all three pages done
-
-**In progress / WIP:**
-- `about.html` — has placeholder hero, needs full about page build
-- `branding.html` — placeholder
-- `certifications.html` — placeholder
-- `projects/data-viz.html` — placeholder
-- `projects/design.html` — placeholder
-
-**Housekeeping (July 2026):**
-- `.gitignore` covers `.DS_Store` and `.claude/worktrees/`
-- All pages carry favicon, meta description, theme-color; index also has OG tags
-- Footer year is injected via `<span id="year">` (main.js)
-- Scroll-reveal requires JS to add `reveal-enabled` on `<html>` — content is never hidden without JS
+The Claude desktop Browser pane usually runs hidden and **freezes CSS animation clocks and requestAnimationFrame while hidden**. Screenshots then show only settled states, never mid-transition frames, and pager locks (setTimeout) release late. To check choreography: call `window.__pager.goTo(id)` in one `javascript_tool` call, immediately `pause()` the resulting `CSSTransition`s from `document.getAnimations()`, set `currentTime` to sample points, and read `getComputedStyle`. Leave about 3s between pager calls. For real feel, open the site in a visible browser.
 
 ---
 
 ## Rules
 
-- No frameworks. No npm. No build tools. Keep it vanilla.
-- Never introduce external JS libraries without explicit approval.
-- Always bump `?v=N` on ALL pages when touching `styles.css` or `main.js`.
-- Preserve the z-index map — never break stacking order without understanding the full chain.
-- Never touch the secret easter egg logic unless specifically asked.
-- Don't link to `bio-brainstorm.html` or `projects-brainstorm.html` — those are scratch files.
-- Before changing the nav structure, update every HTML file.
-- Commit after every meaningful change. Commit messages should be specific (see git log for tone).
+- No frameworks. No npm. No build tools. Keep it vanilla. Paper Shaders is the one approved external library; adding another needs explicit approval.
+- Always bump `?v=N` in `index.html` when touching `site.css` or `site.js`.
+- Preserve the z-maps and the `.is-active / .is-above / .is-below` convention. New page choreography goes in CSS off those classes, not in JS.
+- New pages: add a `<section class="page" id="…" data-bg="…">`, a controller case in the pager's `switch`, and enter/leave rules in CSS. Steps need `data-steps`, `data-step-ids`, `data-step-labels`.
+- Do not edit the archived v1 files or link to `bio-brainstorm.html` / `projects-brainstorm.html`.
+- Copy on the site speaks as Maneet. Read `ALG/voice-principles.md` first. No em dashes.
+- Commit after every meaningful change with a specific message (see `git log` for tone). No AI attribution anywhere.
