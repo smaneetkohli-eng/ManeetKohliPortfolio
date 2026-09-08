@@ -474,6 +474,33 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
       opacity 0.3s var(--ease-out),
       transform 0.45s var(--ease-out);
   }
+  .cursor__label {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 0 16px;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity 0.3s var(--ease-out),
+      transform 0.45s var(--ease-out);
+  }
+  .cursor.is-card.is-label .cursor__label {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .cursor.is-card.is-label .cursor__arrow {
+    opacity: 0;
+  }
   .cursor.is-card {
     --cur: 112px;
     mix-blend-mode: normal;
@@ -895,7 +922,10 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
   }
   .cursor,
   .cursor__ring,
-  .cursor__arrow {
+  .cursor__arrow,
+  .cursor__label,
+  .card__icon,
+  .projects__title {
     transition: none;
   }
   .cursor__ring {
@@ -963,6 +993,47 @@ body {
 }
 /* The card keeps this one dark glass palette on every project; only the
    backgrounds and the dots change per step. */
+
+/* ---------- Title ----------
+   Same on every step: a small index and "Projects and Experiences",
+   top left under the dock. Dark ink on the white project. */
+.projects__title {
+  position: absolute;
+  left: var(--edge);
+  top: calc(var(--dock-top) + var(--dock-h) + 34px);
+  z-index: 4;
+  margin: 0;
+  pointer-events: none;
+  color: #fff;
+  transition:
+    color 0.6s var(--page-ease) 0.5s,
+    opacity 0.8s var(--page-ease),
+    transform var(--page-ms) var(--page-ease);
+}
+.page--projects[data-project="3"] .projects__title {
+  color: #111;
+}
+.page--projects:not(.is-active) .projects__title {
+  opacity: 0;
+  transform: translateY(6vh);
+}
+.projects__title-index {
+  margin: 0 0 10px;
+  font-size: var(--meta-size);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  opacity: 0.7;
+}
+.projects__title-text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 100%;
+  font-size: clamp(20px, 1.9vw, 30px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.18);
+}
 
 /* ---------- Backgrounds ----------
    A step is a page turn. The slab starts flipping first; 0.3s later the
@@ -1229,6 +1300,29 @@ body {
   background: var(--preview-tint);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.04);
 }
+/* Icon preview (Resume Agent): white line icon on black. */
+.card__preview--icon {
+  display: grid;
+  place-items: center;
+  background: #000;
+  border-color: rgb(255 255 255 / 0.1);
+}
+.card__icon {
+  width: 34%;
+  height: auto;
+  filter: drop-shadow(0 0 18px rgb(255 255 255 / 0.18));
+  transition: transform 0.6s var(--ease-out);
+}
+.card:hover .card__icon {
+  transform: translateY(-3px) scale(1.04);
+}
+/* The card is an <a>; only faces with a real href get a link cursor. */
+.card {
+  display: flex;
+}
+.card:not([href]) {
+  cursor: default;
+}
 .card__tags {
   display: flex;
   gap: 8px;
@@ -1259,6 +1353,9 @@ body {
   pointer-events: none;
   transition: opacity 0.5s var(--ease-out);
   --dots-ink: #fff;
+}
+html[data-theme="mono"] .dots {
+  --dots-ink: #111;   /* white would vanish on the Resume Agent sheet */
 }
 .dots__dot[hidden] {
   display: none;

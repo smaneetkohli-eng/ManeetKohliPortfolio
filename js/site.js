@@ -224,6 +224,7 @@ function makeHero() {
   html.classList.add("has-cursor");
 
   const HOVER = "a, button, [role='button'], input, textarea, select, label";
+  const label = el.querySelector(".cursor__label");
   let tx = -100, ty = -100; // target
   let x = tx, y = ty;       // rendered
   let scale = 1, targetScale = 1;
@@ -249,6 +250,9 @@ function makeHero() {
     const card = e.target instanceof Element && e.target.closest(".card");
     const over = !card && e.target instanceof Element && e.target.closest(HOVER);
     el.classList.toggle("is-card", !!card);
+    const text = (card && card.dataset.cursor) || "";
+    if (label && text && label.textContent !== text) label.textContent = text;
+    el.classList.toggle("is-label", !!text);
     el.classList.toggle("is-hover", !!over);
     targetScale = over ? 1.8 : 1;   // the card state sizes itself in CSS
     if (!raf) raf = requestAnimationFrame(frame);
@@ -1002,7 +1006,7 @@ function makeAbout(page) {
 
 /* ---- Projects: flipping slab + page-turn backgrounds ----------------- */
 function makeProjects(page) {
-  const THEMES = ["dark", "dark", "dark", "dark"];   // dots stay white on every project
+  const THEMES = ["dark", "dark", "dark", "mono"];   // mono: dark dots on the white sheet
   const bgs = [...page.querySelectorAll(".project__bg")];
   const templates = [...page.querySelectorAll("template[data-card]")];
   const inner = page.querySelector(".flip__inner");
@@ -1023,10 +1027,24 @@ function makeProjects(page) {
 
   const frontIndex = () => (Math.round(angle / 180) % 2 === 0 ? 0 : 1);
 
+  /* Clone the template onto a face. The template's data-href makes the
+     face a real link; data-cursor swaps the cursor's arrow for a label. */
   function fill(face, s) {
     const tpl = templates.find((t) => Number(t.dataset.card) === s);
     face.replaceChildren(tpl ? tpl.content.cloneNode(true) : "");
-    face.dataset.project = String(s);   // the face owns its palette
+    face.dataset.project = String(s);
+    const href = tpl?.dataset.href;
+    if (href) {
+      face.href = href;
+      face.target = "_blank";
+      face.rel = "noopener";
+    } else {
+      face.removeAttribute("href");
+      face.removeAttribute("target");
+      face.removeAttribute("rel");
+    }
+    if (tpl?.dataset.cursor) face.dataset.cursor = tpl.dataset.cursor;
+    else delete face.dataset.cursor;
   }
 
   /* The slab is already turning when this runs. Set the direction first
