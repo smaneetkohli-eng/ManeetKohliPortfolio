@@ -37,8 +37,19 @@ const WAVE = {
   worldHeight: 0,
 };
 
+/* Bio page: the same wave, thinner and pushed to the host's bottom edge,
+   which the CSS rotation turns into the left / right screen edge. */
+const EDGE_WAVE = {
+  ...WAVE,
+  scale: 1.55,
+  offsetX: 0,
+  offsetY: 0.58,
+};
+const EDGE_WAVE_SPEED = 0.55;
+
 /* ---- Mount ---------------------------------------------------------- */
 const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+const html = document.documentElement;
 
 function pixelBudget() {
   // midu's rule: heavy screens get a lower pixel cap.
@@ -48,7 +59,8 @@ function pixelBudget() {
   return dpr >= 2 || w * h * dpr * dpr > 4e6 ? 1.6e6 : 2.6e6;
 }
 
-/* One GrainGradient mount. Used by the hero wave and the Bani AI nebula. */
+/* One GrainGradient mount. Used by the hero wave, the bio edge waves and
+   the Bani AI nebula. */
 async function mountGrain(host, params, colors, speed) {
   if (!host) return null;
 
@@ -105,16 +117,35 @@ async function mountGrain(host, params, colors, speed) {
   return mount;
 }
 
-const host = document.getElementById("hero-wave");
-mountGrain(host, WAVE, WAVE_COLORS, WAVE_SPEED)
+/* Hero wave: mounts immediately; the pager pauses it when the hero is off
+   screen and resumes it on the way back. */
+let heroMount = null;
+let heroLive = true;
+const heroHost = document.getElementById("hero-wave");
+mountGrain(heroHost, WAVE, WAVE_COLORS, WAVE_SPEED)
   .then((mount) => {
+    heroMount = mount;
+    mount.setSpeed(heroLive && !reducedMotion?.matches ? WAVE_SPEED : 0);
     // Exposed for live tuning from the console.
     window.__wave = mount;
   })
   .catch((err) => {
     console.warn("Hero wave failed to mount, using static fallback.", err);
-    host?.classList.add("is-fallback");
+    heroHost?.classList.add("is-fallback");
   });
+
+function makeHero() {
+  return {
+    start() {
+      heroLive = true;
+      heroMount?.setSpeed(reducedMotion?.matches ? 0 : WAVE_SPEED);
+    },
+    stop() {
+      heroLive = false;
+      heroMount?.setSpeed(0);
+    },
+  };
+}
 
 /* =====================================================================
    Clock + day/night icon (midu's availability status), Texas time.
@@ -148,7 +179,7 @@ mountGrain(host, WAVE, WAVE_COLORS, WAVE_SPEED)
     const now = new Date();
     const hour = parseInt(hourFmt.format(now), 10) % 24;
     const day = hour >= 7 && hour < 22; // sun 7:00 AM – 9:59 PM, sleep otherwise
-    const label = `${timeFmt.format(now)} Texas, United States`;
+    const label = `${timeFmt.format(now)} Texas, United States`;
     text.textContent = label;
     text.dataset.text = label;
 
@@ -190,7 +221,7 @@ mountGrain(host, WAVE, WAVE_COLORS, WAVE_SPEED)
   const el = document.getElementById("cursor");
   const fine = window.matchMedia?.("(hover: hover) and (pointer: fine)");
   if (!el || !fine?.matches) return;
-  document.documentElement.classList.add("has-cursor");
+  html.classList.add("has-cursor");
 
   const HOVER = "a, button, [role='button'], input, textarea, select, label";
   let tx = -100, ty = -100; // target
@@ -228,54 +259,138 @@ mountGrain(host, WAVE, WAVE_COLORS, WAVE_SPEED)
 })();
 
 /* =====================================================================
-   BACKGROUND ENGINES — one per project page. Each returns
-   { start, stop }. Only the active page runs; the pager below drives it.
+   Shared helpers
    ===================================================================== */
 const rand = (a, b) => a + Math.random() * (b - a);
 
-/* ---- Sky: layered clouds drifting across a gradient ------------------ */
+/* cubic-bezier(0.76, 0, 0.24, 1) — the track's curve, for JS tweens. */
+function cubicBezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sampleX = (t) => ((ax * t + bx) * t + cx) * t;
+  const sampleY = (t) => ((ay * t + by) * t + cy) * t;
+  const slopeX = (t) => (3 * ax * t + 2 * bx) * t + cx;
+  return (x) => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const dx = sampleX(t) - x;
+      const s = slopeX(t);
+      if (Math.abs(dx) < 1e-5 || s === 0) break;
+      t -= dx / s;
+    }
+    return sampleY(Math.min(1, Math.max(0, t)));
+  };
+}
+const PAGE_EASE = cubicBezier(0.76, 0, 0.24, 1);
+const PAGE_MS = 1100;
+
+/* =====================================================================
+   BACKGROUND ENGINES — one per project. Each returns { start, stop }.
+   Only the visible one runs; the projects controller drives them.
+   ===================================================================== */
+
+/* ---- Sky: layered cumulus drifting across a gradient ------------------
+   Each cloud is pre-rendered once: a row of overlapping soft puffs under
+   a dome envelope (fluffy top, flatter base), shaded underneath, softened
+   with a blur pass. The sprite canvas is sized from the puffs, so nothing
+   is ever clipped at the edges. */
 function makeSky(canvas) {
   const ctx = canvas.getContext("2d");
   let w = 0, h = 0, dpr = 1, clouds = [], raf = 0, last = 0;
 
-  // Each cloud is a cluster of soft radial puffs, pre-rendered once.
   function sprite(r) {
-    const size = Math.ceil(r * 3);
+    const puffs = [];
+    const width = r * rand(2.2, 3.2);
+    const n = 16 + Math.floor(Math.random() * 10);
+    for (let i = 0; i < n; i++) {
+      const u = (i / (n - 1)) * 2 - 1;                 // -1 .. 1 across
+      const env = Math.sqrt(Math.max(0, 1 - u * u));   // dome
+      const pr = r * (0.36 + 0.5 * env) * rand(0.78, 1.12);
+      const px = u * width * 0.5 + rand(-0.12, 0.12) * r;
+      const py = -env * r * rand(0.15, 0.7) - pr * 0.25; // baseline is 0
+      puffs.push({ px, py, pr });
+    }
+    // a few small bumps riding on top for texture
+    for (let i = 0; i < 5; i++) {
+      const base = puffs[Math.floor(rand(n * 0.2, n * 0.8))];
+      const pr = base.pr * rand(0.4, 0.6);
+      puffs.push({ px: base.px + rand(-0.6, 0.6) * base.pr, py: base.py - base.pr * rand(0.45, 0.75), pr });
+    }
+
+    const pad = r * 0.7;
+    const minX = Math.min(...puffs.map((p) => p.px - p.pr)) - pad;
+    const maxX = Math.max(...puffs.map((p) => p.px + p.pr)) + pad;
+    const minY = Math.min(...puffs.map((p) => p.py - p.pr)) - pad;
+    const maxY = Math.max(...puffs.map((p) => p.py + p.pr)) + pad;
+    const cw = Math.ceil(maxX - minX);
+    const ch = Math.ceil(maxY - minY);
+
     const c = document.createElement("canvas");
-    c.width = c.height = size;
+    c.width = cw;
+    c.height = ch;
     const g = c.getContext("2d");
-    const puffs = 7 + Math.floor(Math.random() * 5);
-    for (let i = 0; i < puffs; i++) {
-      const px = size / 2 + (Math.random() - 0.5) * r * 1.7;
-      const py = size / 2 + (Math.random() - 0.5) * r * 0.6 + r * 0.12;
-      const pr = r * (0.42 + Math.random() * 0.5);
-      const grad = g.createRadialGradient(px, py, 0, px, py, pr);
-      grad.addColorStop(0, "rgba(255,255,255,0.95)");
-      grad.addColorStop(0.55, "rgba(255,255,255,0.5)");
+    g.translate(-minX, -minY);
+
+    // body: soft white puffs
+    for (const p of puffs) {
+      const grad = g.createRadialGradient(p.px, p.py, p.pr * 0.15, p.px, p.py, p.pr);
+      grad.addColorStop(0, "rgba(255,255,255,0.98)");
+      grad.addColorStop(0.62, "rgba(255,255,255,0.86)");
       grad.addColorStop(1, "rgba(255,255,255,0)");
       g.fillStyle = grad;
       g.beginPath();
-      g.arc(px, py, pr, 0, Math.PI * 2);
+      g.arc(p.px, p.py, p.pr, 0, Math.PI * 2);
       g.fill();
+    }
+    // flatten the base: fade everything below the baseline
+    g.globalCompositeOperation = "destination-out";
+    const cut = g.createLinearGradient(0, 0, 0, r * 0.9);
+    cut.addColorStop(0, "rgba(0,0,0,0)");
+    cut.addColorStop(0.45, "rgba(0,0,0,0.55)");
+    cut.addColorStop(1, "rgba(0,0,0,1)");
+    g.fillStyle = cut;
+    g.fillRect(minX, 0, cw, r);
+    // shade the underside so the cloud has volume
+    g.globalCompositeOperation = "source-atop";
+    const shade = g.createLinearGradient(0, -r * 1.1, 0, r * 0.5);
+    shade.addColorStop(0, "rgba(255,255,255,0)");
+    shade.addColorStop(0.55, "rgba(190,208,232,0.18)");
+    shade.addColorStop(1, "rgba(140,168,205,0.55)");
+    g.fillStyle = shade;
+    g.fillRect(minX, minY, cw, ch);
+    g.globalCompositeOperation = "source-over";
+
+    // soften the whole thing once
+    if ("filter" in g) {
+      const soft = document.createElement("canvas");
+      soft.width = cw;
+      soft.height = ch;
+      const sg = soft.getContext("2d");
+      sg.filter = `blur(${Math.max(1, r * 0.018).toFixed(1)}px)`;
+      sg.drawImage(c, 0, 0);
+      return soft;
     }
     return c;
   }
 
   function build() {
     clouds = [];
-    const n = 16;
+    const n = 12;
     for (let i = 0; i < n; i++) {
-      const depth = Math.pow(Math.random(), 1.4); // more small, far clouds
-      const r = 50 + depth * 150;
+      const depth = Math.pow(Math.random(), 1.35);        // more small, far clouds
+      const r = 34 + depth * 120;
       const img = sprite(r);
       clouds.push({
         depth,
         img,
-        size: img.width,
+        w: img.width,
+        h: img.height,
         x: rand(-img.width, w),
-        y: rand(-0.05 * h, 0.72 * h),
-        speed: 5 + depth * 20,
-        alpha: 0.3 + depth * 0.6,
+        y: rand(-0.02 * h, 0.62 * h) - img.height * 0.5,
+        speed: 4 + depth * 18,
+        alpha: 0.42 + depth * 0.55,
       });
     }
     clouds.sort((a, b) => a.depth - b.depth);
@@ -291,17 +406,23 @@ function makeSky(canvas) {
     build();
   }
 
-  function frame(t) {
-    const dt = Math.min((t - last) / 1000, 0.05);
-    last = t;
+  function paint() {
     ctx.clearRect(0, 0, w, h);
     for (const c of clouds) {
-      c.x += c.speed * dt;
-      if (c.x > w + 20) c.x = -c.size;
       ctx.globalAlpha = c.alpha;
       ctx.drawImage(c.img, c.x, c.y);
     }
     ctx.globalAlpha = 1;
+  }
+
+  function frame(t) {
+    const dt = Math.min((t - last) / 1000, 0.05);
+    last = t;
+    for (const c of clouds) {
+      c.x += c.speed * dt;
+      if (c.x > w + 20) c.x = -c.w - 20;
+    }
+    paint();
     raf = requestAnimationFrame(frame);
   }
 
@@ -313,13 +434,7 @@ function makeSky(canvas) {
         built = true;
       }
       if (reducedMotion?.matches) {
-        // one still frame
-        ctx.clearRect(0, 0, w, h);
-        for (const c of clouds) {
-          ctx.globalAlpha = c.alpha;
-          ctx.drawImage(c.img, c.x, c.y);
-        }
-        ctx.globalAlpha = 1;
+        paint();
         return;
       }
       if (!raf) {
@@ -565,9 +680,246 @@ function makePlanes(svg) {
 }
 
 /* =====================================================================
-   PAGER — one gesture, one page. Moves .pages by whole viewports and
-   locks during the transition so trackpad momentum can't skip ahead.
-   Drives the dots, the hash, the html theme, and the background engines.
+   PAGE CONTROLLERS — one per page that needs JS. Shape:
+   { start(), stop(), setStep?(step, dir, animate), theme?(step) }
+   ===================================================================== */
+
+/* ---- Bio: two edge waves (hero shader, rotated by CSS) --------------- */
+function makeEdgeWaves(page) {
+  const hosts = [...page.querySelectorAll("[data-edge-wave]")];
+  let mounts = [];
+  let mounting = null;
+  return {
+    start() {
+      if (!mounting) {
+        mounting = Promise.all(hosts.map((h) => mountGrain(h, EDGE_WAVE, WAVE_COLORS, EDGE_WAVE_SPEED)))
+          .then((ms) => {
+            mounts = ms.filter(Boolean);
+            window.__edges = mounts;
+          })
+          .catch((err) => console.warn("Edge waves failed to mount.", err));
+      } else {
+        mounts.forEach((m) => m.setSpeed(reducedMotion?.matches ? 0 : EDGE_WAVE_SPEED));
+      }
+    },
+    stop() {
+      mounts.forEach((m) => m.setSpeed(0));
+    },
+  };
+}
+
+/* ---- About: photo helix + three copy blocks -------------------------- */
+function makeAbout(page) {
+  const helix = page.querySelector("[data-helix]");
+  const photos = [...helix.querySelectorAll(".helix__photo")];
+  const blocks = [...page.querySelectorAll(".about__block")];
+  const PER_GROUP = 8;                 // photos per step (4 pairs)
+  const PAIRS_PER_GROUP = PER_GROUP / 2;
+  const TURN = (Math.PI * 2) / 5.2;    // angle between rungs
+  const SPIN = 0.11;                   // rad/s idle rotation
+
+  // one rung per pair
+  const rungs = [];
+  for (let i = 0; i < photos.length / 2; i++) {
+    const r = document.createElement("div");
+    r.className = "helix__rung";
+    helix.appendChild(r);
+    rungs.push(r);
+  }
+
+  let W = 0, H = 0, R = 0, spacing = 0;
+  let base = 0.4;              // idle rotation angle
+  let center = 1.5;            // which pair index sits at the vertical middle
+  let raf = 0, last = 0;
+  let tween = null;            // { from, to, spin, t0, ms }
+  let step = 0;
+
+  function layout() {
+    W = helix.clientWidth;
+    H = helix.clientHeight;
+    R = Math.min(W * 0.27, 250);
+    spacing = H / 4.3;
+  }
+
+  function place(now) {
+    if (tween) {
+      const k = Math.min(1, (now - tween.t0) / tween.ms);
+      const e = PAGE_EASE(k);
+      center = tween.from + (tween.to - tween.from) * e;
+      base = tween.baseFrom + tween.spin * e;
+      if (k >= 1) tween = null;
+    }
+    const cy = 0; // transforms are relative to the helix centre
+    for (let i = 0; i < photos.length; i++) {
+      const pair = i >> 1;
+      const side = i & 1;
+      const a = base + pair * TURN + side * Math.PI;
+      const y = cy + (pair - center) * spacing;
+      const el = photos[i];
+      if (Math.abs(y) > H * 0.72) {
+        if (el.style.visibility !== "hidden") el.style.visibility = "hidden";
+        continue;
+      }
+      if (el.style.visibility) el.style.visibility = "";
+      const x = Math.sin(a) * R;
+      const z = Math.cos(a) * R;
+      const shade = (1 - z / R) / 2;
+      el.style.transform =
+        `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) ` +
+        `rotateY(${(Math.sin(a) * 24).toFixed(2)}deg)`;
+      el.style.zIndex = String(Math.round(z + R));
+      el.style.setProperty("--shade", shade.toFixed(3));
+    }
+    for (let p = 0; p < rungs.length; p++) {
+      const a = base + p * TURN;
+      const y = cy + (p - center) * spacing;
+      const el = rungs[p];
+      if (Math.abs(y) > H * 0.72) {
+        if (el.style.visibility !== "hidden") el.style.visibility = "hidden";
+        continue;
+      }
+      if (el.style.visibility) el.style.visibility = "";
+      el.style.width = `${R * 2}px`;
+      el.style.transform = `translate(-50%, -50%) translate3d(0, ${y.toFixed(1)}px, 0) rotateY(${((a * 180) / Math.PI).toFixed(2)}deg)`;
+    }
+  }
+
+  function frame(t) {
+    const dt = Math.min((t - last) / 1000, 0.05);
+    last = t;
+    if (!tween && !reducedMotion?.matches) base += SPIN * dt;
+    place(t);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function paintBlocks() {
+    blocks.forEach((b, i) => {
+      b.classList.toggle("is-current", i === step);
+      b.classList.toggle("is-prev", i < step);
+      b.classList.toggle("is-next", i > step);
+    });
+  }
+
+  let built = false;
+  return {
+    start() {
+      if (!built || W !== helix.clientWidth || H !== helix.clientHeight) {
+        layout();
+        built = true;
+      }
+      paintBlocks();
+      if (reducedMotion?.matches) {
+        tween = null;
+        center = step * PAIRS_PER_GROUP + 1.5;
+        place(performance.now());
+        return;
+      }
+      if (!raf) {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    },
+    stop() {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    },
+    setStep(s, dir, animate) {
+      step = s;
+      paintBlocks();
+      const to = s * PAIRS_PER_GROUP + 1.5;
+      if (!animate || reducedMotion?.matches) {
+        tween = null;
+        center = to;
+        if (!raf) place(performance.now());
+        return;
+      }
+      tween = { from: center, to, baseFrom: base, spin: dir * 0.9, t0: performance.now(), ms: 1000 };
+      if (!raf) {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    },
+  };
+}
+
+/* ---- Projects: flipping slab + crossfading backgrounds --------------- */
+function makeProjects(page) {
+  const THEMES = ["dark", "dark", "light"];
+  const bgs = [...page.querySelectorAll(".project__bg")];
+  const ribbons = [...page.querySelectorAll(".ribbon")];
+  const templates = [...page.querySelectorAll("template[data-card]")];
+  const inner = page.querySelector(".flip__inner");
+  const faces = [page.querySelector(".flip__face--a"), page.querySelector(".flip__face--b")];
+
+  const engines = bgs.map((bg) => {
+    if (bg.querySelector("[data-sky]")) return makeSky(bg.querySelector("[data-sky]"));
+    if (bg.querySelector("[data-nebula]")) return makeGalaxy(bg.querySelector("[data-nebula]"), bg.querySelector("[data-stars]"));
+    if (bg.querySelector("[data-planes]")) return makePlanes(bg.querySelector("[data-planes]"));
+    return null;
+  });
+
+  let step = 0;
+  let angle = 0;         // accumulated rotateX, multiples of 180
+  let live = false;
+  let stopTimer = 0;
+
+  const frontIndex = () => (Math.round(angle / 180) % 2 === 0 ? 0 : 1);
+
+  function fill(face, s) {
+    const tpl = templates.find((t) => Number(t.dataset.card) === s);
+    face.replaceChildren(tpl ? tpl.content.cloneNode(true) : "");
+  }
+
+  function paintScene(prev) {
+    page.dataset.project = String(step);
+    bgs.forEach((b) => b.classList.toggle("is-on", Number(b.dataset.project) === step));
+    ribbons.forEach((r) => r.classList.toggle("is-on", Number(r.dataset.project) === step));
+    if (live) {
+      engines[step]?.start();
+      clearTimeout(stopTimer);
+      if (prev !== step) {
+        stopTimer = setTimeout(() => {
+          if (prev !== step) engines[prev]?.stop();
+        }, PAGE_MS);
+      }
+    }
+  }
+
+  // initial face
+  fill(faces[0], 0);
+  fill(faces[1], 1);
+
+  return {
+    theme: (s) => THEMES[s] || "dark",
+    start() {
+      live = true;
+      paintScene(step);
+    },
+    stop() {
+      live = false;
+      clearTimeout(stopTimer);
+      engines.forEach((e) => e?.stop());
+    },
+    setStep(s, dir, animate) {
+      const prev = step;
+      step = s;
+      if (!animate || reducedMotion?.matches) {
+        fill(faces[frontIndex()], s);
+      } else {
+        fill(faces[1 - frontIndex()], s);
+        angle += (dir >= 0 ? 1 : -1) * 180;
+        inner.style.setProperty("--flip-angle", `${angle}deg`);
+      }
+      paintScene(prev);
+    },
+  };
+}
+
+/* =====================================================================
+   PAGER — one gesture, one move. A move is either the next step inside
+   the current page (About, Projects) or the next page. Moves .pages by
+   whole viewports, marks pages .is-active / .is-above / .is-below for the
+   CSS choreography, and drives dots, hash, theme and the controllers.
    ===================================================================== */
 (function pager() {
   const track = document.getElementById("pages");
@@ -576,65 +928,125 @@ function makePlanes(svg) {
 
   const dots = document.getElementById("dots");
   const dotEls = dots ? [...dots.querySelectorAll(".dots__dot")] : [];
-  const DURATION = 950;
-  const COOLDOWN = 1250; // absorbs momentum after a page change
-  const THRESHOLD = 40;  // wheel delta needed to trigger a page
+  const STEP_MS = 1000;
+  const COOLDOWN = 1200; // absorbs momentum after a move
+  const THRESHOLD = 40;  // wheel delta needed to trigger a move
 
-  // Background engines, keyed by page index.
-  const engines = pages.map((page) => {
+  const ctrl = pages.map((page) => {
     switch (page.dataset.bg) {
-      case "sky": return makeSky(page.querySelector("[data-sky]"));
-      case "galaxy": return makeGalaxy(page.querySelector("[data-nebula]"), page.querySelector("[data-stars]"));
-      case "paper": return makePlanes(page.querySelector("[data-planes]"));
+      case "hero": return makeHero();
+      case "edges": return makeEdgeWaves(page);
+      case "about": return makeAbout(page);
+      case "projects": return makeProjects(page);
       default: return null;
     }
   });
+  const stepsOf = (i) => Math.max(1, Number(pages[i].dataset.steps) || 1);
+  const stepIds = (i) => (pages[i].dataset.stepIds || "").split(",").map((s) => s.trim()).filter(Boolean);
+  const stepLabels = (i) => (pages[i].dataset.stepLabels || "").split("|").map((s) => s.trim()).filter(Boolean);
 
   let index = 0;
+  let step = 0;
   let locked = false;
   let quietUntil = 0;
   let acc = 0;
   let accTimer = 0;
 
-  function paint(instant) {
+  function paintTrack(instant) {
     track.classList.toggle("is-instant", !!instant);
     track.style.transform = `translate3d(0, ${-index * 100}%, 0)`;
+    pages.forEach((p, i) => {
+      p.classList.toggle("is-active", i === index);
+      p.classList.toggle("is-above", i < index);
+      p.classList.toggle("is-below", i > index);
+    });
     if (instant) {
-      // flush so the next transform animates again
-      void track.offsetHeight;
+      void track.offsetHeight; // flush so the next transform animates again
       track.classList.remove("is-instant");
     }
-    const page = pages[index];
-    document.documentElement.dataset.theme = page.dataset.theme || "dark";
-    document.documentElement.dataset.page = page.id;
-    dots?.classList.toggle("is-visible", page.classList.contains("page--project"));
-    dotEls.forEach((d) => {
-      const active = Number(d.dataset.page) === index;
-      d.classList.toggle("is-active", active);
-      d.setAttribute("aria-current", active ? "true" : "false");
-    });
-    if (page.id) history.replaceState(null, "", `#${page.id}`);
   }
 
-  function go(n, opts = {}) {
+  function paintChrome() {
+    const page = pages[index];
+    html.dataset.theme = ctrl[index]?.theme?.(step) || page.dataset.theme || "dark";
+    html.dataset.page = page.id;
+    const n = stepsOf(index);
+    const labels = stepLabels(index);
+    dots?.classList.toggle("is-visible", n > 1);
+    dotEls.forEach((d, k) => {
+      d.hidden = k >= n;
+      const active = k === step;
+      d.classList.toggle("is-active", active);
+      d.setAttribute("aria-current", active ? "true" : "false");
+      if (labels[k]) d.setAttribute("aria-label", labels[k]);
+    });
+    const id = stepIds(index)[step] || page.id;
+    if (id) history.replaceState(null, "", `#${id}`);
+  }
+
+  function lock(ms) {
+    locked = true;
+    quietUntil = performance.now() + ms + COOLDOWN;
+    setTimeout(() => { locked = false; }, ms);
+  }
+
+  /* Move to page n, landing on `landStep` (0 from above, last from below). */
+  function goPage(n, landStep, opts = {}) {
     n = Math.max(0, Math.min(pages.length - 1, n));
-    if (n === index && !opts.force) return;
-    if (locked && !opts.instant) return;
+    if (n === index && !opts.force) return false;
+    if (locked && !opts.instant) return false;
     const prev = index;
     index = n;
-    engines[index]?.start();
-    paint(opts.instant);
+    step = Math.max(0, Math.min(stepsOf(n) - 1, landStep ?? 0));
+    ctrl[index]?.setStep?.(step, 0, false);
+    ctrl[index]?.start();
+    paintTrack(opts.instant);
+    paintChrome();
     window.scrollTo(0, 0);
     if (opts.instant) {
-      if (prev !== index) engines[prev]?.stop();
-      return;
+      if (prev !== index) ctrl[prev]?.stop();
+      return true;
     }
-    locked = true;
-    quietUntil = performance.now() + DURATION + COOLDOWN;
-    setTimeout(() => {
-      locked = false;
-      if (prev !== index) engines[prev]?.stop();
-    }, DURATION);
+    lock(PAGE_MS);
+    setTimeout(() => { if (prev !== index) ctrl[prev]?.stop(); }, PAGE_MS);
+    return true;
+  }
+
+  function goStep(s) {
+    s = Math.max(0, Math.min(stepsOf(index) - 1, s));
+    if (s === step || locked) return false;
+    const dir = s > step ? 1 : -1;
+    step = s;
+    ctrl[index]?.setStep?.(step, dir, true);
+    paintChrome();
+    lock(STEP_MS);
+    return true;
+  }
+
+  function next() {
+    if (step < stepsOf(index) - 1) goStep(step + 1);
+    else goPage(index + 1, 0);
+  }
+  function prev() {
+    if (step > 0) goStep(step - 1);
+    else goPage(index - 1, stepsOf(Math.max(0, index - 1)) - 1);
+  }
+
+  /* Resolve "#id" to a page and step: page ids first, then step ids. */
+  function locate(id) {
+    const p = pages.findIndex((pg) => pg.id === id);
+    if (p >= 0) return { page: p, step: 0 };
+    for (let i = 0; i < pages.length; i++) {
+      const s = stepIds(i).indexOf(id);
+      if (s >= 0) return { page: i, step: s };
+    }
+    return null;
+  }
+  function goTo(id, opts) {
+    const at = locate(id);
+    if (!at) return false;
+    if (at.page === index) return goStep(at.step);
+    return goPage(at.page, at.step, opts);
   }
 
   /* wheel */
@@ -653,7 +1065,7 @@ function makePlanes(svg) {
       if (Math.abs(acc) >= THRESHOLD) {
         const dir = acc > 0 ? 1 : -1;
         acc = 0;
-        go(index + dir);
+        dir > 0 ? next() : prev();
       }
     },
     { passive: false }
@@ -669,20 +1081,20 @@ function makePlanes(svg) {
       case "PageDown":
       case " ":
         e.preventDefault();
-        go(index + 1);
+        next();
         break;
       case "ArrowUp":
       case "PageUp":
         e.preventDefault();
-        go(index - 1);
+        prev();
         break;
       case "Home":
         e.preventDefault();
-        go(0);
+        goPage(0, 0);
         break;
       case "End":
         e.preventDefault();
-        go(pages.length - 1);
+        goPage(pages.length - 1, stepsOf(pages.length - 1) - 1);
         break;
     }
   });
@@ -694,34 +1106,40 @@ function makePlanes(svg) {
     if (touchY == null) return;
     const dy = touchY - (e.changedTouches[0]?.clientY ?? touchY);
     touchY = null;
-    if (Math.abs(dy) > 50) go(index + (dy > 0 ? 1 : -1));
+    if (Math.abs(dy) > 50) dy > 0 ? next() : prev();
   }, { passive: true });
   window.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
 
   /* dots */
-  dotEls.forEach((d) => d.addEventListener("click", () => go(Number(d.dataset.page))));
+  dotEls.forEach((d) => d.addEventListener("click", () => goStep(Number(d.dataset.step))));
 
-  /* in-page links: anything pointing at a page id */
+  /* in-page links: anything pointing at a page id or a step id */
   document.addEventListener("click", (e) => {
     const a = e.target instanceof Element && e.target.closest('a[href^="#"]');
     if (!a) return;
     const id = a.getAttribute("href").slice(1);
-    const n = pages.findIndex((p) => p.id === id);
-    if (n < 0) return;
+    if (!id || !locate(id)) return;
     e.preventDefault();
-    go(n);
+    goTo(id);
   });
 
-  /* keep the track honest on resize (percent transform already scales) */
+  /* keep engines honest on resize */
   window.addEventListener("resize", () => {
-    engines[index]?.stop();
-    engines[index]?.start();
+    ctrl[index]?.stop();
+    ctrl[index]?.start();
   }, { passive: true });
 
   /* initial page from the hash */
-  const start = pages.findIndex((p) => p.id && `#${p.id}` === location.hash);
-  go(start > 0 ? start : 0, { instant: true, force: true });
+  const at = locate(location.hash.slice(1));
+  goPage(at?.page ?? 0, at?.step ?? 0, { instant: true, force: true });
 
   // Exposed for tuning from the console.
-  window.__pager = { go, get index() { return index; } };
+  window.__pager = {
+    go: (n, s = 0) => goPage(n, s),
+    goTo,
+    next,
+    prev,
+    get index() { return index; },
+    get step() { return step; },
+  };
 })();
