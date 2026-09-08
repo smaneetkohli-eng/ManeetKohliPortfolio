@@ -1001,7 +1001,6 @@ function makeAbout(page) {
 function makeProjects(page) {
   const THEMES = ["dark", "dark", "light", "mono"];
   const bgs = [...page.querySelectorAll(".project__bg")];
-  const ribbons = [...page.querySelectorAll(".ribbon")];
   const templates = [...page.querySelectorAll("template[data-card]")];
   const inner = page.querySelector(".flip__inner");
   const faces = [page.querySelector(".flip__face--a"), page.querySelector(".flip__face--b")];
@@ -1045,7 +1044,6 @@ function makeProjects(page) {
       b.classList.toggle("is-on", n === step);
       b.classList.toggle("is-off", animate && n === prev && prev !== step);
     });
-    ribbons.forEach((r) => r.classList.toggle("is-on", Number(r.dataset.project) === step));
     if (!animate) {
       void page.offsetHeight;
       page.classList.remove("is-instant");
@@ -1330,15 +1328,28 @@ function makeProjects(page) {
   const at = locate(location.hash.slice(1));
   goPage(at?.page ?? 0, at?.step ?? 0, { instant: true, force: true });
 
-  /* Dock: "About me" swaps the link row for its own two options in place.
-     Picking one navigates (the in-page link handler above) and the row
-     returns to the main set a beat later. Escape or a click outside the
-     bar also return it. */
+  /* Dock: "About me" and "Projects" swap the link row for their own
+     options in place. The row cell animates to the live panel's width.
+     Picking an option navigates (the in-page link handler above) and the
+     row returns to the main set a beat later. Escape or a click outside
+     the bar also return it. */
   (function dock() {
     const nav = document.querySelector("[data-dock-nav]");
     if (!nav) return;
     const panels = [...nav.querySelectorAll(".dock__panel")];
-    const show = (name) => panels.forEach((p) => p.classList.toggle("is-on", p.dataset.panel === name));
+    let current = "main";
+    const fit = () => {
+      const p = panels.find((x) => x.dataset.panel === current);
+      if (p) nav.style.setProperty("--nav-w", `${Math.ceil(p.getBoundingClientRect().width)}px`);
+    };
+    const show = (name) => {
+      current = name;
+      panels.forEach((p) => p.classList.toggle("is-on", p.dataset.panel === name));
+      fit();
+    };
+    fit();
+    document.fonts?.ready.then(fit);
+    window.addEventListener("resize", fit, { passive: true });
     nav.addEventListener("click", (e) => {
       const t = e.target instanceof Element ? e.target : null;
       const open = t?.closest("[data-open]");

@@ -646,6 +646,15 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
    so the bar never grows or drops anything, it just swaps in place. */
 .dock__nav {
   display: grid;
+  /* One track clamped to the cell, so a wider hidden panel overflows it
+     evenly instead of stretching the track and shoving the live row. */
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  width: var(--nav-w, auto);
+  transition: width 0.55s var(--ease-out);
+}
+.dock__panel[data-panel="projects"] {
+  gap: 22px;
 }
 .dock__links {
   display: flex;
@@ -655,6 +664,8 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
 .dock__panel {
   grid-area: 1 / 1;
   justify-self: center;
+  flex: none;
+  white-space: nowrap;
   transition:
     opacity 0.35s var(--ease-out),
     transform 0.5s var(--ease-out),
@@ -804,6 +815,7 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
   .dock__cta,
   .dock__cta-plus,
   .dock__sig,
+  .dock__nav,
   .dock__panel,
   .dock__crumb {
     transition: none;
@@ -862,15 +874,12 @@ body {
    z-map (inside .project):
      1  .project__bg   live backgrounds; the incoming one is lifted to 2
                        while it wipes in over the outgoing one
-     2  .ribbon        giant italic serif title, drifting
      3  .flip          the slab (two .card faces)
-   Palettes live on [data-project="N"], so each card face, ribbon and
-   background carries its own project's ink and never transitions.
+   Palettes live on [data-project="N"], so each card face and background
+   carries its own project's ink and never transitions.
    ===================================================================== */
 :root {
   --font-serif: "Instrument Serif", "Times New Roman", serif;
-  --ribbon-size: clamp(120px, 15vw, 260px);
-  --ribbon-speed: 42s;
   --card-w: clamp(440px, 34vw, 600px);
   --accent: #e0a34a;
 }
@@ -878,7 +887,6 @@ body {
   display: grid;
   place-items: center;
   background: var(--black);
-  --ribbon-ink: rgb(255 255 255 / 0.92);
   --card-bg: rgb(8 8 10 / 0.5);
   --card-line: rgb(255 255 255 / 0.14);
   --card-ink: #fff;
@@ -889,7 +897,6 @@ body {
 /* Regal: maroon on craft paper. */
 .page--projects[data-project="2"],
 .page--projects [data-project="2"] {
-  --ribbon-ink: rgb(122 31 43 / 0.82);
   --card-bg: rgb(255 251 243 / 0.58);
   --card-line: rgb(122 31 43 / 0.24);
   --card-ink: #4a1520;
@@ -902,7 +909,6 @@ body {
 /* Resume Agent: monochrome on white. */
 .page--projects[data-project="3"],
 .page--projects [data-project="3"] {
-  --ribbon-ink: rgb(0 0 0 / 0.16);
   --card-bg: rgb(255 255 255 / 0.74);
   --card-line: rgb(0 0 0 / 0.12);
   --card-ink: #111;
@@ -962,9 +968,8 @@ body {
   -webkit-mask-image: none;
   mask-image: none;
 }
-/* Landing on the page (or the first paint): no wipe, no lift. */
-.page--projects.is-instant .project__bg,
-.page--projects.is-instant .ribbon {
+/* Landing on the page (or the first paint): no wipe. */
+.page--projects.is-instant .project__bg {
   transition: none;
 }
 .project__bg > canvas,
@@ -977,9 +982,16 @@ body {
   height: 100%;
 }
 
-/* Sky: gradient ground, clouds painted on the canvas above it. */
+/* Sky: gradient ground, clouds painted on the canvas, hills over both. */
 .project__bg--sky {
   background: linear-gradient(180deg, #4a97e4 0%, #79b6ee 48%, #cfe4f9 100%);
+}
+.project__bg--sky > .sky__hills {
+  top: auto;
+  bottom: 0;
+  height: 24vh;
+  min-height: 150px;
+  filter: drop-shadow(0 -6px 18px rgb(40 90 40 / 0.18));
 }
 
 /* Galaxy: near-black ground, nebula shader, stars on top. */
@@ -1044,8 +1056,10 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: clamp(32px, 4vw, 72px);
   padding: 8vh clamp(32px, 5vw, 96px) 6vh;
-  color: rgb(0 0 0 / 0.3);
-  filter: blur(0.6px);
+  color: rgb(0 0 0 / 0.34);
+  /* Enough blur that the lines read as text but no word is legible.
+     Bigger or bolder lines get extra blur below so they stay unreadable. */
+  filter: blur(3.2px);
   user-select: none;
 }
 .resume__page {
@@ -1082,7 +1096,8 @@ body {
   letter-spacing: 0.08em;
   line-height: 1.2;
   text-transform: uppercase;
-  color: rgb(0 0 0 / 0.5);
+  color: rgb(0 0 0 / 0.42);
+  filter: blur(3px);
 }
 .resume__line--meta {
   color: rgb(0 0 0 / 0.36);
@@ -1095,12 +1110,14 @@ body {
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgb(0 0 0 / 0.5);
+  color: rgb(0 0 0 / 0.44);
+  filter: blur(1px);
 }
 .resume__line--role {
   margin-top: 0.55em;
   font-weight: 600;
-  color: rgb(0 0 0 / 0.44);
+  color: rgb(0 0 0 / 0.4);
+  filter: blur(1px);
 }
 .resume__line--li {
   padding-left: 1.1em;
@@ -1132,106 +1149,6 @@ body {
 .resume__glow {
   background: radial-gradient(52% 64% at 50% 52%, #fff 0%, rgb(255 255 255 / 0.92) 34%, rgb(255 255 255 / 0) 72%);
   pointer-events: none;
-}
-
-/* ---------- Ribbon ----------
-   The outgoing ribbon drops away as soon as the slab starts turning; the
-   incoming one rises in once the slab has passed halfway, following the
-   wipe direction. */
-.ribbon {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(5vh);
-  transition:
-    opacity 0.4s var(--ease-out),
-    transform 0.4s var(--ease-out);
-}
-.page--projects[data-dir="back"] .ribbon {
-  transform: translateY(-5vh);
-}
-.ribbon.is-on,
-.page--projects[data-dir="back"] .ribbon.is-on {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 0.8s var(--page-ease) 0.45s,
-    transform 1s var(--page-ease) 0.4s;
-}
-.ribbon__track {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  will-change: transform;
-  animation: ribbon-drift var(--ribbon-speed) linear infinite;
-}
-/* Longer names get a longer loop so every ribbon drifts at ~5.5vw/s. */
-.ribbon[data-project="0"] { --ribbon-speed: 84s; }
-.ribbon[data-project="1"] { --ribbon-speed: 38s; }
-.ribbon[data-project="2"] { --ribbon-speed: 64s; }
-.ribbon[data-project="3"] { --ribbon-speed: 52s; }
-.ribbon__text {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  font-size: var(--ribbon-size);
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  color: var(--ribbon-ink);
-}
-/* The glyph between copies of the name: YouTube, Ek Onkar, a paper plane,
-   a page. Sized off the ribbon so it scales with the type. */
-.ribbon__sep {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 0.42em;
-  height: 0.42em;
-  margin: 0 0.5em;
-  font-size: var(--ribbon-size);
-  color: var(--ribbon-ink);
-}
-.ribbon__sep svg {
-  width: 100%;
-  height: 100%;
-  fill: currentColor;
-}
-.ribbon__sep--plane svg {
-  width: 88%;
-  height: 88%;
-  transform: rotate(-18deg);
-}
-.ribbon__sep--page svg {
-  width: 82%;
-  height: 82%;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.ribbon__sep--onkar {
-  width: auto;
-  height: auto;
-  margin: 0 0.5em;
-  font-family: "Noto Sans Gurmukhi", "Gurmukhi MT", "Gurmukhi Sangam MN", "Raavi", sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  font-size: calc(var(--ribbon-size) * 0.5);
-  line-height: 1;
-  transform: translateY(-0.04em);
-}
-@keyframes ribbon-drift {
-  to {
-    transform: translateX(-50%);
-  }
 }
 
 /* ---------- Card ---------- */
@@ -1360,9 +1277,6 @@ html[data-theme="mono"] .dots {
 @media (prefers-reduced-motion: reduce) {
   .pages {
     transition: none;
-  }
-  .ribbon__track {
-    animation: none;
   }
   .card__link,
   .dots__dot {
@@ -1788,7 +1702,6 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   .flip,
   .flip__inner,
   .flip__edge,
-  .ribbon,
   .project__bg,
   .resume__page {
     transition: none;

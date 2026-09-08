@@ -25,7 +25,7 @@ Desktop first. Mobile is deliberately out of scope until asked.
 | Styles | `css/site.css` (~1,500 lines) |
 | Script | `js/site.js` (~1,150 lines, ES module) |
 | Shader | `@paper-design/shaders@0.0.80` GrainGradient via `https://cdn.jsdelivr.net/npm/...+esm`. The only approved external lib. |
-| Fonts | Archivo 900 (wdth 100–125, display) + Inter 400/500 (body) + Instrument Serif italic (accents, ribbon) via Google Fonts |
+| Fonts | Archivo 900 (wdth 100–125, display) + Inter 400/500 (body) + Instrument Serif italic (bio accent) via Google Fonts |
 | Hosting | Static (maneetkohli.com) |
 | Preview | `.claude/launch.json` → "Portfolio Static Server" (python3 http.server, port 8080) |
 
@@ -41,7 +41,7 @@ Pages are `<section class="page">` inside `<main class="pages" id="pages">`, in 
 |---|---|---|---|---|
 | 0 | `#hero` | — | `makeHero` | Wave shader, split name MANEET / KOHLI, figure, torso cycle + scroll prompt |
 | 1 | `#bio` | — | `makeEdgeWaves` | One bold six-line statement between two white edge waves |
-| 2 | `#projects` | `#youtube` `#bani-ai` `#regal` `#resume-agent` | `makeProjects` | One flipping glass slab; each step is a page turn (slab flips, background wipes after it, ribbon swaps at the midpoint) |
+| 2 | `#projects` | `#youtube` `#bani-ai` `#regal` `#resume-agent` | `makeProjects` | One flipping glass slab; each step is a page turn (slab flips, background wipes after it) |
 | 3 | `#about` | `#vision` `#me` `#people` | `makeAbout` | Photo helix left, copy right; each step scrolls the helix and swaps the copy |
 
 Landing rules: arriving from above lands on step 0, arriving from below lands on the last step. Deep links work for both page ids and step ids. The hash is kept in sync with `history.replaceState`.
@@ -61,8 +61,8 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 
 ## Dock
 
-- Links: Home (`#hero`), About me, Projects (`#projects`). Contact is still a placeholder. No Journal.
-- `.dock__nav` stacks two `.dock__panel` rows in one grid cell. Clicking **About me** swaps the row in place (no dropdown): a dim crumb "About me" (click to go back), then **Hello there** (`#bio`) and **About me** (`#vision`, always the first About step). Picking one navigates and the row returns to the main set ~0.45s later; Escape or a click outside also returns it. Logic is the `dock()` IIFE inside the pager.
+- Links: Home (`#hero`), About me, Projects. Contact is still a placeholder. No Journal.
+- `.dock__nav` stacks three `.dock__panel` rows in one grid cell (`grid-template-columns: minmax(0, 1fr)` so a wider hidden row never stretches the track). Clicking **About me** or **Projects** swaps the row in place (no dropdown): a dim crumb with the clicked label (click to go back), then the destinations. About me → **Hello there** (`#bio`), **About me** (`#vision`, always the first About step). Projects → **Authentic Intelligence** (`#youtube`), **Bani AI**, **Regal Internship**, **Resume Agent**. The `dock()` IIFE inside the pager measures the live panel and animates `--nav-w` so the bar grows and shrinks to fit (re-measured on fonts ready and resize). Picking an option navigates and the row returns to the main set ~0.45s later; Escape or a click outside also returns it.
 
 ---
 
@@ -92,10 +92,11 @@ Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal In
 
 - **Slab**: `.flip > .flip__inner` rotates about X by `--flip-angle` in 180° increments (accumulates, never resets). `.flip__face--a` is in flow and sets the height; `.flip__face--b` is pre-rotated 180° behind it; two `.flip__edge` hairlines give it 14px of thickness. Before each flip the hidden face is filled from `<template data-card="N">` and given `data-project="N"`, so each face carries its own palette and nothing recolours mid-flip. Card content lives in those templates in `index.html`.
 - **Page turn**: the slab starts flipping at 0. The incoming `.project__bg` gets `.is-on` (z 2) and wipes over the outgoing `.is-off` (z 1, unmasked) with a soft-edged mask: a gradient three viewports tall whose `mask-position` slides one viewport, 0.85s on `--page-ease` after a 0.3s delay, so the slab is visibly turning before the background moves. `page.dataset.dir` (`forward`: bottom to top, `back`: top to bottom) picks the mask direction; `paintScene` sets it with `.is-instant` on and flushes before swapping classes, otherwise the hidden layer starts a transition towards the closed state and the swap retargets from the wrong value. Layers that are neither on nor off are `visibility: hidden`. Landing on the page uses `.is-instant` (no wipe).
-- **Ribbons**: the outgoing one drops 5vh and fades in 0.4s; the incoming one rises in from 0.45s (after the slab passes halfway), from below going forward and from above going back. Each copy of the name is separated by a `.ribbon__sep` glyph: YouTube mark (SVG), Ek Onkar (`ੴ`, Noto Sans Gurmukhi subset loaded via a `text=` Google Fonts link), paper plane (SVG), page (SVG). `--ribbon-speed` is set per ribbon so every one drifts at roughly the same px/s regardless of name length.
+- **No ribbons.** The drifting serif name carousels were removed (Sept 9, 2026); the page is background + slab only.
 - **Backgrounds**: four `.project__bg` layers. Engines: `makeSky`, `makeGalaxy`, `makePlanes`, `makeResume`. Only the current one runs; the previous stops 1.4s after the step.
-- **Resume Agent** (`makeResume`): white sheet (`#f7f7f7`), three grey columns typing themselves in word-sized chunks (the resume, the agent's trace in monospace behind the slab, the cover letter), each holding, fading and restarting on a stagger. Content is the `RESUME_DOC` / `TRACE_DOC` / `LETTER_DOC` arrays of `[kind, text]`; kinds map to `.resume__line--{kind}`. `.resume` is blurred 0.6px and `.resume__glow` whitens the area behind the slab. Reduced motion paints everything at once.
-- **Theme**: palettes live on `[data-project="N"]` (faces, ribbons, backgrounds, and the page for the slab edges). `html[data-theme]` recolours the dots: `dark`, `light` (Regal, maroon), `mono` (Resume Agent, near-black).
+- **Sky** (Authentic Intelligence): gradient, cloud canvas, then `.sky__hills`, an inline SVG (viewBox 1440×260, `preserveAspectRatio="none"`, 24vh tall, min 150px) of three layered green hill paths with vertical gradients, pinned to the bottom over the clouds. Edit the paths in `index.html`.
+- **Resume Agent** (`makeResume`): white sheet (`#f7f7f7`), three grey columns typing themselves in word-sized chunks (the resume, the agent's trace in monospace behind the slab, the cover letter), each holding, fading and restarting on a stagger. Content is the `RESUME_DOC` / `TRACE_DOC` / `LETTER_DOC` arrays of `[kind, text]`; kinds map to `.resume__line--{kind}`. The text is decoration only: `.resume` is blurred 3.2px and the name / heading / role lines carry extra blur so nothing is legible, just the shape of a document being written. `.resume__glow` whitens the area behind the slab. Reduced motion paints everything at once.
+- **Theme**: palettes live on `[data-project="N"]` (faces, backgrounds, and the page for the slab edges). `html[data-theme]` recolours the dots: `dark`, `light` (Regal, maroon), `mono` (Resume Agent, near-black).
 - **Clouds**: pre-rendered sprites. Puffs sit under a dome envelope, base is flattened with a `destination-out` gradient, underside shaded with `source-atop`, then one blur pass. The sprite canvas is sized from the puffs plus padding so nothing clips. If clouds look wrong, fix `sprite()` in `makeSky`, not the draw loop.
 - Placeholders: card tags say `Demo`, ↗ links point at `#`, previews are empty tinted panels. Contact in the dock goes nowhere yet.
 
@@ -112,7 +113,7 @@ Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal In
 
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=14` and `js/site.js?v=7`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+`index.html` links `css/site.css?v=17` and `js/site.js?v=8`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html

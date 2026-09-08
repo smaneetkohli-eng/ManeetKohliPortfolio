@@ -14,12 +14,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <!-- Only the Ek Onkar glyph (U+0A74) for the Bani AI ribbon. -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400&text=%E0%A9%B4&display=swap"
-    />
-    <link rel="stylesheet" href="css/site.css?v=14" />
+    <link rel="stylesheet" href="css/site.css?v=17" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -89,8 +84,7 @@
     <!-- =============================================================
          3. PROJECTS. One page, four projects. A glass slab in the
          middle flips over to reveal the next project; the live
-         background follows the flip with a page-turn wipe and the
-         serif ribbon swaps as the slab passes the halfway point.
+         background follows the flip with a page-turn wipe.
          ============================================================= -->
     <section
       class="page page--projects"
@@ -105,6 +99,26 @@
     >
       <div class="project__bg project__bg--sky" data-project="0" aria-hidden="true">
         <canvas class="sky" data-sky></canvas>
+        <!-- Rolling green hills along the bottom edge, behind nothing, over the clouds. -->
+        <svg class="sky__hills" viewBox="0 0 1440 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hill-back" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#9ad27a"/>
+              <stop offset="1" stop-color="#74b95c"/>
+            </linearGradient>
+            <linearGradient id="hill-mid" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#7cc25e"/>
+              <stop offset="1" stop-color="#55a344"/>
+            </linearGradient>
+            <linearGradient id="hill-front" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#5fae48"/>
+              <stop offset="1" stop-color="#3d8a33"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#hill-back)" d="M0 128 C 180 52, 400 50, 620 112 S 1010 176, 1200 104 S 1380 62, 1440 78 V260 H0 Z"/>
+          <path fill="url(#hill-mid)" d="M0 176 C 240 118, 470 112, 700 160 S 1080 222, 1280 158 S 1400 126, 1440 134 V260 H0 Z"/>
+          <path fill="url(#hill-front)" d="M0 226 C 260 176, 560 170, 840 208 S 1240 250, 1440 196 V260 H0 Z"/>
+        </svg>
       </div>
       <div class="project__bg project__bg--galaxy" data-project="1" aria-hidden="true">
         <div class="galaxy__nebula" data-nebula></div>
@@ -117,49 +131,6 @@
       <div class="project__bg project__bg--resume" data-project="3" aria-hidden="true">
         <div class="resume" data-resume></div>
         <div class="resume__glow"></div>
-      </div>
-
-      <!-- Ribbons: the name repeated, one small glyph between each copy.
-           Each track is two identical halves so the drift loops cleanly. -->
-      <div class="ribbon" data-project="0" aria-hidden="true">
-        <div class="ribbon__track">
-          <span class="ribbon__text">Authentic Intelligence</span><span class="ribbon__sep"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
-          <span class="ribbon__text">Authentic Intelligence</span><span class="ribbon__sep"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
-          <span class="ribbon__text">Authentic Intelligence</span><span class="ribbon__sep"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
-          <span class="ribbon__text">Authentic Intelligence</span><span class="ribbon__sep"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
-          <span class="ribbon__text">Authentic Intelligence</span><span class="ribbon__sep"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
-          <span class="ribbon__text">Authentic Intelligence</span><span class="ribbon__sep"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
-        </div>
-      </div>
-      <div class="ribbon" data-project="1" aria-hidden="true">
-        <div class="ribbon__track">
-          <span class="ribbon__text">Bani AI</span><span class="ribbon__sep ribbon__sep--onkar">ੴ</span>
-          <span class="ribbon__text">Bani AI</span><span class="ribbon__sep ribbon__sep--onkar">ੴ</span>
-          <span class="ribbon__text">Bani AI</span><span class="ribbon__sep ribbon__sep--onkar">ੴ</span>
-          <span class="ribbon__text">Bani AI</span><span class="ribbon__sep ribbon__sep--onkar">ੴ</span>
-          <span class="ribbon__text">Bani AI</span><span class="ribbon__sep ribbon__sep--onkar">ੴ</span>
-          <span class="ribbon__text">Bani AI</span><span class="ribbon__sep ribbon__sep--onkar">ੴ</span>
-        </div>
-      </div>
-      <div class="ribbon" data-project="2" aria-hidden="true">
-        <div class="ribbon__track">
-          <span class="ribbon__text">Regal Internship</span><span class="ribbon__sep ribbon__sep--plane"><svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
-          <span class="ribbon__text">Regal Internship</span><span class="ribbon__sep ribbon__sep--plane"><svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
-          <span class="ribbon__text">Regal Internship</span><span class="ribbon__sep ribbon__sep--plane"><svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
-          <span class="ribbon__text">Regal Internship</span><span class="ribbon__sep ribbon__sep--plane"><svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
-          <span class="ribbon__text">Regal Internship</span><span class="ribbon__sep ribbon__sep--plane"><svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
-          <span class="ribbon__text">Regal Internship</span><span class="ribbon__sep ribbon__sep--plane"><svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
-        </div>
-      </div>
-      <div class="ribbon" data-project="3" aria-hidden="true">
-        <div class="ribbon__track">
-          <span class="ribbon__text">Resume Agent</span><span class="ribbon__sep ribbon__sep--page"><svg viewBox="0 0 24 24"><path d="M6 2.5h8.5L20 8v13.5H6z"/><path d="M14 2.5V8h6M9.5 12.5h7M9.5 16.5h7"/></svg></span>
-          <span class="ribbon__text">Resume Agent</span><span class="ribbon__sep ribbon__sep--page"><svg viewBox="0 0 24 24"><path d="M6 2.5h8.5L20 8v13.5H6z"/><path d="M14 2.5V8h6M9.5 12.5h7M9.5 16.5h7"/></svg></span>
-          <span class="ribbon__text">Resume Agent</span><span class="ribbon__sep ribbon__sep--page"><svg viewBox="0 0 24 24"><path d="M6 2.5h8.5L20 8v13.5H6z"/><path d="M14 2.5V8h6M9.5 12.5h7M9.5 16.5h7"/></svg></span>
-          <span class="ribbon__text">Resume Agent</span><span class="ribbon__sep ribbon__sep--page"><svg viewBox="0 0 24 24"><path d="M6 2.5h8.5L20 8v13.5H6z"/><path d="M14 2.5V8h6M9.5 12.5h7M9.5 16.5h7"/></svg></span>
-          <span class="ribbon__text">Resume Agent</span><span class="ribbon__sep ribbon__sep--page"><svg viewBox="0 0 24 24"><path d="M6 2.5h8.5L20 8v13.5H6z"/><path d="M14 2.5V8h6M9.5 12.5h7M9.5 16.5h7"/></svg></span>
-          <span class="ribbon__text">Resume Agent</span><span class="ribbon__sep ribbon__sep--page"><svg viewBox="0 0 24 24"><path d="M6 2.5h8.5L20 8v13.5H6z"/><path d="M14 2.5V8h6M9.5 12.5h7M9.5 16.5h7"/></svg></span>
-        </div>
       </div>
 
       <!-- The slab: two card faces back to back plus a thin edge, flipped by js/site.js. -->
@@ -333,13 +304,14 @@
         <span class="dock__sig-fallback" aria-hidden="true">MK</span>
       </a>
 
-      <!-- Two panels stacked in one cell. "About me" swaps the row for its
-           own options inside the bar: a crumb, then the two destinations. -->
+      <!-- Panels stacked in one cell. "About me" and "Projects" swap the row
+           for their own options inside the bar: a crumb, then the
+           destinations. js/site.js animates the cell to the live panel's width. -->
       <div class="dock__nav" data-dock-nav>
         <ul class="dock__links dock__panel is-on" data-panel="main">
           <li><a class="dock__link" href="#hero"><span class="dock__link-label">Home</span></a></li>
           <li><button class="dock__link" type="button" data-open="about"><span class="dock__link-label">About me</span></button></li>
-          <li><a class="dock__link" href="#projects"><span class="dock__link-label">Projects</span></a></li>
+          <li><button class="dock__link" type="button" data-open="projects"><span class="dock__link-label">Projects</span></button></li>
         </ul>
         <ul class="dock__links dock__panel" data-panel="about" aria-label="About me">
           <li>
@@ -351,6 +323,18 @@
           <li><a class="dock__link" href="#bio"><span class="dock__link-label">Hello there</span></a></li>
           <li><a class="dock__link" href="#vision"><span class="dock__link-label">About me</span></a></li>
         </ul>
+        <ul class="dock__links dock__panel" data-panel="projects" aria-label="Projects">
+          <li>
+            <button class="dock__crumb" type="button" data-close aria-label="Back">
+              <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M6.5 1.5 3 5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Projects</span>
+            </button>
+          </li>
+          <li><a class="dock__link" href="#youtube"><span class="dock__link-label">Authentic Intelligence</span></a></li>
+          <li><a class="dock__link" href="#bani-ai"><span class="dock__link-label">Bani AI</span></a></li>
+          <li><a class="dock__link" href="#regal"><span class="dock__link-label">Regal Internship</span></a></li>
+          <li><a class="dock__link" href="#resume-agent"><span class="dock__link-label">Resume Agent</span></a></li>
+        </ul>
       </div>
 
       <a class="dock__cta" href="#">
@@ -361,6 +345,6 @@
 
     <div class="cursor" id="cursor" aria-hidden="true"></div>
 
-    <script type="module" src="js/site.js?v=7"></script>
+    <script type="module" src="js/site.js?v=8"></script>
   </body>
 </html>
