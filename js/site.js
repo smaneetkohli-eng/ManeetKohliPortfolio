@@ -211,12 +211,12 @@ mountWave().catch((err) => {
     }
     const over = e.target instanceof Element && e.target.closest(HOVER);
     el.classList.toggle("is-hover", !!over);
-    targetScale = over ? 2.2 : 1;
+    targetScale = over ? 1.8 : 1;
     if (!raf) raf = requestAnimationFrame(frame);
   }, { passive: true });
 
   window.addEventListener("pointerdown", () => { el.classList.add("is-down"); targetScale *= 0.85; });
-  window.addEventListener("pointerup", () => { el.classList.remove("is-down"); targetScale = el.classList.contains("is-hover") ? 2.2 : 1; });
+  window.addEventListener("pointerup", () => { el.classList.remove("is-down"); targetScale = el.classList.contains("is-hover") ? 1.8 : 1; });
   document.addEventListener("mouseleave", () => el.classList.remove("is-visible"));
   document.addEventListener("mouseenter", () => el.classList.add("is-visible"));
 })();

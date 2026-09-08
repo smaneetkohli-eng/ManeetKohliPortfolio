@@ -410,31 +410,23 @@ ul {
     left: 0;
     top: 0;
     z-index: 1000;
-    width: 26px;
-    height: 26px;
-    margin: -13px 0 0 -13px;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
     border-radius: 50%;
-    border: 1.5px solid #fff;
-    background: rgb(255 255 255 / 0);
+    background: #fff;
+    /* White dot with `difference` = the inverse of whatever is under it. */
     mix-blend-mode: difference;
     pointer-events: none;
     opacity: 0;
     transform: translate3d(var(--cx, -100px), var(--cy, -100px), 0) scale(var(--cs, 1));
-    transition:
-      opacity 0.3s var(--ease-out),
-      background-color 0.3s var(--ease-out),
-      border-width 0.3s var(--ease-out);
+    transition: opacity 0.3s var(--ease-out);
   }
   .cursor.is-visible {
     opacity: 1;
   }
-  .cursor.is-hover {
-    background: rgb(255 255 255 / 0.12);
-  }
-  .cursor.is-down {
-    background: rgb(255 255 255 / 0.35);
-  }
 }
+
 
 /* ---------- Figure ---------- */
 .hero__figure {
