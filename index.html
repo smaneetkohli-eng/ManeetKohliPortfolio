@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=7" />
+    <link rel="stylesheet" href="css/site.css?v=8" />
   </head>
   <body>
     <main class="hero" id="hero">
@@ -22,8 +22,23 @@
       <div class="hero__wave" id="hero-wave" aria-hidden="true"></div>
 
       <h1 class="hero__name">
-        <span class="hero__name-word hero__name-word--first">Maneet</span>
-        <span class="hero__name-word hero__name-word--last">Kohli</span>
+        <span class="hero__name-word hero__name-word--first">
+          <span class="hero__name-inner">
+            <span class="hero__meta hero__meta--left">
+              <span class="hero__meta-icon" id="meta-icon" aria-hidden="true"></span>
+              <span class="shimmer shimmer--ltr" id="meta-time" data-text="Texas, United States">Texas, United States</span>
+            </span>
+            Maneet
+          </span>
+        </span>
+        <span class="hero__name-word hero__name-word--last">
+          <span class="hero__name-inner">
+            Kohli
+            <span class="hero__meta hero__meta--right">
+              <span class="shimmer shimmer--rtl" data-text="Business Analytics and Artificial Intelligence">Business Analytics and Artificial Intelligence</span>
+            </span>
+          </span>
+        </span>
       </h1>
 
       <img
@@ -34,6 +49,21 @@
         decoding="async"
       />
     </main>
+
+    <!-- Sits above the edge blur so it stays crisp: cycling line + scroll prompt on the torso. -->
+    <div class="hero-status">
+      <div class="cycle" id="cycle">
+        <span class="cycle__word is-active">Data driven</span>
+        <span class="cycle__word">AI focused</span>
+        <span class="cycle__word">Business minded</span>
+      </div>
+      <a class="scroll-prompt" href="#hero">
+        <span class="shimmer shimmer--ttb" data-text="Scroll to explore">Scroll to explore</span>
+        <svg class="scroll-prompt__arrow" viewBox="0 0 7.824 9.941" aria-hidden="true">
+          <path d="M 4.366 9.744 C 4.103 10.006 3.677 10.006 3.414 9.744 L 0.175 6.505 C -0.067 6.238 -0.057 5.829 0.198 5.574 C 0.452 5.32 0.862 5.31 1.128 5.553 L 3.217 7.642 L 3.217 0.696 C 3.209 0.45 3.335 0.219 3.547 0.094 C 3.758 -0.031 4.021 -0.031 4.233 0.094 C 4.444 0.219 4.571 0.45 4.563 0.696 L 4.563 7.641 L 6.652 5.552 C 6.819 5.368 7.074 5.291 7.314 5.352 C 7.555 5.413 7.743 5.601 7.804 5.842 C 7.864 6.083 7.787 6.337 7.603 6.505 L 4.366 9.743 Z" fill="currentColor" />
+        </svg>
+      </a>
+    </div>
 
     <!-- Progressive blur pinned to the bottom edge of the viewport. -->
     <div class="edge-blur" aria-hidden="true">
@@ -71,6 +101,8 @@
       </a>
     </nav>
 
-    <script type="module" src="js/site.js?v=1"></script>
+    <div class="cursor" id="cursor" aria-hidden="true"></div>
+
+    <script type="module" src="js/site.js?v=2"></script>
   </body>
 </html>
