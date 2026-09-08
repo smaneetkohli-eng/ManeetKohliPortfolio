@@ -925,8 +925,7 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
   .cursor__arrow,
   .cursor__label,
   .card__icon,
-  .projects__title,
-  .projects__title .shimmer {
+  .projects__title {
     transition: none;
   }
   .cursor__ring {
@@ -982,8 +981,15 @@ body {
   --card-w: clamp(440px, 34vw, 600px);
 }
 .page--projects {
+  /* Three rows: the title centred between the dock and the slab, the slab,
+     and an equal-weight row below. Padding-top starts row one at the dock's
+     bottom edge. Backgrounds are absolute and stay out of the grid. */
   display: grid;
-  place-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+  justify-items: center;
+  align-items: center;
+  padding-top: calc(var(--dock-top) + var(--dock-h));
   background: var(--black);
   --card-bg: rgb(8 8 10 / 0.5);
   --card-line: rgb(255 255 255 / 0.14);
@@ -996,24 +1002,27 @@ body {
    backgrounds and the dots change per step. */
 
 /* ---------- Title ----------
-   Same on every step: "Projects and Experiences", centred under the dock
-   in the bio kicker's voice (Inter, tracked, shimmer), a size up. The
-   page's padding-top drops the slab a little so the two never crowd. */
-.page--projects {
-  padding-top: 5vh;
-}
+   "Projects and Experiences" on every step, in the bio kicker's voice
+   (Inter, tracked, shimmer) but bigger and bolder, inside a frosted pill
+   like the dock so it reads over sky, nebula, paper and white alike. */
 .projects__title {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(var(--dock-top) + var(--dock-h) + 30px);
+  grid-row: 1;
+  position: relative;
   z-index: 4;
   margin: 0;
+  padding: 13px 26px;
+  border-radius: 999px;
+  background: rgb(22 22 22 / 0.55);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.06);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
   text-align: center;
+  white-space: nowrap;
   pointer-events: none;
   font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: clamp(14px, 1.15vw, 18px);
   letter-spacing: 0.26em;
   text-transform: uppercase;
   transition:
@@ -1021,20 +1030,7 @@ body {
     transform var(--page-ms) var(--page-ease);
 }
 .projects__title .shimmer {
-  color: rgb(255 255 255 / 0.8);
-  transition: color 0.6s var(--page-ease) 0.5s;
-}
-/* dark ink on the paper and the white sheet; the sweep goes black there
-   so it never blanks the words */
-.page--projects[data-project="2"] .projects__title .shimmer {
-  color: rgb(74 21 32 / 0.72);
-}
-.page--projects[data-project="3"] .projects__title .shimmer {
-  color: rgb(0 0 0 / 0.62);
-}
-.page--projects[data-project="2"] .projects__title .shimmer::after,
-.page--projects[data-project="3"] .projects__title .shimmer::after {
-  background-image: linear-gradient(90deg, transparent 30%, #000 50%, transparent 70%);
+  color: rgb(255 255 255 / 0.92);
 }
 .page--projects:not(.is-active) .projects__title {
   opacity: 0;
@@ -1781,6 +1777,7 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   --slab-depth: 14px;
 }
 .flip {
+  grid-row: 2;
   position: relative;
   z-index: 3;
   width: var(--card-w);
