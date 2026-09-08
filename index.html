@@ -12,12 +12,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=10" />
+    <link rel="stylesheet" href="css/site.css?v=11" />
   </head>
   <body>
-    <main class="hero" id="hero">
+    <main class="pages" id="pages">
+    <section class="page page--hero" id="hero" data-theme="dark">
+    <div class="hero">
       <!-- Paper Shaders GrainGradient (shape: wave) mounts a <canvas> in here. -->
       <div class="hero__wave" id="hero-wave" aria-hidden="true"></div>
 
@@ -48,7 +50,7 @@
         fetchpriority="high"
         decoding="async"
       />
-    </main>
+    </div>
 
     <!-- Sits above the edge blur so it stays crisp: cycling line + scroll prompt on the torso. -->
     <div class="hero-status">
@@ -57,13 +59,118 @@
         <span class="cycle__word">AI focused</span>
         <span class="cycle__word">Business minded</span>
       </div>
-      <a class="scroll-prompt" href="#hero">
+      <a class="scroll-prompt" href="#youtube" data-go="1">
         <span class="shimmer shimmer--ttb" data-text="Scroll to explore">Scroll to explore</span>
         <svg class="scroll-prompt__arrow" viewBox="0 0 7.824 9.941" aria-hidden="true">
           <path d="M 4.366 9.744 C 4.103 10.006 3.677 10.006 3.414 9.744 L 0.175 6.505 C -0.067 6.238 -0.057 5.829 0.198 5.574 C 0.452 5.32 0.862 5.31 1.128 5.553 L 3.217 7.642 L 3.217 0.696 C 3.209 0.45 3.335 0.219 3.547 0.094 C 3.758 -0.031 4.021 -0.031 4.233 0.094 C 4.444 0.219 4.571 0.45 4.563 0.696 L 4.563 7.641 L 6.652 5.552 C 6.819 5.368 7.074 5.291 7.314 5.352 C 7.555 5.413 7.743 5.601 7.804 5.842 C 7.864 6.083 7.787 6.337 7.603 6.505 L 4.366 9.743 Z" fill="currentColor" />
         </svg>
       </a>
     </div>
+    </section>
+
+    <!-- =============================================================
+         PROJECT PAGES. Each is one full viewport: a live background,
+         a giant serif ribbon behind, a glass card in front, dots below.
+         ============================================================= -->
+    <section class="page page--project project project--youtube" id="youtube" data-theme="dark" data-bg="sky">
+      <div class="project__bg" aria-hidden="true">
+        <canvas class="sky" data-sky></canvas>
+      </div>
+      <div class="ribbon" aria-hidden="true">
+        <div class="ribbon__track">
+          <span class="ribbon__text">Maneet Kohli</span>
+          <span class="ribbon__text">Maneet Kohli</span>
+          <span class="ribbon__text">Maneet Kohli</span>
+          <span class="ribbon__text">Maneet Kohli</span>
+          <span class="ribbon__text">Maneet Kohli</span>
+          <span class="ribbon__text">Maneet Kohli</span>
+        </div>
+      </div>
+      <article class="card">
+        <header class="card__head">
+          <h2 class="card__name">Authentic Intelligence</h2>
+          <a class="card__link" href="#" aria-label="Open Authentic Intelligence">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </header>
+        <div class="card__preview" aria-hidden="true"></div>
+        <ul class="card__tags">
+          <li class="tag">Demo</li>
+          <li class="tag">Demo</li>
+          <li class="tag">Demo</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="page page--project project project--bani" id="bani-ai" data-theme="dark" data-bg="galaxy">
+      <div class="project__bg" aria-hidden="true">
+        <div class="galaxy__nebula" data-nebula></div>
+        <canvas class="galaxy__stars" data-stars></canvas>
+      </div>
+      <div class="ribbon" aria-hidden="true">
+        <div class="ribbon__track">
+          <span class="ribbon__text">Bani AI</span>
+          <span class="ribbon__text">Bani AI</span>
+          <span class="ribbon__text">Bani AI</span>
+          <span class="ribbon__text">Bani AI</span>
+          <span class="ribbon__text">Bani AI</span>
+          <span class="ribbon__text">Bani AI</span>
+        </div>
+      </div>
+      <article class="card">
+        <header class="card__head">
+          <h2 class="card__name">Bani AI</h2>
+          <a class="card__link" href="#" aria-label="Open Bani AI">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </header>
+        <div class="card__preview" aria-hidden="true"></div>
+        <ul class="card__tags">
+          <li class="tag">Demo</li>
+          <li class="tag">Demo</li>
+          <li class="tag">Demo</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="page page--project project project--regal" id="regal" data-theme="light" data-bg="paper">
+      <div class="project__bg" aria-hidden="true">
+        <div class="paper__grain"></div>
+        <svg class="paper__sky" data-planes xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="ribbon" aria-hidden="true">
+        <div class="ribbon__track">
+          <span class="ribbon__text">Regal</span>
+          <span class="ribbon__text">Regal</span>
+          <span class="ribbon__text">Regal</span>
+          <span class="ribbon__text">Regal</span>
+          <span class="ribbon__text">Regal</span>
+          <span class="ribbon__text">Regal</span>
+        </div>
+      </div>
+      <article class="card">
+        <header class="card__head">
+          <h2 class="card__name">Regal Internship</h2>
+          <a class="card__link" href="#" aria-label="Open Regal Internship">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </header>
+        <div class="card__preview" aria-hidden="true"></div>
+        <ul class="card__tags">
+          <li class="tag">Demo</li>
+          <li class="tag">Demo</li>
+          <li class="tag">Demo</li>
+        </ul>
+      </article>
+    </section>
+    </main>
+
+    <!-- Project dots: only the three project pages, hidden on the hero. -->
+    <nav class="dots" id="dots" aria-label="Projects">
+      <button class="dots__dot" type="button" data-page="1" aria-label="Authentic Intelligence"></button>
+      <button class="dots__dot" type="button" data-page="2" aria-label="Bani AI"></button>
+      <button class="dots__dot" type="button" data-page="3" aria-label="Regal Internship"></button>
+    </nav>
 
     <!-- Progressive blur pinned to the bottom edge of the viewport. -->
     <div class="edge-blur" aria-hidden="true">
@@ -103,6 +210,6 @@
 
     <div class="cursor" id="cursor" aria-hidden="true"></div>
 
-    <script type="module" src="js/site.js?v=2"></script>
+    <script type="module" src="js/site.js?v=3"></script>
   </body>
 </html>
