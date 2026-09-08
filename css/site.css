@@ -413,14 +413,15 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
     cursor: none !important;
   }
   .cursor {
+    --cur: 12px;
     display: block;
     position: fixed;
     left: 0;
     top: 0;
     z-index: 1000;
-    width: 12px;
-    height: 12px;
-    margin: -6px 0 0 -6px;
+    width: var(--cur);
+    height: var(--cur);
+    margin: calc(var(--cur) / -2) 0 0 calc(var(--cur) / -2);
     border-radius: 50%;
     background: #fff;
     /* White dot with `difference` = the inverse of whatever is under it. */
@@ -428,10 +429,69 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
     pointer-events: none;
     opacity: 0;
     transform: translate3d(var(--cx, -100px), var(--cy, -100px), 0) scale(var(--cs, 1));
-    transition: opacity 0.3s var(--ease-out);
+    transition:
+      opacity 0.3s var(--ease-out),
+      width 0.45s var(--ease-out),
+      height 0.45s var(--ease-out),
+      margin 0.45s var(--ease-out),
+      background-color 0.45s var(--ease-out);
   }
   .cursor.is-visible {
     opacity: 1;
+  }
+  /* Over a project card (utomic.framer.website pattern): the dot grows
+     into a frosted disc, a dashed ring spins around it, an arrow sits in
+     the middle. */
+  .cursor__ring,
+  .cursor__arrow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+  }
+  .cursor__ring {
+    width: 100%;
+    height: 100%;
+    translate: -50% -50%;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3.2;
+    stroke-dasharray: 2.6 2.55;
+    animation: cursor-spin 9s linear infinite;
+  }
+  .cursor__arrow {
+    width: 32px;
+    height: 32px;
+    translate: -50% -50%;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: scale(0.6);
+    transition:
+      opacity 0.3s var(--ease-out),
+      transform 0.45s var(--ease-out);
+  }
+  .cursor.is-card {
+    --cur: 112px;
+    mix-blend-mode: normal;
+    background: rgb(24 24 28 / 0.32);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(10px) saturate(120%);
+  }
+  .cursor.is-card .cursor__ring,
+  .cursor.is-card .cursor__arrow {
+    opacity: 1;
+  }
+  .cursor.is-card .cursor__arrow {
+    transform: scale(1);
+  }
+  @keyframes cursor-spin {
+    to {
+      rotate: 360deg;
+    }
   }
 }
 
@@ -833,6 +893,14 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
   .cycle__word {
     transition: none;
   }
+  .cursor,
+  .cursor__ring,
+  .cursor__arrow {
+    transition: none;
+  }
+  .cursor__ring {
+    animation: none;
+  }
 }
 
 /* =====================================================================
@@ -875,13 +943,12 @@ body {
      1  .project__bg   live backgrounds; the incoming one is lifted to 2
                        while it wipes in over the outgoing one
      3  .flip          the slab (two .card faces)
-   Palettes live on [data-project="N"], so each card face and background
-   carries its own project's ink and never transitions.
+   The card palette is fixed (dark glass) across all projects; per-step
+   colour lives only in the backgrounds and html[data-theme] for the dots.
    ===================================================================== */
 :root {
   --font-serif: "Instrument Serif", "Times New Roman", serif;
   --card-w: clamp(440px, 34vw, 600px);
-  --accent: #e0a34a;
 }
 .page--projects {
   display: grid;
@@ -894,30 +961,8 @@ body {
   --tag-bg: #fff;
   --tag-ink: #000;
 }
-/* Regal: maroon on craft paper. */
-.page--projects[data-project="2"],
-.page--projects [data-project="2"] {
-  --card-bg: rgb(255 251 243 / 0.58);
-  --card-line: rgb(122 31 43 / 0.24);
-  --card-ink: #4a1520;
-  --preview-tint: rgb(255 255 255 / 0.16);
-  --tag-bg: #7a1f2b;
-  --tag-ink: #fbf5e9;
-  --accent: #7a1f2b;
-  --card-shadow: 0 30px 80px rgb(60 20 20 / 0.22);
-}
-/* Resume Agent: monochrome on white. */
-.page--projects[data-project="3"],
-.page--projects [data-project="3"] {
-  --card-bg: rgb(255 255 255 / 0.74);
-  --card-line: rgb(0 0 0 / 0.12);
-  --card-ink: #111;
-  --preview-tint: rgb(0 0 0 / 0.035);
-  --tag-bg: #111;
-  --tag-ink: #fff;
-  --accent: #111;
-  --card-shadow: 0 30px 80px rgb(0 0 0 / 0.12);
-}
+/* The card keeps this one dark glass palette on every project; only the
+   backgrounds and the dots change per step. */
 
 /* ---------- Backgrounds ----------
    A step is a page turn. The slab starts flipping first; 0.3s later the
@@ -989,9 +1034,9 @@ body {
 .project__bg--sky > .sky__hills {
   top: auto;
   bottom: 0;
-  height: 24vh;
-  min-height: 150px;
-  filter: drop-shadow(0 -6px 18px rgb(40 90 40 / 0.18));
+  height: 36vh;
+  min-height: 220px;
+  filter: drop-shadow(0 -10px 30px rgb(30 70 30 / 0.2));
 }
 
 /* Galaxy: near-black ground, nebula shader, stars on top. */
@@ -1177,26 +1222,6 @@ body {
   font: 500 15px/1.2 var(--font-body);
   letter-spacing: -0.01em;
 }
-.card__link {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--accent);
-  border: 1px solid var(--card-line);
-  transition:
-    background-color 0.35s var(--ease-out),
-    transform 0.35s var(--ease-out);
-}
-.card__link svg {
-  width: 15px;
-  height: 15px;
-}
-.card__link:hover {
-  background: var(--card-line);
-  transform: translate(1px, -1px);
-}
 .card__preview {
   aspect-ratio: 16 / 10;
   border-radius: 12px;
@@ -1278,7 +1303,6 @@ html[data-theme="mono"] .dots {
   .pages {
     transition: none;
   }
-  .card__link,
   .dots__dot {
     transition: none;
   }
@@ -1683,11 +1707,7 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   transform-origin: 50% 100%;
   transform: rotateX(90deg) translateY(var(--slab-depth));
 }
-/* Each face carries its own [data-project], so the ink never transitions
-   mid-flip; only the slab edges follow the page-level palette. */
-.flip__edge {
-  transition: background-color 0.6s var(--page-ease) 0.4s;
-}
+
 
 @media (prefers-reduced-motion: reduce) {
   .hero__name,

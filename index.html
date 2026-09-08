@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=17" />
+    <link rel="stylesheet" href="css/site.css?v=19" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -99,25 +99,47 @@
     >
       <div class="project__bg project__bg--sky" data-project="0" aria-hidden="true">
         <canvas class="sky" data-sky></canvas>
-        <!-- Rolling green hills along the bottom edge, behind nothing, over the clouds. -->
-        <svg class="sky__hills" viewBox="0 0 1440 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Rolling grass hills along the bottom edge, over the clouds. Sun
+             from the top right: yellow-green ridges, olive shadows, a grain
+             pass for grass. Edit the paths here; sizing is in site.css. -->
+        <svg class="sky__hills" viewBox="0 0 1440 420" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="hill-back" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#9ad27a"/>
-              <stop offset="1" stop-color="#74b95c"/>
+            <linearGradient id="hill-far" gradientUnits="userSpaceOnUse" x1="1150" y1="30" x2="500" y2="420">
+              <stop offset="0" stop-color="#d9dc4c"/>
+              <stop offset="0.42" stop-color="#a9bd3f"/>
+              <stop offset="1" stop-color="#6f8d38"/>
             </linearGradient>
-            <linearGradient id="hill-mid" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#7cc25e"/>
-              <stop offset="1" stop-color="#55a344"/>
+            <linearGradient id="hill-mid" gradientUnits="userSpaceOnUse" x1="520" y1="120" x2="200" y2="420">
+              <stop offset="0" stop-color="#c4cf44"/>
+              <stop offset="0.5" stop-color="#8fab3c"/>
+              <stop offset="1" stop-color="#5f7d35"/>
             </linearGradient>
-            <linearGradient id="hill-front" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#5fae48"/>
-              <stop offset="1" stop-color="#3d8a33"/>
+            <linearGradient id="hill-near" gradientUnits="userSpaceOnUse" x1="1200" y1="250" x2="300" y2="420">
+              <stop offset="0" stop-color="#93ad3e"/>
+              <stop offset="0.55" stop-color="#5f7c36"/>
+              <stop offset="1" stop-color="#43602e"/>
             </linearGradient>
+            <radialGradient id="hill-sun" gradientUnits="userSpaceOnUse" cx="1010" cy="70" r="520">
+              <stop offset="0" stop-color="#eef07a" stop-opacity="0.55"/>
+              <stop offset="1" stop-color="#eef07a" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="hill-grass" x="0" y="0" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9 1.6" numOctaves="2" seed="7" stitchTiles="stitch"/>
+              <feColorMatrix values="0 0 0 0 0.10  0 0 0 0 0.16  0 0 0 0 0.03  0 0 0 0.55 0"/>
+            </filter>
+            <clipPath id="hill-clip">
+              <path d="M0 236 C 260 214, 560 92, 860 48 S 1290 98, 1440 150 V420 H0 Z"/>
+            </clipPath>
           </defs>
-          <path fill="url(#hill-back)" d="M0 128 C 180 52, 400 50, 620 112 S 1010 176, 1200 104 S 1380 62, 1440 78 V260 H0 Z"/>
-          <path fill="url(#hill-mid)" d="M0 176 C 240 118, 470 112, 700 160 S 1080 222, 1280 158 S 1400 126, 1440 134 V260 H0 Z"/>
-          <path fill="url(#hill-front)" d="M0 226 C 260 176, 560 170, 840 208 S 1240 250, 1440 196 V260 H0 Z"/>
+          <!-- far ridge: the big sunlit dome on the right -->
+          <path fill="url(#hill-far)" d="M0 236 C 260 214, 560 92, 860 48 S 1290 98, 1440 150 V420 H0 Z"/>
+          <path fill="url(#hill-sun)" d="M0 236 C 260 214, 560 92, 860 48 S 1290 98, 1440 150 V420 H0 Z"/>
+          <!-- middle hill: dome on the left, ridge catching light -->
+          <path fill="url(#hill-mid)" d="M0 214 C 140 140, 360 128, 600 214 S 1010 330, 1440 296 V420 H0 Z"/>
+          <!-- near slope: in shadow, rising to the right -->
+          <path fill="url(#hill-near)" d="M0 352 C 380 348, 760 262, 1080 288 S 1370 372, 1440 356 V420 H0 Z"/>
+          <!-- grass grain over everything, multiplied -->
+          <rect width="1440" height="420" clip-path="url(#hill-clip)" filter="url(#hill-grass)" style="mix-blend-mode: multiply" opacity="0.7"/>
         </svg>
       </div>
       <div class="project__bg project__bg--galaxy" data-project="1" aria-hidden="true">
@@ -147,9 +169,6 @@
       <template data-card="0">
         <header class="card__head">
           <h2 class="card__name">Maneet Kohli | Authentic Intelligence</h2>
-          <a class="card__link" href="#" aria-label="Open Authentic Intelligence">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
         </header>
         <div class="card__preview" aria-hidden="true"></div>
         <ul class="card__tags"><li class="tag">Demo</li><li class="tag">Demo</li><li class="tag">Demo</li></ul>
@@ -157,9 +176,6 @@
       <template data-card="1">
         <header class="card__head">
           <h2 class="card__name">Bani AI</h2>
-          <a class="card__link" href="#" aria-label="Open Bani AI">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
         </header>
         <div class="card__preview" aria-hidden="true"></div>
         <ul class="card__tags"><li class="tag">Demo</li><li class="tag">Demo</li><li class="tag">Demo</li></ul>
@@ -167,9 +183,6 @@
       <template data-card="2">
         <header class="card__head">
           <h2 class="card__name">Regal Internship</h2>
-          <a class="card__link" href="#" aria-label="Open Regal Internship">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
         </header>
         <div class="card__preview" aria-hidden="true"></div>
         <ul class="card__tags"><li class="tag">Demo</li><li class="tag">Demo</li><li class="tag">Demo</li></ul>
@@ -177,9 +190,6 @@
       <template data-card="3">
         <header class="card__head">
           <h2 class="card__name">Resume Agent</h2>
-          <a class="card__link" href="#" aria-label="Open Resume Agent">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
         </header>
         <div class="card__preview" aria-hidden="true"></div>
         <ul class="card__tags"><li class="tag">Demo</li><li class="tag">Demo</li><li class="tag">Demo</li></ul>
@@ -343,8 +353,13 @@
       </a>
     </nav>
 
-    <div class="cursor" id="cursor" aria-hidden="true"></div>
+    <!-- Cursor: a small inverting dot; over a project card it grows into a
+         blurred disc with a spinning dashed ring and an arrow. -->
+    <div class="cursor" id="cursor" aria-hidden="true">
+      <svg class="cursor__ring" viewBox="0 0 112 112"><circle cx="56" cy="56" r="52" /></svg>
+      <svg class="cursor__arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg>
+    </div>
 
-    <script type="module" src="js/site.js?v=8"></script>
+    <script type="module" src="js/site.js?v=9"></script>
   </body>
 </html>
