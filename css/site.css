@@ -925,7 +925,6 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
   .cursor__arrow,
   .cursor__label,
   .card__icon,
-  .card__word,
   .card__pen,
   .card__plane,
   .projects__title {
@@ -1310,56 +1309,25 @@ body {
   background: var(--preview-tint);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.04);
 }
-/* Word-and-mark previews (Resume Agent, Regal): a big word above, another
-   below, an illustrated mark sitting across both. Type is the hero's
-   Archivo. Hover: the words ease apart and the mark's trail redraws. */
+/* Mark previews (Resume Agent, Regal): one illustrated mark resting in the
+   centre. On hover it travels right along a line that draws in behind it
+   (stroke-dashoffset 1 → 0 on a pathLength="1" path); leaving retracts
+   both. The mark's transforms are set here in CSS, in SVG user units, so
+   rest and hover ride one transition. */
 .card__preview--resume,
 .card__preview--regal {
   position: relative;
   display: grid;
   place-items: center;
   overflow: hidden;
-  --word-size: calc(var(--card-w) * 0.15);
-}
-.card__word {
-  position: absolute;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 125%;
-  font-size: var(--word-size);
-  line-height: 0.8;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  user-select: none;
-  transition:
-    transform 0.7s var(--ease-out),
-    letter-spacing 0.7s var(--ease-out);
-}
-.card__word--top {
-  top: 9%;
-}
-.card__word--bottom {
-  bottom: 9%;
-}
-.card:hover .card__word--top {
-  transform: translateY(-4px);
-}
-.card:hover .card__word--bottom {
-  transform: translateY(4px);
 }
 .card__icon {
   position: relative;
   z-index: 1;
-  width: 46%;
+  width: 78%;
   height: auto;
   overflow: visible;
-  transform: translateY(2%);
 }
-/* Trails are hidden at rest. Hover draws them in from the start; leaving
-   retracts them the same way. */
 .card__trail--ink,
 .card__trail-mask {
   stroke-dasharray: 1;
@@ -1378,29 +1346,24 @@ body {
   opacity: 1;
 }
 
-/* Resume Agent: white sheet, black ink, typewriter type. */
+/* Resume Agent: white sheet, black ink. Pen nib at the line's end. */
 .card__preview--resume {
   background: #fff;
   border-color: rgb(0 0 0 / 0.08);
   color: #000;
-  --word-size: calc(var(--card-w) * 0.16);
 }
-.card__preview--resume .card__word {
-  font-family: "Special Elite", "Courier New", monospace;
-  font-weight: 400;
-  font-stretch: 100%;
-  letter-spacing: 0.04em;
-  line-height: 0.9;
-}
+/* Nib at the line's start; the body rises up-right, so the nib sits a
+   little below centre for the pen as a whole to read centred. */
 .card__pen {
-  transition: transform 0.7s var(--ease-out);
+  transform: translate(100px, 64px) rotate(30deg);
+  transition: transform 1s var(--ease-out);
 }
 .card:hover .card__pen {
-  transform: translate(99px, 63px) rotate(26deg);
+  transform: translate(166px, 64px) rotate(30deg);
 }
 
-/* Regal: craft paper, maroon ink, a stitched inner border, the plane on a
-   dotted flight line. Cozy on purpose. */
+/* Regal: craft paper, maroon ink, a stitched inner border. Plane tail at
+   the line's end. Cozy on purpose. */
 .card__preview--regal {
   background: #efe5cf;
   border-color: rgb(122 31 43 / 0.2);
@@ -1424,28 +1387,12 @@ body {
   border-radius: 8px;
   pointer-events: none;
 }
-.card__preview--regal .card__word {
-  color: #7a1f2b;
-}
-.card__preview--regal .card__word--bottom {
-  bottom: 7%;
-  font-family: "Caveat", "Segoe Script", "Bradley Hand", cursive;
-  font-weight: 600;
-  font-stretch: 100%;
-  font-size: calc(var(--word-size) * 0.98);
-  line-height: 0.9;
-  letter-spacing: 0.01em;
-  text-transform: none;
-}
-.card__icon--plane {
-  width: 50%;
-  transform: translate(3%, 1%);
-}
 .card__plane {
-  transition: transform 0.8s var(--ease-out);
+  transform: translate(110px, 50px);
+  transition: transform 1s var(--ease-out);
 }
 .card:hover .card__plane {
-  transform: translate(5px, -5px) rotate(-3deg);
+  transform: translate(170px, 44px) rotate(-4deg);
 }
 
 /* The card is an <a>; only faces with a real href get a link cursor. */

@@ -14,13 +14,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <!-- Card previews only: a typewriter face for RESUME / AGENT and a
-         handwritten one for "Internship", each subset to its own letters. -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@600&text=RESUMAGNTInterships&display=swap"
-    />
-    <link rel="stylesheet" href="css/site.css?v=27" />
+    <link rel="stylesheet" href="css/site.css?v=29" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -192,25 +186,23 @@
         <header class="card__head">
           <h2 class="card__name">Regal Internship</h2>
         </header>
-        <!-- Craft paper: REGAL above, INTERNSHIP below, a folded paper plane
-             on a dotted flight line across the middle. -->
+        <!-- Craft paper. A folded paper plane rests in the centre; on hover it
+             flies right and a dotted flight line draws in behind it. -->
         <div class="card__preview card__preview--regal" aria-hidden="true">
-          <span class="card__word card__word--top">Regal</span>
-          <svg class="card__icon card__icon--plane" viewBox="0 0 132 96" aria-hidden="true">
+          <svg class="card__icon card__icon--plane" viewBox="0 0 220 100" aria-hidden="true">
             <defs>
-              <mask id="rg-trail" maskUnits="userSpaceOnUse" x="0" y="0" width="132" height="96">
-                <path class="card__trail-mask" d="M4 84 C 26 92, 30 46, 58 54" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" pathLength="1"/>
+              <mask id="rg-trail" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="100">
+                <path class="card__trail-mask" d="M82 54 C 100 72, 118 28, 142 48" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" pathLength="1"/>
               </mask>
             </defs>
-            <path class="card__trail card__trail--dots" d="M4 84 C 26 92, 30 46, 58 54" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.5 5.5" mask="url(#rg-trail)"/>
+            <path class="card__trail card__trail--dots" d="M82 54 C 100 72, 118 28, 142 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.5 5.5" mask="url(#rg-trail)"/>
             <g class="card__plane" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
-              <path d="M58 54 L122 12 L96 88 Z" fill="#e4d2ab"/>
-              <path d="M58 54 L122 12 L70 44 Z" fill="#fdf7ea"/>
-              <path d="M70 44 L96 88" fill="none"/>
-              <path d="M58 54 L70 44" fill="none"/>
+              <path d="M-28 4 L36 -38 L10 38 Z" fill="#e4d2ab"/>
+              <path d="M-28 4 L36 -38 L-16 -6 Z" fill="#fdf7ea"/>
+              <path d="M-16 -6 L10 38" fill="none"/>
+              <path d="M-28 4 L-16 -6" fill="none"/>
             </g>
           </svg>
-          <span class="card__word card__word--bottom">Internship</span>
         </div>
         <ul class="card__tags"><li class="tag">Staffing Industry</li><li class="tag">Internal AI Platform</li><li class="tag">Internship</li><li class="tag">Company-Wide Solutions</li></ul>
       </template>
@@ -218,16 +210,13 @@
         <header class="card__head">
           <h2 class="card__name">Resume Agent</h2>
         </header>
-        <!-- White sheet: RESUME above, AGENT below, the mark sitting across both.
-             Black shapes with white separation strokes so it reads over the type. -->
+        <!-- White sheet. A fountain pen rests in the centre; on hover it writes
+             its way to the right, drawing the line as it goes. -->
         <div class="card__preview card__preview--resume" aria-hidden="true">
-          <span class="card__word card__word--top">Resume</span>
-          <svg class="card__icon card__icon--pen" viewBox="0 0 132 100" aria-hidden="true">
-            <!-- the line the pen has drawn; redraws on hover -->
-            <path class="card__trail card__trail--ink" d="M6 78 C 24 58, 40 98, 58 74 S 82 50, 96 66" fill="none" stroke="#000" stroke-width="3.6" stroke-linecap="round" pathLength="1"/>
-            <circle class="card__trail-dot" cx="6" cy="78" r="2.6" fill="#000"/>
-            <!-- fountain pen, nib on the end of the line -->
-            <g class="card__pen" transform="translate(96 66) rotate(30)" fill="#000" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke">
+          <svg class="card__icon card__icon--pen" viewBox="0 0 220 100" aria-hidden="true">
+            <path class="card__trail card__trail--ink" d="M100 64 C 120 42, 142 86, 166 64" fill="none" stroke="#000" stroke-width="3.6" stroke-linecap="round" pathLength="1"/>
+            <circle class="card__trail-dot" cx="100" cy="64" r="2.6" fill="#000"/>
+            <g class="card__pen" fill="#000" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke">
               <path d="M-7.5 -16 L0 0 L7.5 -16 Z"/>
               <path d="M0 -4 V-12" stroke="#fff" stroke-width="2"/>
               <rect x="-7.5" y="-62" width="15" height="47" rx="4.5"/>
@@ -235,7 +224,6 @@
               <path d="M-7.5 -52 H7.5" stroke="#fff" stroke-width="2"/>
             </g>
           </svg>
-          <span class="card__word card__word--bottom">Agent</span>
         </div>
         <ul class="card__tags"><li class="tag">Tailored Resumes</li><li class="tag">Your Own AI Agent</li><li class="tag">For Students</li><li class="tag">Open-Source</li></ul>
       </template>
