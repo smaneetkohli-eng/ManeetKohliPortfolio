@@ -14,13 +14,32 @@
      reads as this grey, and over the white wave it darkens by the same
      amount. Raise for more presence, lower for more ghost. */
   --name-ink: rgb(30 30 30);
-  --name-size: 11.4vw;          /* MANEET ≈ 58vw wide in Archivo 900 / 125 */
   --name-tracking: -0.025em;
 
   --edge: clamp(24px, 3vw, 48px);   /* padding from the four sides */
 
   --figure-h: 80vh;              /* hero photo height, bottom-anchored */
-  --figure-fade-start: 58%;      /* where the chest starts dissolving */
+  --figure-aspect: 1.1833;       /* hero-figure.png width / height */
+  --figure-w: calc(var(--figure-h) * var(--figure-aspect));
+  --figure-fade-start: 80%;      /* where the chest starts dissolving */
+
+  /* Where the head sits inside the photo at eye level, as fractions of
+     the photo width measured from its horizontal centre. Left edge of the
+     turban is 0.154 W left of centre, right edge is 0.268 W right of it.
+     The name is sized so MANEET (5.586 em wide) fills the space between
+     the viewport edge and the turban, minus a gap. Both words share it. */
+  --head-left: 0.154;
+  --head-right: 0.268;
+  --name-gap: clamp(16px, 2vw, 32px);
+  --name-em-width: 5.586;        /* MANEET in Archivo 900 / 125 */
+  --name-size: clamp(
+    40px,
+    calc(
+      (50vw - var(--head-left) * var(--figure-w) - var(--edge) - var(--name-gap)) /
+        var(--name-em-width)
+    ),
+    220px
+  );
 
   --dock-h: 84px;
   --dock-bottom: 24px;
@@ -130,18 +149,26 @@ ul {
   position: absolute;
   display: block;
   white-space: nowrap;
+  /* Vertically centred on the hero: line box is 0.8em, so pull up half. */
+  top: 50%;
+  margin-top: -0.4em;
   opacity: 0;
   transform: translateY(0.12em);
   animation: name-in 1.1s var(--ease-out) forwards;
 }
+/* Each word owns the gutter between the viewport edge and the turban and
+   is centred inside it, so the composition stays symmetric around the
+   figure even though the head is not centred in the photo. */
 .hero__name-word--first {
-  top: var(--edge);
   left: var(--edge);
+  right: calc(50% + var(--head-left) * var(--figure-w) + var(--name-gap));
+  text-align: center;
   animation-delay: 0.1s;
 }
 .hero__name-word--last {
+  left: calc(50% + var(--head-right) * var(--figure-w) + var(--name-gap));
   right: var(--edge);
-  bottom: calc(var(--dock-h) + var(--dock-bottom) + var(--edge) * 0.75);
+  text-align: center;
   animation-delay: 0.25s;
 }
 
