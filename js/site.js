@@ -240,6 +240,18 @@ function makeHero() {
     raf = requestAnimationFrame(frame);
   }
 
+  /* Read the cursor's state off whatever element it is over. */
+  function apply(target) {
+    const card = target instanceof Element && target.closest(".card");
+    const over = !card && target instanceof Element && target.closest(HOVER);
+    el.classList.toggle("is-card", !!card);
+    const text = (card && card.dataset.cursor) || "";
+    if (label && text && label.textContent !== text) label.textContent = text;
+    el.classList.toggle("is-label", !!text);
+    el.classList.toggle("is-hover", !!over);
+    targetScale = over ? 1.8 : 1;   // the card state sizes itself in CSS
+  }
+
   window.addEventListener("pointermove", (e) => {
     tx = e.clientX;
     ty = e.clientY;
@@ -247,16 +259,18 @@ function makeHero() {
       x = tx; y = ty;
       el.classList.add("is-visible");
     }
-    const card = e.target instanceof Element && e.target.closest(".card");
-    const over = !card && e.target instanceof Element && e.target.closest(HOVER);
-    el.classList.toggle("is-card", !!card);
-    const text = (card && card.dataset.cursor) || "";
-    if (label && text && label.textContent !== text) label.textContent = text;
-    el.classList.toggle("is-label", !!text);
-    el.classList.toggle("is-hover", !!over);
-    targetScale = over ? 1.8 : 1;   // the card state sizes itself in CSS
+    apply(e.target);
     if (!raf) raf = requestAnimationFrame(frame);
   }, { passive: true });
+
+  /* The pager announces every move. What sits under a still pointer can
+     change (a card flips to one with a link, or to "Releasing soon"), so
+     re-read it as the move starts, at the flip's midpoint and once it has
+     settled, without waiting for the pointer to move. */
+  document.addEventListener("pager:move", () => {
+    if (!el.classList.contains("is-visible")) return;
+    [0, 550, 1200].forEach((ms) => setTimeout(() => apply(document.elementFromPoint(tx, ty)), ms));
+  });
 
   window.addEventListener("pointerdown", () => { el.classList.add("is-down"); targetScale *= 0.85; });
   window.addEventListener("pointerup", () => { el.classList.remove("is-down"); targetScale = el.classList.contains("is-hover") ? 1.8 : 1; });
@@ -1200,6 +1214,7 @@ function makeProjects(page) {
     ctrl[index]?.start();
     paintTrack(opts.instant);
     paintChrome();
+    document.dispatchEvent(new CustomEvent("pager:move"));
     window.scrollTo(0, 0);
     if (opts.instant) {
       if (prev !== index) ctrl[prev]?.stop();
@@ -1217,6 +1232,7 @@ function makeProjects(page) {
     step = s;
     ctrl[index]?.setStep?.(step, dir, true);
     paintChrome();
+    document.dispatchEvent(new CustomEvent("pager:move"));
     lock(STEP_MS);
     return true;
   }

@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=21" />
+    <link rel="stylesheet" href="css/site.css?v=23" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -97,10 +97,7 @@
       data-project="0"
       data-dir="forward"
     >
-      <header class="projects__title">
-        <p class="projects__title-index">02</p>
-        <h2 class="projects__title-text">Projects and Experiences</h2>
-      </header>
+      <h2 class="projects__title"><span class="shimmer shimmer--ltr" data-text="Projects and Experiences">Projects and Experiences</span></h2>
 
       <div class="project__bg project__bg--sky" data-project="0" aria-hidden="true">
         <canvas class="sky" data-sky></canvas>
@@ -176,40 +173,50 @@
           <h2 class="card__name">Maneet Kohli | Authentic Intelligence</h2>
         </header>
         <div class="card__preview" aria-hidden="true"></div>
-        <ul class="card__tags"><li class="tag">Demo</li><li class="tag">Demo</li><li class="tag">Demo</li></ul>
+        <ul class="card__tags"><li class="tag">AI education</li><li class="tag">YouTube</li><li class="tag">Building in public</li></ul>
       </template>
       <template data-card="1" data-cursor="Releasing soon">
         <header class="card__head">
           <h2 class="card__name">Bani AI</h2>
         </header>
         <div class="card__preview" aria-hidden="true"></div>
-        <ul class="card__tags"><li class="tag">Demo</li><li class="tag">Demo</li><li class="tag">Demo</li></ul>
+        <ul class="card__tags"><li class="tag">Gurbani companion</li><li class="tag">Live in Gurdwaras</li><li class="tag">Listens and displays</li></ul>
       </template>
       <template data-card="2">
         <header class="card__head">
           <h2 class="card__name">Regal Internship</h2>
         </header>
         <div class="card__preview" aria-hidden="true"></div>
-        <ul class="card__tags"><li class="tag">Demo</li><li class="tag">Demo</li><li class="tag">Demo</li></ul>
+        <ul class="card__tags"><li class="tag">Staffing industry</li><li class="tag">Internal AI platform</li><li class="tag">Internship</li></ul>
       </template>
       <template data-card="3" data-href="https://github.com/smaneetkohli-eng/resume-agent">
         <header class="card__head">
           <h2 class="card__name">Resume Agent</h2>
         </header>
-        <div class="card__preview card__preview--icon" aria-hidden="true">
-          <!-- pen and paper, white line work on black -->
-          <svg class="card__icon" viewBox="0 0 72 72" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 8h24l12 12v42H16z"/>
-            <path d="M40 8v12h12"/>
-            <path d="M25 30h20M25 38h20M25 46h11"/>
-            <g transform="rotate(42 50 50)">
-              <rect x="45" y="27" width="10" height="30" rx="2.5" fill="#000"/>
-              <path d="M45 57l5 9 5-9" fill="#000"/>
-              <path d="M45 34h10M50 62v4"/>
+        <!-- White sheet: RESUME above, AGENT below, the mark sitting across both.
+             Black shapes with white separation strokes so it reads over the type. -->
+        <div class="card__preview card__preview--resume" aria-hidden="true">
+          <span class="card__word card__word--top">Resume</span>
+          <svg class="card__icon" viewBox="0 0 96 96" aria-hidden="true">
+            <g fill="#000" stroke="#fff" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke">
+              <!-- sheet -->
+              <path d="M20 12h34l18 18v56H20z" stroke-width="5"/>
+              <path d="M54 12v18h18" fill="none" stroke-width="3"/>
+              <path d="M31 44h30M31 55h30M31 66h16" fill="none" stroke-width="3.4"/>
+              <!-- pen, laid across the sheet -->
+              <g transform="rotate(42 64 62)">
+                <rect x="57" y="34" width="14" height="38" rx="4" stroke-width="5"/>
+                <path d="M57 72l7 14 7-14z" stroke-width="5"/>
+                <path d="M64 77v6M57 43h14" fill="none" stroke-width="2.6"/>
+              </g>
+              <!-- the agent: a spark -->
+              <path d="M80 6l3.2 8.8L92 18l-8.8 3.2L80 30l-3.2-8.8L68 18l8.8-3.2z" stroke-width="4"/>
+              <path d="M14 70l1.8 4.6 4.6 1.8-4.6 1.8L14 83l-1.8-4.6L7.6 76.4l4.6-1.8z" stroke-width="3"/>
             </g>
           </svg>
+          <span class="card__word card__word--bottom">Agent</span>
         </div>
-        <ul class="card__tags"><li class="tag">Open source</li><li class="tag">Agentic</li><li class="tag">Evidence-checked</li><li class="tag">ATS-safe</li></ul>
+        <ul class="card__tags"><li class="tag">Tailored resumes</li><li class="tag">Your own AI agent</li><li class="tag">For students</li></ul>
       </template>
     </section>
 
@@ -378,6 +385,6 @@
       <span class="cursor__label"></span>
     </div>
 
-    <script type="module" src="js/site.js?v=11"></script>
+    <script type="module" src="js/site.js?v=12"></script>
   </body>
 </html>
