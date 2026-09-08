@@ -930,9 +930,8 @@ html[data-page]:not([data-page="hero"]) .scroll-prompt {
   .projects__title {
     transition: none;
   }
-  .card__trail--ink,
-  .card__trail-mask,
-  .card__trail-dot {
+  .card__write-mask,
+  .card__route-mask {
     transition: none;
   }
   .cursor__ring {
@@ -1309,11 +1308,9 @@ body {
   background: var(--preview-tint);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.04);
 }
-/* Mark previews (Resume Agent, Regal): one illustrated mark resting in the
-   centre. On hover it travels right along a line that draws in behind it
-   (stroke-dashoffset 1 → 0 on a pathLength="1" path); leaving retracts
-   both. The mark's transforms are set here in CSS, in SVG user units, so
-   rest and hover ride one transition. */
+/* Mark previews (Resume Agent, Regal): a composed still at rest, one
+   motion on hover, reversed on leave. Rest and hover transforms live here
+   in CSS, in SVG user units, so both states ride one transition. */
 .card__preview--resume,
 .card__preview--regal {
   position: relative;
@@ -1328,42 +1325,47 @@ body {
   height: auto;
   overflow: visible;
 }
-.card__trail--ink,
-.card__trail-mask {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 1s var(--ease-out);
-}
-.card:hover .card__trail--ink,
-.card:hover .card__trail-mask {
-  stroke-dashoffset: 0;
-}
-.card__trail-dot {
-  opacity: 0;
-  transition: opacity 0.3s var(--ease-out);
-}
-.card:hover .card__trail-dot {
-  opacity: 1;
-}
 
-/* Resume Agent: white sheet, black ink. Pen nib at the line's end. */
+/* Resume Agent: the sign-off. A white sheet with one ruled line and the
+   pen resting at its start. On hover the pen glides right and "Resume
+   Agent" is written behind the nib: the text sits under a mask whose rect
+   scales open at the same pace as the pen travels. */
 .card__preview--resume {
   background: #fff;
   border-color: rgb(0 0 0 / 0.08);
   color: #000;
 }
-/* Nib at the line's start; the body rises up-right, so the nib sits a
-   little below centre for the pen as a whole to read centred. */
+.card__rule {
+  stroke: rgb(0 0 0 / 0.14);
+  stroke-width: 1;
+}
+.card__script {
+  font: 600 27px/1 "Caveat", "Segoe Script", "Bradley Hand", cursive;
+  fill: #000;
+}
+.card__write-mask {
+  transform: scaleX(0);
+  transform-box: fill-box;
+  transform-origin: 0 50%;
+  transition: transform 1.2s var(--ease-out);
+}
+.card:hover .card__write-mask {
+  transform: scaleX(1);
+}
+/* Nib at the start of the text; --pen-end is where the word ends. */
 .card__pen {
-  transform: translate(100px, 64px) rotate(30deg);
-  transition: transform 1s var(--ease-out);
+  --pen-end: 182px;
+  transform: translate(50px, 66px) rotate(30deg);
+  transition: transform 1.2s var(--ease-out);
 }
 .card:hover .card__pen {
-  transform: translate(166px, 64px) rotate(30deg);
+  transform: translate(var(--pen-end), 66px) rotate(30deg);
 }
 
-/* Regal: craft paper, maroon ink, a stitched inner border. Plane tail at
-   the line's end. Cozy on purpose. */
+/* Regal: a dispatch map on craft paper. Maroon pins joined by faint
+   dotted routes, the plane parked on the left pin. On hover the plane
+   flies the top route (offset-path, nose along the tangent) to the far
+   pin while the solid route draws in behind it; leaving flies it back. */
 .card__preview--regal {
   background: #efe5cf;
   border-color: rgb(122 31 43 / 0.2);
@@ -1387,12 +1389,42 @@ body {
   border-radius: 8px;
   pointer-events: none;
 }
+.card__icon--map {
+  width: 86%;
+}
+.card__route--faint {
+  opacity: 0.38;
+}
+.card__route-mask {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.4s var(--ease-out);
+}
+.card:hover .card__route-mask {
+  stroke-dashoffset: 0;
+}
+.card__pin {
+  fill: currentColor;
+}
+.card__pin-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  opacity: 0.55;
+}
+/* The plane geometry is centred on its own origin with the nose at about
+   -53deg, so auto-rotate plus 53deg points it down the route. */
 .card__plane {
-  transform: translate(110px, 50px);
-  transition: transform 1s var(--ease-out);
+  offset-path: path("M38 66 C 60 36, 90 28, 112 34 S 168 74, 186 58");
+  offset-distance: 0%;
+  offset-rotate: auto 53deg;
+  /* Lifted a few units off the line so it parks beside the pin and flies
+     just above the route. */
+  transform: translateY(-7px) scale(0.36);
+  transition: offset-distance 1.4s var(--ease-out);
 }
 .card:hover .card__plane {
-  transform: translate(170px, 44px) rotate(-4deg);
+  offset-distance: 100%;
 }
 
 /* The card is an <a>; only faces with a real href get a link cursor. */

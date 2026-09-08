@@ -12,9 +12,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&family=Caveat:wght@600&text=ResumeAgnt&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=29" />
+    <link rel="stylesheet" href="css/site.css?v=30" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -186,16 +186,23 @@
         <header class="card__head">
           <h2 class="card__name">Regal Internship</h2>
         </header>
-        <!-- Craft paper. A folded paper plane rests in the centre; on hover it
-             flies right and a dotted flight line draws in behind it. -->
+        <!-- Craft paper dispatch map. Three pins with faint dotted routes
+             between them; the plane rests on the left pin. On hover it flies
+             the top route (offset-path) to the far pin while that route
+             draws in solid behind it; leaving flies it back. -->
         <div class="card__preview card__preview--regal" aria-hidden="true">
-          <svg class="card__icon card__icon--plane" viewBox="0 0 220 100" aria-hidden="true">
+          <svg class="card__icon card__icon--map" viewBox="0 0 220 100" aria-hidden="true">
             <defs>
-              <mask id="rg-trail" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="100">
-                <path class="card__trail-mask" d="M82 54 C 100 72, 118 28, 142 48" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" pathLength="1"/>
+              <mask id="rg-route" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="100">
+                <path class="card__route-mask" d="M38 66 C 60 36, 90 28, 112 34 S 168 74, 186 58" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" pathLength="1"/>
               </mask>
             </defs>
-            <path class="card__trail card__trail--dots" d="M82 54 C 100 72, 118 28, 142 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.5 5.5" mask="url(#rg-trail)"/>
+            <path class="card__route card__route--faint" d="M38 66 C 60 36, 90 28, 112 34 S 168 74, 186 58" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 5.5"/>
+            <path class="card__route card__route--faint" d="M38 66 C 80 92, 150 92, 186 58" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.5 5.5"/>
+            <path class="card__route card__route--live" d="M38 66 C 60 36, 90 28, 112 34 S 168 74, 186 58" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" mask="url(#rg-route)"/>
+            <g class="card__pin" transform="translate(38 66)"><circle class="card__pin-ring" r="6.5"/><circle r="2.6"/></g>
+            <g class="card__pin" transform="translate(112 34)"><circle class="card__pin-ring" r="6.5"/><circle r="2.6"/></g>
+            <g class="card__pin" transform="translate(186 58)"><circle class="card__pin-ring" r="6.5"/><circle r="2.6"/></g>
             <g class="card__plane" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
               <path d="M-28 4 L36 -38 L10 38 Z" fill="#e4d2ab"/>
               <path d="M-28 4 L36 -38 L-16 -6 Z" fill="#fdf7ea"/>
@@ -210,12 +217,18 @@
         <header class="card__head">
           <h2 class="card__name">Resume Agent</h2>
         </header>
-        <!-- White sheet. A fountain pen rests in the centre; on hover it writes
-             its way to the right, drawing the line as it goes. -->
+        <!-- White sheet, one ruled line, the pen resting at its start. On
+             hover the pen glides right and "Resume Agent" is written behind
+             the nib, revealed by a mask that grows with the pen. -->
         <div class="card__preview card__preview--resume" aria-hidden="true">
           <svg class="card__icon card__icon--pen" viewBox="0 0 220 100" aria-hidden="true">
-            <path class="card__trail card__trail--ink" d="M100 64 C 120 42, 142 86, 166 64" fill="none" stroke="#000" stroke-width="3.6" stroke-linecap="round" pathLength="1"/>
-            <circle class="card__trail-dot" cx="100" cy="64" r="2.6" fill="#000"/>
+            <defs>
+              <mask id="ra-write" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="100">
+                <rect class="card__write-mask" x="48" y="16" width="136" height="76" fill="#fff"/>
+              </mask>
+            </defs>
+            <line class="card__rule" x1="34" y1="70" x2="186" y2="70"/>
+            <text class="card__script" x="50" y="66" mask="url(#ra-write)">Resume Agent</text>
             <g class="card__pen" fill="#000" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke">
               <path d="M-7.5 -16 L0 0 L7.5 -16 Z"/>
               <path d="M0 -4 V-12" stroke="#fff" stroke-width="2"/>
