@@ -1,6 +1,6 @@
 # CLAUDE.md — Portfolio Website
 *Maneet Kohli's personal portfolio site. Pure HTML/CSS/JS. No framework, no build tool.*
-*Last updated: September 9, 2026*
+*Last updated: September 9, 2026 (contact page, 30-photo helix)*
 
 ---
 
@@ -43,6 +43,7 @@ Pages are `<section class="page">` inside `<main class="pages" id="pages">`, in 
 | 1 | `#bio` | — | `makeEdgeWaves` | Maneet's statement, four thin paragraphs framed by four white edge waves |
 | 2 | `#projects` | `#youtube` `#bani-ai` `#regal` `#resume-agent` | `makeProjects` | One flipping glass slab; each step is a page turn (slab flips, background wipes after it) |
 | 3 | `#about` | `#vision` `#me` `#people` | `makeAbout` | Photo helix left, copy right; each step scrolls the helix and swaps the copy |
+| 4 | `#contact` | — | `makeEdgeWaves(page, CONTACT_WAVE)` | "Let's talk." over one wave along the bottom edge; email copies on click, LinkedIn / GitHub / mailto links |
 
 Landing rules: arriving from above lands on step 0, arriving from below lands on the last step. Deep links work for both page ids and step ids. The hash is kept in sync with `history.replaceState`.
 
@@ -57,14 +58,15 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
   - **hero → bio, slide**: the default. `.is-above` is `translateY(-100%)`, `.is-below` is `translateY(100%)`, so both pages travel one viewport like a track.
   - **bio → projects, iris**: `.page--bio.is-above` holds at `transform: none`; `.page--projects` wears a radial `mask-image` (solid to `calc(100% - var(--iris-feather))`, feather 140px) whose `mask-size` transitions 0 → 220vmax, so projects is revealed through a soft-edged circle growing from the centre. `.is-below` closes it again.
   - **projects → about, cover**: `.page--projects.is-above` holds at `transform: none`, its slab and title stay put, and a `::after` overlay dims it to 0.6; `.page--about` rises from `translateY(100%)` with a shadow along its top. Reversed on the way back.
+  - **about → contact, slide**: the default again (about goes up, contact comes up from below), so the site closes the way it opened.
 - Wheel: a move fires at 10 units of `deltaY` (one or two trackpad events). After a move a 0.9s cooldown ignores the decaying momentum tail, but a fresh gesture (140ms pause, or a delta jumping well above the tail) cuts the cooldown short. `PAGE_EASE` in JS must match `--page-ease`.
 - Every page gets one of three classes: `.is-active`, `.is-above` (already passed), `.is-below` (still to come). **All enter/leave choreography is CSS transitions keyed off those classes.** Look in `site.css` from the "PAGE STATES" banner onward.
 - Controllers expose `{ start, stop, setStep(step, dir, animate), theme(step) }`. Only the active page's engine runs. `theme` sets `html[data-theme]` (currently always `dark`; the hook is there for a future light page).
-- Console handles: `window.__pager.go(page, step)`, `.goTo('hash-id')`, `.next()`, `.prev()`, `.index`, `.step`. Shader mounts: `__wave` (hero), `__edges` (bio, array of four: left, right, top, bottom), `__nebula` (Bani AI). Tune with `mount.setUniforms({ u_scale, u_offsetY, ... })`. `__resume.paint()` renders the Resume Agent columns finished.
+- Console handles: `window.__pager.go(page, step)`, `.goTo('hash-id')`, `.next()`, `.prev()`, `.index`, `.step`. Shader mounts: `__wave` (hero), `__edges` (bio, array of four: left, right, top, bottom), `__horizon` (contact, array of one), `__nebula` (Bani AI). Tune the hero and nebula with `mount.setUniforms({ u_scale, u_offsetY, ... })`. The bio and contact leans rewrite `u_scale` / `u_offsetY` / `u_offsetX` every frame, so tune those pages through `__waves.EDGE_WAVE` / `__waves.CONTACT_WAVE` (e.g. `__waves.CONTACT_WAVE.offsetY = 0.6`). `__resume.paint()` renders the Resume Agent columns finished.
 
 ## Dock
 
-- Links: Home (`#hero`), About me, Projects. Contact is still a placeholder. No Journal.
+- Links: Home (`#hero`), About me, Projects. The Contact CTA goes to `#contact`. No Journal.
 - `.dock__nav` stacks three `.dock__panel` rows in one grid cell (`grid-template-columns: minmax(0, 1fr)` so a wider hidden row never stretches the track). Clicking **About me** or **Projects** swaps the row in place (no dropdown): a dim crumb with the clicked label (click to go back), then the destinations. About me → **Hello there** (`#bio`), **About me** (`#vision`, always the first About step). Projects → **Authentic Intelligence** (`#youtube`), **Bani AI**, **Regal Internship**, **Resume Agent**. The `dock()` IIFE inside the pager measures the live panel and animates `--nav-w` so the bar grows and shrinks to fit (re-measured on fonts ready and resize). Picking an option navigates and the row returns to the main set ~0.45s later; Escape or a click outside also returns it.
 
 ---
@@ -83,13 +85,22 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 - Odd lines enter from the left, even from the right, staggered 60ms. Kicker "Hello, I'm Maneet" fades up.
 - Edge waves: the hero shader (`EDGE_WAVE` params: scale 1.55, offsetY 0.58) mounted in four `.bio__wave-host` boxes, one per screen edge. Left / right hosts are 100vh × 100vw rotated ±90°; top / bottom hosts are 100vw × 100vh, the top one rotated 180°, so each host's band (which sits at its own bottom edge) lands on that screen edge. Each is masked to fade toward the centre; the bands overlap at the corners. Mounted lazily on first visit, paused when off page. Four full-viewport shaders: if the page ever feels heavy, drop the pixel budget before dropping a wave.
 - Cursor lean (in `makeEdgeWaves`): while the page is active, the pointer's position (-1..1 both axes) eases in (`1 - e^(-4dt)`) and drives all four mounts' uniforms every frame. Each edge listens to its own axis (`EDGES` table: left/right to x, top/bottom to y): the wave on the cursor's end of the axis pulls inward (`u_offsetY` − 0.1) and swells (`u_scale` + 0.14), the opposite one retreats (`u_offsetY` + 0.05), and every wave slides along its edge with the cursor's other coordinate (`u_offsetX` ± 0.07, sign flipped per end because of the rotation). Rests to centre on `pointerleave` and on `stop()`. Off under reduced motion. Nothing in the DOM moves; tune the four constants at the top of the function. `__edges[i].__lean` shows the last values set.
-- Reading light (same loop): the eased cursor in pixels is written to every `.bio__line` as `--lx` / `--ly` relative to its own box, and `--lo` (0..1, eased; 1 after the first move, 0 on `pointerleave` / `stop()`) to `.bio__statement`. `.bio__line` carries a second, box-sized background layer, a 230px radial of white at alpha `--lo` at that point, under the shimmer band, so the words near the cursor lift to white. Both layers sit behind `background-clip: text`; the shimmer keyframes' `background-position` doesn't disturb the light because that layer is box-sized.
+- Reading light (same loop): the eased cursor in pixels is written to every `[data-reading-light]` (the `.bio__line`s, the contact paragraph) as `--lx` / `--ly` relative to its own box, and `--lo` (0..1, eased; 1 after the first move, 0 on `pointerleave` / `stop()`) to `[data-reading-light-root]` (`.bio__statement`, `.contact__statement`). `.bio__line` carries a second, box-sized background layer, a 230px radial of white at alpha `--lo` at that point, under the shimmer band, so the words near the cursor lift to white. Both layers sit behind `background-clip: text`; the shimmer keyframes' `background-position` doesn't disturb the light because that layer is box-sized.
 
 ## About (page 3)
 
-- **Helix**: 24 `.helix__photo` figures in `[data-helix]`, 8 per step in order vision → what I do → my people. Photos live in `images/about/helix/{v,d,p}1-8.jpg` (480×600 portrait or 600×480 landscape crops; add `helix__photo--land` for landscape). Two strands (odd/even index), one `.helix__rung` per pair, real 3D via `perspective` on `.helix`. Idle spin 0.11 rad/s; each step tweens the visible band up one group with an extra 0.9 rad twist. Depth shading via `--shade` on the figure's `::after`.
+- **Helix**: 30 `.helix__photo` figures in `[data-helix]`, 10 per step (`PER_GROUP`, 5 pairs) in order vision → what I do → my people. Photos live in `images/about/helix/{v,d,p}1-10.jpg` (480×600 portrait or 600×480 landscape crops; add `helix__photo--land` for landscape). Raw originals for the Sept 9 batch are in `images/about/about-main/helix-src/{1,2,3}/`. Two strands (odd/even index), one `.helix__rung` per pair, real 3D via `perspective` on `.helix`. Idle spin 0.11 rad/s; each step tweens the visible band up one group (the group's middle pair, `MID`, lands at the centre) with an extra 0.9 rad twist. Depth shading via `--shade` on the figure's `::after`.
 - **Copy**: three `.about__block` articles stacked in one grid cell; `.is-current / .is-prev / .is-next` move them ±9vh with blur. Text is Maneet's v1 "Who I Am" copy, rewritten without em dashes. It speaks as him; read `ALG/voice-principles.md` before editing it.
-- To add a photo group: 8 more images, 8 more figures, bump `data-steps`, `data-step-ids`, `data-step-labels`, and add a block.
+- To add a photo group: 10 more images, 10 more figures, bump `data-steps`, `data-step-ids`, `data-step-labels`, and add a block. To change the group size, change `PER_GROUP` in `makeAbout` (must be even).
+
+## Contact (page 4)
+
+- The bio's aesthetic, closed out: black page, one wave along the bottom edge (`CONTACT_WAVE`: `EDGE_WAVE` at scale 1.05, offsetY 0.47, so several crests roll across the width, a horizon) mounted through the same `makeEdgeWaves` controller with one `[data-edge-wave="bottom"]` host, so it leans toward the cursor on the y axis. Masked `#000 0%, #000 16%, transparent 60%`; enters by rising 24vh.
+- Copy, in a left-aligned column (`min(92vw, 1240px)`, centred vertically): a top row with the About-style index ("04 Get in touch") and the hero's clock on the right (`[data-clock="Dallas, Texas"]` + `[data-clock-icon]`, both driven by the `clock()` IIFE, which now updates every `[data-clock]` / `[data-clock-icon]`); `.contact__title` "Let's talk." set exactly like the hero name (Archivo 900 / 125, `--name-ink`, `mix-blend-mode: difference`) so the wave inverts through it; `.contact__statement` (one `.contact__line`, which shares the bio line's shimmer + reading light rules and the serif `.contact__accent`); the email; the links.
+- **Nothing between `.contact__title` and the wave may carry a z-index**: a stacking context there isolates the blend. `.contact__bg` and `.contact` are positioned without z-index and rely on DOM order.
+- **Email** (`.contact__email`, a `<button data-copy data-cursor="Copy">`): Inter 300, `clamp(24px, 3.1vw, 54px)`, shimmer. Click copies the address (`contact()` IIFE), toggles `.is-copied` for 1.8s (the `.contact__hint` under it rolls "Click to copy" → "Copied") and sets `data-cursor="Copied"`; the cursor re-reads via the `cursor:refresh` event. If the clipboard API is unavailable it falls through to `mailto:`. The card cursor now triggers on any `[data-cursor]` element, not only `.card`.
+- **Links** (`.contact__links`): Email (mailto), LinkedIn, GitHub, as `.dock__link.contact__link` (the dock's two sliding hairlines, 13px). Phone number deliberately left off the public page.
+- Enter: `.contact__top`, `.contact__title`, `.contact__statement`, `.contact__email`, `.contact__links` lift 7vh from below with blur, staggered 0.05–0.29s.
 
 ## Projects (page 2)
 
@@ -125,7 +136,7 @@ Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal In
 
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=30` and `js/site.js?v=12`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+`index.html` links `css/site.css?v=40` and `js/site.js?v=17`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html
@@ -139,9 +150,10 @@ grep -n 'site.css?v=\|site.js?v=' index.html
 images/hero-figure.png        hero photo, real alpha
 images/signature.png          dock signature (white ink)
 images/favicon.svg            MK monogram
-images/about/helix/           24 helix crops (v1-8, d1-8, p1-8)
+images/about/helix/           30 helix crops (v1-10, d1-10, p1-10)
 images/about/home/            source photos (v1 collage), keep
 images/about/about-main/      raw staging photos, huge originals, keep out of the page
+images/about/about-main/helix-src/{1,2,3}/   raw originals behind the Sept 9 helix crops
 images/heroes/, projects/, bcom/, hero*.png, mountain-bg.png, Video/   v1 assets, unused by v2
 ```
 

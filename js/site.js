@@ -47,6 +47,18 @@ const EDGE_WAVE = {
 };
 const EDGE_WAVE_SPEED = 0.55;
 
+/* Contact page: one wave along the bottom edge, zoomed out so several
+   crests roll across the width, lifted higher than the bio's, a horizon. */
+const CONTACT_WAVE = {
+  ...EDGE_WAVE,
+  scale: 1.05,
+  offsetY: 0.47,
+};
+/* Console handle. The bio and contact leans rewrite u_scale / u_offsetY
+   every frame from these objects, so tune them here (e.g.
+   __waves.CONTACT_WAVE.offsetY = 0.6), not with mount.setUniforms. */
+window.__waves = { EDGE_WAVE, CONTACT_WAVE };
+
 /* ---- Mount ---------------------------------------------------------- */
 const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
 const html = document.documentElement;
@@ -151,9 +163,12 @@ function makeHero() {
    Clock + day/night icon (midu's availability status), Texas time.
    ===================================================================== */
 (function clock() {
-  const text = document.getElementById("meta-time");
-  const icon = document.getElementById("meta-icon");
-  if (!text || !icon) return;
+  /* Every [data-clock] gets "<time> <its data-clock suffix>" (the hero's
+     meta line, the contact page's meta line); every [data-clock-icon]
+     gets the sun / sleep mark. */
+  const texts = [...document.querySelectorAll("[data-clock]")];
+  const icons = [...document.querySelectorAll("[data-clock-icon]")];
+  if (!texts.length) return;
 
   const ZONE = "America/Chicago";
   const timeFmt = new Intl.DateTimeFormat("en-US", {
@@ -179,15 +194,20 @@ function makeHero() {
     const now = new Date();
     const hour = parseInt(hourFmt.format(now), 10) % 24;
     const day = hour >= 7 && hour < 22; // sun 7:00 AM – 9:59 PM, sleep otherwise
-    const label = `${timeFmt.format(now)} Texas, United States`;
-    text.textContent = label;
-    text.dataset.text = label;
+    const time = timeFmt.format(now);
+    texts.forEach((t) => {
+      const label = `${time} ${t.dataset.clock}`.trim();
+      t.textContent = label;
+      t.dataset.text = label;
+    });
 
     const next = day ? "sun" : "sleep";
     if (next !== mode) {
       mode = next;
-      icon.className = `hero__meta-icon hero__meta-icon--${mode}`;
-      icon.innerHTML = day ? SUN : SLEEP;
+      icons.forEach((icon) => {
+        icon.className = `hero__meta-icon hero__meta-icon--${mode}`;
+        icon.innerHTML = day ? SUN : SLEEP;
+      });
     }
   }
   tick();
@@ -242,7 +262,7 @@ function makeHero() {
 
   /* Read the cursor's state off whatever element it is over. */
   function apply(target) {
-    const card = target instanceof Element && target.closest(".card");
+    const card = target instanceof Element && target.closest(".card, [data-cursor]");
     const over = !card && target instanceof Element && target.closest(HOVER);
     el.classList.toggle("is-card", !!card);
     const text = (card && card.dataset.cursor) || "";
@@ -272,11 +292,48 @@ function makeHero() {
     [0, 550, 1200].forEach((ms) => setTimeout(() => apply(document.elementFromPoint(tx, ty)), ms));
   });
 
+  /* Anything that changes its own data-cursor under a still pointer
+     (the email button after a copy) asks for a re-read. */
+  document.addEventListener("cursor:refresh", () => {
+    if (el.classList.contains("is-visible")) apply(document.elementFromPoint(tx, ty));
+  });
+
   window.addEventListener("pointerdown", () => { el.classList.add("is-down"); targetScale *= 0.85; });
   window.addEventListener("pointerup", () => { el.classList.remove("is-down"); targetScale = el.classList.contains("is-hover") ? 1.8 : 1; });
   document.addEventListener("mouseleave", () => el.classList.remove("is-card"));
   document.addEventListener("mouseleave", () => el.classList.remove("is-visible"));
   document.addEventListener("mouseenter", () => el.classList.add("is-visible"));
+})();
+
+/* =====================================================================
+   Contact: the email button copies its address. The hint under it flips
+   to "Copied" for a beat and the cursor label follows. If the clipboard
+   is unavailable (no secure context), fall through to mailto.
+   ===================================================================== */
+(function contact() {
+  const btn = document.querySelector("[data-copy]");
+  if (!btn) return;
+  const idle = btn.dataset.cursor || "";
+  let timer = 0;
+  const refresh = () => document.dispatchEvent(new CustomEvent("cursor:refresh"));
+  btn.addEventListener("click", async () => {
+    const text = btn.dataset.copy;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      window.location.href = `mailto:${text}`;
+      return;
+    }
+    btn.classList.add("is-copied");
+    btn.dataset.cursor = "Copied";
+    refresh();
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      btn.classList.remove("is-copied");
+      btn.dataset.cursor = idle;
+      refresh();
+    }, 1800);
+  });
 })();
 
 /* =====================================================================
@@ -860,8 +917,10 @@ function makeResume(host) {
    { start(), stop(), setStep?(step, dir, animate), theme?(step) }
    ===================================================================== */
 
-/* ---- Bio: two edge waves (hero shader, rotated by CSS) --------------- */
-function makeEdgeWaves(page) {
+/* ---- Bio / Contact: edge waves (hero shader, rotated by CSS) ----------
+   `params` is the wave (EDGE_WAVE for the bio's four, CONTACT_WAVE for
+   the contact page's one); the lean below is relative to it. */
+function makeEdgeWaves(page, params = EDGE_WAVE) {
   const hosts = [...page.querySelectorAll("[data-edge-wave]")];
   /* Which cursor axis each edge listens to and which end of it it sits
      on. -1 is left / top, 1 is right / bottom. */
@@ -889,8 +948,8 @@ function makeEdgeWaves(page) {
      paragraph as --lx / --ly (relative to its own box) so a radial layer
      under the glyphs lifts the words near the cursor to white. --lo on
      the statement fades the light in on the first move and out on leave. */
-  const statement = page.querySelector(".bio__statement");
-  const lines = [...page.querySelectorAll(".bio__line")];
+  const statement = page.querySelector("[data-reading-light-root]");
+  const lines = [...page.querySelectorAll("[data-reading-light]")];
 
   const onMove = (e) => {
     target.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -914,11 +973,11 @@ function makeEdgeWaves(page) {
       const near = Math.max(0, cur[axis] * side);
       const far = Math.max(0, -cur[axis] * side);
       const u = {
-        u_offsetY: EDGE_WAVE.offsetY - near * LEAN_IN + far * LEAN_OUT,
-        u_scale: EDGE_WAVE.scale + near * SWELL,
+        u_offsetY: params.offsetY - near * LEAN_IN + far * LEAN_OUT,
+        u_scale: params.scale + near * SWELL,
         // Each host's +x runs the opposite way on the two ends of an axis
         // (left is rotated 90deg, right -90deg; bottom 0, top 180deg).
-        u_offsetX: EDGE_WAVE.offsetX + along * RIDE * -side,
+        u_offsetX: params.offsetX + along * RIDE * -side,
       };
       m.setUniforms(u);
       m.__lean = u;
@@ -956,10 +1015,11 @@ function makeEdgeWaves(page) {
   return {
     start() {
       if (!mounting) {
-        mounting = Promise.all(hosts.map((h) => mountGrain(h, EDGE_WAVE, WAVE_COLORS, EDGE_WAVE_SPEED)))
+        mounting = Promise.all(hosts.map((h) => mountGrain(h, params, WAVE_COLORS, EDGE_WAVE_SPEED)))
           .then((ms) => {
             mounts = ms.filter(Boolean);
-            window.__edges = mounts;
+            // __edges (bio: left, right, top, bottom) / __horizon (contact)
+            window[page.id === "contact" ? "__horizon" : "__edges"] = mounts;
             listen(true);
           })
           .catch((err) => console.warn("Edge waves failed to mount.", err));
@@ -980,8 +1040,9 @@ function makeAbout(page) {
   const helix = page.querySelector("[data-helix]");
   const photos = [...helix.querySelectorAll(".helix__photo")];
   const blocks = [...page.querySelectorAll(".about__block")];
-  const PER_GROUP = 8;                 // photos per step (4 pairs)
+  const PER_GROUP = 10;                // photos per step (5 pairs)
   const PAIRS_PER_GROUP = PER_GROUP / 2;
+  const MID = (PAIRS_PER_GROUP - 1) / 2; // the group's middle pair sits at the centre
   const TURN = (Math.PI * 2) / 5.2;    // angle between rungs
   const SPIN = 0.11;                   // rad/s idle rotation
 
@@ -996,7 +1057,7 @@ function makeAbout(page) {
 
   let W = 0, H = 0, R = 0, spacing = 0;
   let base = 0.4;              // idle rotation angle
-  let center = 1.5;            // which pair index sits at the vertical middle
+  let center = MID;            // which pair index sits at the vertical middle
   let raf = 0, last = 0;
   let tween = null;            // { from, to, spin, t0, ms }
   let step = 0;
@@ -1077,7 +1138,7 @@ function makeAbout(page) {
       paintBlocks();
       if (reducedMotion?.matches) {
         tween = null;
-        center = step * PAIRS_PER_GROUP + 1.5;
+        center = step * PAIRS_PER_GROUP + MID;
         place(performance.now());
         return;
       }
@@ -1093,7 +1154,7 @@ function makeAbout(page) {
     setStep(s, dir, animate) {
       step = s;
       paintBlocks();
-      const to = s * PAIRS_PER_GROUP + 1.5;
+      const to = s * PAIRS_PER_GROUP + MID;
       if (!animate || reducedMotion?.matches) {
         tween = null;
         center = to;
@@ -1237,6 +1298,7 @@ function makeProjects(page) {
     switch (page.dataset.bg) {
       case "hero": return makeHero();
       case "edges": return makeEdgeWaves(page);
+      case "contact": return makeEdgeWaves(page, CONTACT_WAVE);
       case "about": return makeAbout(page);
       case "projects": return makeProjects(page);
       default: return null;
