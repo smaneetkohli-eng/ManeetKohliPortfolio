@@ -1357,6 +1357,27 @@ body {
   background: var(--preview-tint);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.04);
 }
+/* Banner preview (Authentic Intelligence): the channel art, cropped to
+   the card's 16:10, eased in a slow zoom while the card is hovered. */
+.card__preview--banner {
+  position: relative;
+  overflow: hidden;
+  background: #4a97e4;
+}
+.card__banner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  transform-origin: 50% 55%;
+  transition: transform 1.1s var(--ease-out);
+  will-change: transform;
+}
+.card:hover .card__banner {
+  transform: scale(1.07);
+}
+
 /* Mark previews (Resume Agent, Regal): a composed still at rest, one
    motion on hover, reversed on leave. Rest and hover transforms live here
    in CSS, in SVG user units, so both states ride one transition. */
@@ -1593,6 +1614,11 @@ html[data-theme="mono"] .dots {
   }
   .dots__dot {
     transition: none;
+  }
+  .card__banner,
+  .card:hover .card__banner {
+    transition: none;
+    transform: none;
   }
 }
 
@@ -2325,9 +2351,6 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
 .contact__ai:hover li:nth-child(3) .contact__ai-icon,
 .contact__ai:focus-within li:nth-child(3) .contact__ai-icon,
 .contact__ai.is-open li:nth-child(3) .contact__ai-icon { transition-delay: 0.12s; }
-.contact__ai:hover li:nth-child(4) .contact__ai-icon,
-.contact__ai:focus-within li:nth-child(4) .contact__ai-icon,
-.contact__ai.is-open li:nth-child(4) .contact__ai-icon { transition-delay: 0.18s; }
 .contact__ai-icon:hover,
 .contact__ai-icon:focus-visible {
   background: var(--white);

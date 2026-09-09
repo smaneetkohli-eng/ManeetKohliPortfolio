@@ -1213,7 +1213,9 @@ function makeProjects(page) {
      face a real link; data-cursor swaps the cursor's arrow for a label. */
   function fill(face, s) {
     const tpl = templates.find((t) => Number(t.dataset.card) === s);
-    face.replaceChildren(tpl ? tpl.content.cloneNode(true) : "");
+    // importNode, not cloneNode: images born in a template's inert document
+    // only start loading once they belong to this one.
+    face.replaceChildren(tpl ? document.importNode(tpl.content, true) : "");
     face.dataset.project = String(s);
     const href = tpl?.dataset.href;
     if (href) {
