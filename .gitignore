@@ -6,3 +6,12 @@
 
 # Editor state
 .cursor/
+
+# Agent-only files: never in the public repo or the Vercel deploy.
+# CLAUDE.md, MEMORY.md and .claude/launch.json are still tracked from before
+# this rule; untracking them is a separate, deliberate commit (see AI-HANDOFF.md).
+CLAUDE.md
+MEMORY.md
+AGENTS.md
+AI-HANDOFF.md
+.claude/
