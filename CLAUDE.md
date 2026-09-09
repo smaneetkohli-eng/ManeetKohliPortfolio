@@ -82,6 +82,7 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 - `.bio__statement`: four `.bio__line` paragraphs (Maneet's statement), one size, Inter 400 at `clamp(17px, 1.65vw, 27px)`, a 58ch column centred under the dock. Each paragraph is its own shimmer via `background-clip: text` on the `<p>` (not the `data-text` copy, so the `.bio__accent` serif italics wrap with the rest), 4s cycle, delays staggered 0.25s per paragraph so the sweep flows down the page. No kicker any more.
 - Odd lines enter from the left, even from the right, staggered 60ms. Kicker "Hello, I'm Maneet" fades up.
 - Edge waves: the hero shader (`EDGE_WAVE` params: scale 1.55, offsetY 0.58) mounted in two `.bio__wave-host` boxes sized 100vh × 100vw and rotated ±90° so the wave band lands on the left / right screen edge, then masked to fade toward the centre. Mounted lazily on first visit, paused when off page.
+- Cursor lean (in `makeEdgeWaves`): while the page is active, the pointer's position (-1..1 both axes) eases in (`1 - e^(-4dt)`) and drives the two mounts' uniforms every frame: the wave on the cursor's side pulls inward (`u_offsetY` − 0.1) and swells (`u_scale` + 0.14), the far one retreats (`u_offsetY` + 0.05), and both ride the cursor's height (`u_offsetX` ± 0.07, sign flipped per side because of the rotation). Rests to centre on `pointerleave` and on `stop()`. Off under reduced motion. Nothing in the DOM moves; tune the four constants at the top of the function. `__edges[i].__lean` shows the last values set.
 
 ## About (page 3)
 

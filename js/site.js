@@ -863,8 +863,73 @@ function makeResume(host) {
 /* ---- Bio: two edge waves (hero shader, rotated by CSS) --------------- */
 function makeEdgeWaves(page) {
   const hosts = [...page.querySelectorAll("[data-edge-wave]")];
+  const sides = hosts.map((h) => (h.dataset.edgeWave === "left" ? -1 : 1));
   let mounts = [];
   let mounting = null;
+
+  /* Cursor lean. The pointer's position (-1..1 on both axes) eases in
+     and drives the shader offsets: the wave on the side the cursor is
+     nearer to pulls inward and swells a little, the far one retreats,
+     and both slide with the cursor's height. Rests back to centre when
+     the pointer leaves. All in uniforms, so nothing in the DOM moves. */
+  const target = { x: 0, y: 0 };
+  const cur = { x: 0, y: 0 };
+  let raf = 0;
+  let active = false;
+  let last = 0;
+  const LEAN_IN = 0.1;   // u_offsetY pulled toward the cursor on the near side
+  const LEAN_OUT = 0.05; // u_offsetY pushed away on the far side
+  const SWELL = 0.14;    // u_scale added on the near side
+  const RIDE = 0.07;     // u_offsetX per unit of cursor height
+
+  const onMove = (e) => {
+    target.x = (e.clientX / window.innerWidth) * 2 - 1;
+    target.y = (e.clientY / window.innerHeight) * 2 - 1;
+  };
+  const onLeave = () => { target.x = 0; target.y = 0; };
+
+  function apply() {
+    mounts.forEach((m, i) => {
+      const side = sides[i];
+      const near = Math.max(0, cur.x * side);
+      const far = Math.max(0, -cur.x * side);
+      const u = {
+        u_offsetY: EDGE_WAVE.offsetY - near * LEAN_IN + far * LEAN_OUT,
+        u_scale: EDGE_WAVE.scale + near * SWELL,
+        // host +x is screen-down on the left (rotated 90deg) and screen-up on the right
+        u_offsetX: EDGE_WAVE.offsetX + cur.y * RIDE * -side,
+      };
+      m.setUniforms(u);
+      m.__lean = u;
+    });
+  }
+  function tick(now) {
+    if (!active) return;
+    const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
+    last = now;
+    const k = 1 - Math.exp(-dt * 4);
+    cur.x += (target.x - cur.x) * k;
+    cur.y += (target.y - cur.y) * k;
+    apply();
+    raf = requestAnimationFrame(tick);
+  }
+  function listen(on) {
+    if (reducedMotion?.matches) return;
+    active = on;
+    cancelAnimationFrame(raf);
+    window.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerleave", onLeave);
+    if (on) {
+      window.addEventListener("pointermove", onMove, { passive: true });
+      document.addEventListener("pointerleave", onLeave);
+      last = 0;
+      raf = requestAnimationFrame(tick);
+    } else {
+      target.x = target.y = cur.x = cur.y = 0;
+      apply();
+    }
+  }
+
   return {
     start() {
       if (!mounting) {
@@ -872,13 +937,16 @@ function makeEdgeWaves(page) {
           .then((ms) => {
             mounts = ms.filter(Boolean);
             window.__edges = mounts;
+            listen(true);
           })
           .catch((err) => console.warn("Edge waves failed to mount.", err));
       } else {
         mounts.forEach((m) => m.setSpeed(reducedMotion?.matches ? 0 : EDGE_WAVE_SPEED));
+        listen(true);
       }
     },
     stop() {
+      listen(false);
       mounts.forEach((m) => m.setSpeed(0));
     },
   };
