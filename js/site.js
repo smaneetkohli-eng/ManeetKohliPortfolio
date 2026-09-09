@@ -863,7 +863,10 @@ function makeResume(host) {
 /* ---- Bio: two edge waves (hero shader, rotated by CSS) --------------- */
 function makeEdgeWaves(page) {
   const hosts = [...page.querySelectorAll("[data-edge-wave]")];
-  const sides = hosts.map((h) => (h.dataset.edgeWave === "left" ? -1 : 1));
+  /* Which cursor axis each edge listens to and which end of it it sits
+     on. -1 is left / top, 1 is right / bottom. */
+  const EDGES = { left: ["x", -1], right: ["x", 1], top: ["y", -1], bottom: ["y", 1] };
+  const edges = hosts.map((h) => EDGES[h.dataset.edgeWave] || EDGES.left);
   let mounts = [];
   let mounting = null;
 
@@ -906,14 +909,16 @@ function makeEdgeWaves(page) {
       l.style.setProperty("--ly", `${(py - r.top).toFixed(1)}px`);
     });
     mounts.forEach((m, i) => {
-      const side = sides[i];
-      const near = Math.max(0, cur.x * side);
-      const far = Math.max(0, -cur.x * side);
+      const [axis, side] = edges[i];
+      const along = axis === "x" ? cur.y : cur.x; // the cursor's position along this edge
+      const near = Math.max(0, cur[axis] * side);
+      const far = Math.max(0, -cur[axis] * side);
       const u = {
         u_offsetY: EDGE_WAVE.offsetY - near * LEAN_IN + far * LEAN_OUT,
         u_scale: EDGE_WAVE.scale + near * SWELL,
-        // host +x is screen-down on the left (rotated 90deg) and screen-up on the right
-        u_offsetX: EDGE_WAVE.offsetX + cur.y * RIDE * -side,
+        // Each host's +x runs the opposite way on the two ends of an axis
+        // (left is rotated 90deg, right -90deg; bottom 0, top 180deg).
+        u_offsetX: EDGE_WAVE.offsetX + along * RIDE * -side,
       };
       m.setUniforms(u);
       m.__lean = u;
