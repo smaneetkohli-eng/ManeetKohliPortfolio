@@ -1,7 +1,8 @@
 /* =====================================================================
    Maneet Kohli — site.css (v2, September 2026)
-   Fresh build. Hero only for now: wave shader, name, figure, edge blur,
-   bottom dock. Desktop first; mobile is deliberately out of scope.
+   Desktop rules first, top to bottom. Every other size (tablets, phones,
+   narrow windows, portrait, landscape phones) is handled in the
+   RESPONSIVE block at the very end, which only overrides.
    ===================================================================== */
 
 /* ---------- Tokens ---------- */
@@ -39,14 +40,28 @@
   --head-right: 0.268;
   --name-gap: clamp(16px, 2vw, 32px);
   --name-em-width: 5.586;        /* MANEET in Archivo 900 / 125 */
+  --name-em-last: 3.981;         /* KOHLI, same face */
+  /* The smaller of the two gutters sets the size: the right one is
+     narrower (the head sits right of the photo's centre) but KOHLI is the
+     shorter word, so on mid-width screens either can be the limit. */
   --name-size: clamp(
-    40px,
-    calc(
-      (50vw - var(--head-left) * var(--figure-w) - var(--edge) - var(--name-gap)) /
-        var(--name-em-width)
+    36px,
+    min(
+      calc(
+        (50vw - var(--head-left) * var(--figure-w) - var(--edge) - var(--name-gap)) /
+          var(--name-em-width)
+      ),
+      calc(
+        (50vw - var(--head-right) * var(--figure-w) - var(--edge) - var(--name-gap)) /
+          var(--name-em-last)
+      )
     ),
     220px
   );
+  /* Horizontal nudge of the figure. 0 on desktop (the name gutters are
+     built around the photo's own centre); the stacked hero shifts it so
+     the head, not the photo, is centred. */
+  --figure-shift: 0px;
 
   --dock-h: 60px;
   --dock-top: 20px;
@@ -79,6 +94,7 @@ html {
   background: var(--black);
   color: var(--white);
   font-family: var(--font-body);
+  -webkit-text-size-adjust: 100%;   /* iOS: no auto-inflation in landscape */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -573,7 +589,7 @@ html[data-page="projects"]:not(.is-last-step) .projects-status .scroll-prompt {
   height: var(--figure-h);
   width: auto;
   max-width: none;
-  transform: translateX(-50%);
+  transform: translateX(calc(-50% - var(--figure-shift)));
   user-select: none;
   -webkit-user-drag: none;
   /* Head solid, torso translucent so the wave moves through the suit,
@@ -930,7 +946,7 @@ html[data-page="projects"]:not(.is-last-step) .projects-status .scroll-prompt {
     transform: none;
   }
   .hero__figure {
-    transform: translateX(-50%);
+    transform: translateX(calc(-50% - var(--figure-shift)));
   }
   .dock__link::before,
   .dock__link::after,
@@ -1374,7 +1390,10 @@ body {
   transition: transform 1.1s var(--ease-out);
   will-change: transform;
 }
-.card:hover .card__banner {
+/* .is-live: on touch screens there is no hover, so js/site.js marks the
+   front face once it lands and each card's one motion plays then. */
+.card:hover .card__banner,
+.card.is-live .card__banner {
   transform: scale(1.07);
 }
 
@@ -1422,7 +1441,8 @@ body {
   animation-play-state: paused;
   transition: border-color 0.5s var(--ease-out);
 }
-.card:hover .card__cell {
+.card:hover .card__cell,
+.card.is-live .card__cell {
   animation-play-state: running;
   border-color: rgb(0 0 0 / 0.06);
 }
@@ -1445,7 +1465,8 @@ body {
 /* Middle row (cells 17-24 of 40): sits directly behind the wordmark, so
    it's excluded from the grid, hover or not, to keep the text fixed. */
 .card__cell:nth-child(n+17):nth-child(-n+24),
-.card:hover .card__cell:nth-child(n+17):nth-child(-n+24) {
+.card:hover .card__cell:nth-child(n+17):nth-child(-n+24),
+.card.is-live .card__cell:nth-child(n+17):nth-child(-n+24) {
   animation: none;
   border-color: transparent;
 }
@@ -1500,7 +1521,8 @@ body {
   stroke-dashoffset: 1;
   transition: stroke-dashoffset 1.4s var(--ease-out);
 }
-.card:hover .card__route-mask {
+.card:hover .card__route-mask,
+.card.is-live .card__route-mask {
   stroke-dashoffset: 0;
 }
 .card__pin {
@@ -1523,7 +1545,8 @@ body {
   transform: translateY(-7px) scale(0.36);
   transition: offset-distance 1.4s var(--ease-out);
 }
-.card:hover .card__plane {
+.card:hover .card__plane,
+.card.is-live .card__plane {
   offset-distance: 100%;
 }
 
@@ -1582,6 +1605,7 @@ html[data-theme="mono"] .dots {
   pointer-events: auto;
 }
 .dots__dot {
+  position: relative;
   width: 7px;
   height: 7px;
   padding: 0;
@@ -1594,6 +1618,12 @@ html[data-theme="mono"] .dots {
     width 0.45s var(--ease-out),
     opacity 0.45s var(--ease-out),
     background-color 0.45s var(--ease-out);
+}
+/* A 7px dot is no target for a thumb: an invisible 32px hit area around it. */
+.dots__dot::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
 }
 .dots__dot:hover {
   opacity: 0.7;
@@ -2491,5 +2521,452 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   }
   .resume__caret {
     animation: none;
+  }
+}
+
+/* =====================================================================
+   RESPONSIVE — every size other than a wide desktop. Only overrides;
+   the desktop rules above stay the source of truth.
+
+   stacked   (max-aspect-ratio: 11/10)  portrait of any size: the hero puts
+                                        the name above a smaller figure.
+   narrow    (max-width: 899px)         tablets in portrait, phones both
+                                        ways: dock sub-rows drop below the
+                                        bar, About lays the helix behind the
+                                        copy, text pages scroll inside
+                                        themselves if they must.
+   phone     (max-width: 599px)         compact dock across the width,
+                                        tighter type, notch / home bar safe
+                                        areas, fewer shaders and blur layers.
+   short     (max-height: 560px)        landscape phones.
+   Touch (hover: none) is handled in js: prompts say "Swipe", card motions
+   play on landing (.is-live, rules sit next to the :hover ones).
+   ===================================================================== */
+
+/* ---------- stacked hero (portrait) ----------
+   Name block under the dock: MANEET flush left with its line above it,
+   KOHLI flush right with the clock under it, both the full column wide.
+   The figure keeps the space that is left, never wider than 140vw, and is
+   shifted so the head (not the photo) sits on the centre line. The status
+   line still sits on the torso at the bottom. */
+@media (max-aspect-ratio: 11/10) {
+  :root {
+    --hero-name-top: calc(var(--dock-top) + var(--dock-h) + 44px);
+    --name-size: clamp(
+      36px,
+      min(calc((100vw - 2 * var(--edge)) / var(--name-em-width)), 24vh),
+      140px
+    );
+    /* 1.68em: two 0.8em line boxes plus the gap between the words.
+       56px: the clock line under KOHLI plus breathing room. */
+    --figure-h: min(
+      calc(100svh - var(--hero-name-top) - 1.68 * var(--name-size) - 56px),
+      calc(140vw / var(--figure-aspect))
+    );
+    --figure-shift: calc((var(--head-right) - var(--head-left)) / 2 * var(--figure-w));
+  }
+  .hero__name {
+    inset: auto;
+    top: var(--hero-name-top);
+    left: var(--edge);
+    right: var(--edge);
+  }
+  .hero__name-word {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    margin-top: 0;
+  }
+  .hero__name-word--first {
+    text-align: left;
+  }
+  .hero__name-word--last {
+    text-align: right;
+    margin-top: 0.08em;
+  }
+  .hero-status {
+    gap: 16px;
+    padding-bottom: calc(7vh + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- narrow ---------- */
+@media (max-width: 899px) {
+  :root {
+    --dock-h: 54px;
+    --dock-tile: 40px;
+    --dock-sig-w: 84px;
+    --meta-size: 12px;
+    --card-w: min(92vw, 460px);
+    --helix-photo-h: clamp(104px, 30vw, 200px);
+  }
+
+  /* Dock: the bar keeps its main row; About me / Projects open a list
+     under it instead of swapping the row (their labels do not fit). The
+     js-measured --nav-w only matters for the in-bar swap, so it is ignored. */
+  .dock {
+    gap: 20px;
+    padding: 7px 7px 7px 10px;
+  }
+  .dock__links {
+    gap: 20px;
+  }
+  .dock__nav {
+    width: auto;
+  }
+  .dock__panel[data-panel="main"]:not(.is-on) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    pointer-events: auto;
+  }
+  .dock__panel:not([data-panel="main"]) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    justify-self: stretch;   /* the grid's center would shrink it to its content */
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 6px;
+    border-radius: 22px;
+    background: rgb(22 22 22 / 0.8);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    box-shadow:
+      0 20px 60px rgb(0 0 0 / 0.45),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    backdrop-filter: blur(22px) saturate(140%);
+  }
+  .dock__panel:not([data-panel="main"]):not(.is-on) {
+    transform: translateY(-6px);
+  }
+  .dock__panel:not([data-panel="main"]) li {
+    display: block;
+  }
+  .dock__crumb {
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: 4px;
+    padding: 10px 14px 12px;
+    border-right: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  }
+  .dock__panel:not([data-panel="main"]) .dock__link {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 15px;
+    text-align: left;
+    transition:
+      color 0.4s var(--ease-out),
+      background-color 0.3s var(--ease-out);
+  }
+  .dock__panel:not([data-panel="main"]) .dock__link::before,
+  .dock__panel:not([data-panel="main"]) .dock__link::after {
+    display: none;
+  }
+  .dock__panel:not([data-panel="main"]) .dock__link:hover,
+  .dock__panel:not([data-panel="main"]) .dock__link:focus-visible {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  /* Hero status: the cycling line has no room for a fixed min width. */
+  .cycle {
+    min-width: 0;
+  }
+
+  /* Bio: the column becomes the page's own scroller. Auto margins keep
+     the statement centred while it fits and let it start at the top and
+     scroll when it does not (short phones). */
+  .bio__text {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    padding: calc(var(--dock-top) + var(--dock-h) + 3vh) var(--edge) 7vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* The shade stays inside the scroller's box: anything hanging past its
+     bottom edge would become scroll range. */
+  .bio__text::before {
+    inset: 0 -10%;
+  }
+  .bio__statement {
+    width: 100%;
+    margin: auto;
+    font-size: clamp(15px, min(3.4vw, 5vh), 24px);
+  }
+
+  /* Projects: the card by viewport width, tags allowed a second row. */
+  .projects__title {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    padding: 11px 20px;
+  }
+  .card__tags {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    font-size: 10px;
+  }
+  .resume {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .resume__page--letter {
+    display: none;
+  }
+
+  /* About: the helix spans the page behind the copy, dimmed and pushed
+     back, with a dark pool under the text so it reads.
+     z-map here: 1 .helix, 1 .page--about::after (the pool), 2 .about__copy */
+  .helix {
+    width: 100%;
+    --helix-r: 0.36;
+    opacity: 0.58;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  }
+  .helix__photo::after {
+    opacity: calc(0.22 + var(--shade, 0) * 0.66);
+  }
+  .page--about::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(ellipse 64% 56% at 50% 52%, rgb(0 0 0 / 0.84) 0%, rgb(0 0 0 / 0.58) 48%, rgb(0 0 0 / 0) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.9s var(--page-ease);
+  }
+  .page--about.is-active::after {
+    opacity: 1;
+  }
+  .about__copy {
+    left: 0;
+    width: 100%;
+    justify-items: center;
+    padding: calc(var(--dock-top) + var(--dock-h) + 3vh) var(--edge) calc(60px + env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .about__block {
+    width: 100%;
+    max-width: 540px;
+    text-shadow: 0 1px 18px rgb(0 0 0 / 0.6);
+  }
+  .about__block p:not(.about__index) {
+    color: rgb(255 255 255 / 0.78);
+  }
+
+  /* Contact: same scroller treatment; the title is one line up to the
+     phone breakpoint, sized to the column. */
+  .contact {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    padding: calc(var(--dock-top) + var(--dock-h) + 3vh) var(--edge) calc(6vh + env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .contact__top {
+    margin-top: auto;
+  }
+  .contact__ai {
+    margin-bottom: auto;
+  }
+  .contact__title {
+    font-size: min(clamp(56px, 9.4vw, 184px), calc((100vw - 2 * var(--edge)) / 7.7));
+  }
+}
+
+/* ---------- phone ---------- */
+@media (max-width: 599px) {
+  :root {
+    --edge: 18px;
+    --dock-top: calc(10px + env(safe-area-inset-top, 0px));
+    --dock-h: 50px;
+    --dock-tile: 38px;
+    --dock-sig-w: 64px;
+    --blur-h: 18vh;
+  }
+
+  /* Dock across the width: signature, About me / Projects, Contact.
+     Home goes; the signature already goes home. */
+  .dock {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 6px 6px 8px;
+  }
+  .dock__panel[data-panel="main"] li:first-child {
+    display: none;
+  }
+  .dock__links {
+    gap: 16px;
+  }
+  .dock__link {
+    padding: 8px 0;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+  .dock__panel:not([data-panel="main"]) .dock__link {
+    padding: 12px 14px;
+  }
+  .dock__cta {
+    gap: 10px;
+    padding: 0 14px 0 16px;
+    font-size: 11px;
+  }
+
+  /* Chrome: dots and prompts clear the home indicator; the three
+     faintest blur layers (under 0.6px) are not worth a phone's GPU. */
+  .dots {
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+  .projects-status {
+    padding-bottom: calc(9vh + env(safe-area-inset-bottom, 0px));
+  }
+  .edge-blur__layer:nth-child(-n+3) {
+    display: none;
+  }
+  .cycle {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+  }
+
+  /* Bio: two waves (top and bottom) instead of four. The side hosts are
+     display: none, so js/site.js never mounts them. */
+  .bio__wave--left,
+  .bio__wave--right {
+    display: none;
+  }
+
+  /* Projects */
+  .projects__title {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    padding: 10px 16px;
+  }
+  .card {
+    padding: 10px;
+    border-radius: 16px;
+    gap: 8px;
+  }
+  .card__name {
+    font-size: 14px;
+  }
+  .card__tags {
+    font-size: 9.5px;
+  }
+  .project__bg--sky > .sky__hills {
+    height: 30vh;
+    min-height: 180px;
+  }
+
+  /* About */
+  .about__index {
+    margin-bottom: 12px;
+  }
+  .about__title {
+    margin-bottom: 14px;
+    font-size: clamp(28px, 8.6vw, 40px);
+  }
+  .about__block p:not(.about__index) {
+    margin-bottom: 12px;
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+
+  /* Contact: the title breaks into LET'S / TALK. at a size the column can
+     carry; everything under it tightens up. */
+  .contact__top {
+    margin-bottom: 14px;
+  }
+  .contact__title {
+    margin-bottom: 14px;
+    font-size: clamp(48px, 17.5vw, 96px);
+  }
+  .contact__statement {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .contact__email {
+    margin-top: 22px;
+    font-size: clamp(20px, 6.4vw, 30px);
+  }
+  .contact__links {
+    margin-top: 18px;
+    gap: 22px;
+  }
+  .contact__ai {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-top: 16px;
+  }
+  .contact__ai-label {
+    font-size: 12px;
+  }
+}
+
+/* ---------- short (landscape phones) ----------
+   The card is sized from the height (16:10 preview plus ~110px of head,
+   tags and padding) and the page keeps 40px clear above the dots. Under
+   480px the title pill and the swipe prompt go; the dots still show where
+   you are. */
+@media (max-height: 560px) {
+  :root {
+    --card-w: min(92vw, 440px, calc((100svh - 230px) * 1.6));
+  }
+  .page--projects {
+    padding-bottom: 40px;
+  }
+  .hero-status {
+    gap: 12px;
+    padding-bottom: 6vh;
+  }
+}
+@media (max-height: 480px) {
+  :root {
+    --card-w: min(92vw, 560px);
+  }
+  .projects__title,
+  .projects-status {
+    display: none;
+  }
+  /* The card turns sideways: preview on the left sets the height, the
+     name and tags share the right half. */
+  .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 12px;
+  }
+  .card__preview {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+  .card__head {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 4px;
+  }
+  .card__tags {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: end;
   }
 }

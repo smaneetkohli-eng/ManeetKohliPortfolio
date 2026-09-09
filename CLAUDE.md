@@ -1,6 +1,6 @@
 # CLAUDE.md — Portfolio Website
 *Maneet Kohli's personal portfolio site. Pure HTML/CSS/JS. No framework, no build tool.*
-*Last updated: September 9, 2026 (contact page, 30-photo helix)*
+*Last updated: September 9, 2026 (responsive pass: every size, mobile included)*
 
 ---
 
@@ -13,7 +13,7 @@ Working directory: `/Users/maneetkohli/Desktop/ALG/PROFESSIONAL-HUB/PORTFOLIO/`
 
 **v1 is archived.** The old multi-page site (arc hero, nav dropdowns, `about.html`, `projects/*`, `experience/*`) lives on git branch `archive/v1`. Its files (`css/styles.css`, `js/main.js`, the subpage HTML) are still in the tree only so old links resolve. Do not build on them. Everything below describes v2.
 
-Desktop first. Mobile is deliberately out of scope until asked.
+Desktop rules are written first; every other size (tablets, phones, narrow or portrait windows, landscape phones) is handled by the RESPONSIVE block at the end of `site.css` plus a few touch rules in `site.js`. See "Responsive" below before touching layout.
 
 ---
 
@@ -136,9 +136,26 @@ Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal In
 
 ---
 
+## Responsive
+
+Four layers, all overrides on the desktop rules (RESPONSIVE block, end of `site.css`):
+
+| Layer | Query | What changes |
+|---|---|---|
+| stacked | `(max-aspect-ratio: 11/10)` | Hero only. `.hero__name` becomes a block under the dock (`--hero-name-top`): MANEET flush left with "Business Analytics…" above it, KOHLI flush right with the clock under it, both sized from the column (`(100vw − 2·edge) / 5.586`, capped 140px / 24vh). The figure takes the height left under the name (`--figure-h`), never wider than 140vw, and `--figure-shift` moves it so the *head* sits on the centre line. The wave switches to `WAVE_PORTRAIT` (scale 1.1, offsetY −0.15) in `site.js`, swapped live on rotation via the same media query. |
+| narrow | `(max-width: 899px)` | Dock: the About me / Projects rows drop *below* the bar as a frosted list (absolute, `justify-self: stretch`), the main row stays visible, tapping the opener again closes it. Bio, About copy and Contact become their own scrollers (`[data-scroll]`, `overflow-y: auto`, auto margins centre the content until it overflows). About: helix spans the page behind the copy (`--helix-r: 0.36`, opacity 0.58, darker per-photo shade) under a radial pool (`.page--about::after`, z 1, fades in with the page); copy centred with a text shadow. Projects: `--card-w: min(92vw, 460px)`, tags wrap, 2 resume columns, hills crop (`preserveAspectRatio` set by `layoutHints()` in js). Contact title one line sized to the column. |
+| phone | `(max-width: 599px)` | Dock spans the width (10px insets), Home link hidden, notch-aware `--dock-top` (`env(safe-area-inset-top)`), dots and prompts clear the home bar. Bio keeps only the top and bottom waves (side hosts `display: none`, js skips hidden hosts and mounts them if they appear). Three faintest edge-blur layers off. Contact title wraps to LET'S / TALK. (`17.5vw`), AI tiles wrap under the label. |
+| short | `(max-height: 560px)` / `480px` | Landscape phones. Card sized from the height, 40px kept above the dots; under 480px the title pill and swipe prompt go and the card turns into two columns (preview left, name + tags right). |
+
+Touch (`touchScreen` in `site.js`, `(hover: none) and (pointer: coarse)`): prompts read "Swipe to explore / cycle" and "Tap to copy" (`touchCopy()`); the front card gets `.is-live` once it lands so its one motion plays (rules sit beside the `:hover` ones); shader pixel budget drops to 1.0MP under 900px. Pager touch handling: one finger, mostly vertical, 50px; the first `touchmove` decides the gesture: if the page's `[data-scroll]` column can still scroll that way the browser scrolls it and that gesture never pages, otherwise the default is cancelled and `touchend` pages. Two fingers are left alone (pinch zoom). The wheel handler does the same for narrow desktop windows, with a cooldown once the column hits its edge. Dots have a 32px invisible hit area.
+
+Verifying: layout at any size in the Browser pane (`resize_window`, finish `document.getAnimations()` before screenshots). Shaders only paint in a visible browser; Chrome's window would not resize, so the trick that worked was writing three 390×844 `<iframe src="/index.html#…">` into a blank tab (`style.zoom` to fit): media queries follow the iframe's viewport and WebGL paints live.
+
+---
+
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=43` and `js/site.js?v=19`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+`index.html` links `css/site.css?v=44` and `js/site.js?v=20`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html

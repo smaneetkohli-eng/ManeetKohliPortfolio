@@ -37,6 +37,18 @@ const WAVE = {
   worldHeight: 0,
 };
 
+/* Portrait (the stacked hero, see the RESPONSIVE block in site.css): the
+   contain fit shrinks the wave to the width, so the desktop numbers leave
+   a glow in one corner. Zoomed out and lifted, the crest runs between the
+   clock line and the head and the name's edges invert through it. */
+const WAVE_PORTRAIT = {
+  ...WAVE,
+  scale: 1.1,
+  offsetY: -0.15,
+};
+const portrait = window.matchMedia?.("(max-aspect-ratio: 11/10)");
+const heroParams = () => (portrait?.matches ? WAVE_PORTRAIT : WAVE);
+
 /* Bio page: the same wave, thinner and pushed to the host's bottom edge,
    which the CSS rotation turns into the left / right screen edge. */
 const EDGE_WAVE = {
@@ -63,11 +75,16 @@ window.__waves = { EDGE_WAVE, CONTACT_WAVE };
 const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
 const html = document.documentElement;
 
+/* Touch screens: no hover, coarse pointer. Read once; it does not change. */
+const touchScreen = !!window.matchMedia?.("(hover: none) and (pointer: coarse)").matches;
+
 function pixelBudget() {
-  // midu's rule: heavy screens get a lower pixel cap.
+  // midu's rule: heavy screens get a lower pixel cap. Phones lower still:
+  // the shaders run at a fraction of the screen and nobody can tell.
   const dpr = window.devicePixelRatio || 1;
   const w = window.innerWidth || 0;
   const h = window.innerHeight || 0;
+  if (w < 900 && touchScreen) return 1.0e6;
   return dpr >= 2 || w * h * dpr * dpr > 4e6 ? 1.6e6 : 2.6e6;
 }
 
@@ -134,12 +151,17 @@ async function mountGrain(host, params, colors, speed) {
 let heroMount = null;
 let heroLive = true;
 const heroHost = document.getElementById("hero-wave");
-mountGrain(heroHost, WAVE, WAVE_COLORS, WAVE_SPEED)
+mountGrain(heroHost, heroParams(), WAVE_COLORS, WAVE_SPEED)
   .then((mount) => {
     heroMount = mount;
     mount.setSpeed(heroLive && !reducedMotion?.matches ? WAVE_SPEED : 0);
     // Exposed for live tuning from the console.
     window.__wave = mount;
+    // Rotation / a window dragged past square: swap the parameter set.
+    portrait?.addEventListener?.("change", () => {
+      const p = heroParams();
+      mount.setUniforms({ u_scale: p.scale, u_offsetX: p.offsetX, u_offsetY: p.offsetY });
+    });
   })
   .catch((err) => {
     console.warn("Hero wave failed to mount, using static fallback.", err);
@@ -212,6 +234,39 @@ function makeHero() {
   }
   tick();
   setInterval(tick, 15000);
+})();
+
+/* =====================================================================
+   Touch wording. The prompts talk about scrolling and clicking; on a
+   touch screen they should say swipe and tap. Same shimmer, new text.
+   ===================================================================== */
+(function touchCopy() {
+  if (!touchScreen) return;
+  const swap = [
+    ["Scroll to explore", "Swipe to explore"],
+    ["Scroll to cycle", "Swipe to cycle"],
+    ["Click to copy", "Tap to copy"],
+  ];
+  document.querySelectorAll(".shimmer, .contact__hint-word").forEach((el) => {
+    for (const [from, to] of swap) {
+      if (el.textContent.trim() !== from) continue;
+      el.textContent = to;
+      if (el.dataset.text) el.dataset.text = to;
+    }
+  });
+})();
+
+/* =====================================================================
+   Layout hints that CSS cannot express. The sky's hills stretch to the
+   viewport on wide screens (preserveAspectRatio none); on a narrow one
+   that squashes them into spikes, so they crop instead.
+   ===================================================================== */
+(function layoutHints() {
+  const hills = document.querySelector(".sky__hills");
+  if (!hills) return;
+  const apply = () => hills.setAttribute("preserveAspectRatio", window.innerWidth < 900 ? "xMidYMax slice" : "none");
+  apply();
+  window.addEventListener("resize", apply, { passive: true });
 })();
 
 /* =====================================================================
@@ -937,13 +992,35 @@ function makeResume(host) {
    `params` is the wave (EDGE_WAVE for the bio's four, CONTACT_WAVE for
    the contact page's one); the lean below is relative to it. */
 function makeEdgeWaves(page, params = EDGE_WAVE) {
-  const hosts = [...page.querySelectorAll("[data-edge-wave]")];
   /* Which cursor axis each edge listens to and which end of it it sits
      on. -1 is left / top, 1 is right / bottom. */
   const EDGES = { left: ["x", -1], right: ["x", 1], top: ["y", -1], bottom: ["y", 1] };
-  const edges = hosts.map((h) => EDGES[h.dataset.edgeWave] || EDGES.left);
-  let mounts = [];
-  let mounting = null;
+  /* One entry per host. A host hidden by CSS (the side waves on phones)
+     is skipped; if it appears later (rotation), start() mounts it then. */
+  const entries = [...page.querySelectorAll("[data-edge-wave]")].map((host) => ({
+    host,
+    edge: EDGES[host.dataset.edgeWave] || EDGES.left,
+    mount: null,
+    pending: null,
+  }));
+  const visible = (e) => e.host.clientWidth > 0 && e.host.clientHeight > 0;
+  const live = () => entries.filter((e) => e.mount);
+  const expose = () => {
+    // __edges (bio: left, right, top, bottom) / __horizon (contact)
+    window[page.id === "contact" ? "__horizon" : "__edges"] = live().map((e) => e.mount);
+  };
+  function mountVisible() {
+    return Promise.all(
+      entries.map((e) => {
+        if (e.mount || e.pending || !visible(e)) return e.pending;
+        e.pending = mountGrain(e.host, params, WAVE_COLORS, EDGE_WAVE_SPEED)
+          .then((m) => { e.mount = m; expose(); })
+          .catch((err) => console.warn("Edge wave failed to mount.", err))
+          .finally(() => { e.pending = null; });
+        return e.pending;
+      })
+    );
+  }
 
   /* Cursor lean. The pointer's position (-1..1 on both axes) eases in
      and drives the shader offsets: the wave on the side the cursor is
@@ -983,8 +1060,8 @@ function makeEdgeWaves(page, params = EDGE_WAVE) {
       l.style.setProperty("--lx", `${(px - r.left).toFixed(1)}px`);
       l.style.setProperty("--ly", `${(py - r.top).toFixed(1)}px`);
     });
-    mounts.forEach((m, i) => {
-      const [axis, side] = edges[i];
+    live().forEach((e) => {
+      const [axis, side] = e.edge;
       const along = axis === "x" ? cur.y : cur.x; // the cursor's position along this edge
       const near = Math.max(0, cur[axis] * side);
       const far = Math.max(0, -cur[axis] * side);
@@ -995,8 +1072,8 @@ function makeEdgeWaves(page, params = EDGE_WAVE) {
         // (left is rotated 90deg, right -90deg; bottom 0, top 180deg).
         u_offsetX: params.offsetX + along * RIDE * -side,
       };
-      m.setUniforms(u);
-      m.__lean = u;
+      e.mount.setUniforms(u);
+      e.mount.__lean = u;
     });
   }
   function tick(now) {
@@ -1028,25 +1105,19 @@ function makeEdgeWaves(page, params = EDGE_WAVE) {
     }
   }
 
+  let on = false;
   return {
     start() {
-      if (!mounting) {
-        mounting = Promise.all(hosts.map((h) => mountGrain(h, params, WAVE_COLORS, EDGE_WAVE_SPEED)))
-          .then((ms) => {
-            mounts = ms.filter(Boolean);
-            // __edges (bio: left, right, top, bottom) / __horizon (contact)
-            window[page.id === "contact" ? "__horizon" : "__edges"] = mounts;
-            listen(true);
-          })
-          .catch((err) => console.warn("Edge waves failed to mount.", err));
-      } else {
-        mounts.forEach((m) => m.setSpeed(reducedMotion?.matches ? 0 : EDGE_WAVE_SPEED));
-        listen(true);
-      }
+      on = true;
+      // Already-mounted waves run only while their host is visible.
+      live().forEach((e) => e.mount.setSpeed(visible(e) && !reducedMotion?.matches ? EDGE_WAVE_SPEED : 0));
+      mountVisible().then(() => { if (on) listen(true); });
+      listen(true);
     },
     stop() {
+      on = false;
       listen(false);
-      mounts.forEach((m) => m.setSpeed(0));
+      live().forEach((e) => e.mount.setSpeed(0));
     },
   };
 }
@@ -1081,7 +1152,10 @@ function makeAbout(page) {
   function layout() {
     W = helix.clientWidth;
     H = helix.clientHeight;
-    R = Math.min(W * 0.27, 250);
+    // Radius as a share of the helix width: --helix-r in site.css (0.27
+    // beside the copy, wider when the helix is the backdrop on narrow screens).
+    const share = parseFloat(getComputedStyle(helix).getPropertyValue("--helix-r")) || 0.27;
+    R = Math.min(W * share, 250);
     spacing = H / 4.3;
   }
 
@@ -1206,8 +1280,21 @@ function makeProjects(page) {
   let angle = 0;         // accumulated rotateX, multiples of 180
   let live = false;
   let stopTimer = 0;
+  let liveTimer = 0;
 
   const frontIndex = () => (Math.round(angle / 180) % 2 === 0 ? 0 : 1);
+
+  /* Touch screens have no hover, so each card's one motion (banner zoom,
+     breathing grid, the plane's flight) plays when the card has landed:
+     .is-live on the front face, cleared from the other. */
+  function markLive(delay) {
+    clearTimeout(liveTimer);
+    faces.forEach((f) => f.classList.remove("is-live"));
+    if (!touchScreen || !live) return;
+    liveTimer = setTimeout(() => {
+      if (live) faces[frontIndex()].classList.add("is-live");
+    }, delay);
+  }
 
   /* Clone the template onto a face. The template's data-href makes the
      face a real link; data-cursor swaps the cursor's arrow for a label. */
@@ -1273,10 +1360,13 @@ function makeProjects(page) {
     start() {
       live = true;
       paintScene(step, 1, false);
+      markLive(PAGE_MS);
     },
     stop() {
       live = false;
       clearTimeout(stopTimer);
+      clearTimeout(liveTimer);
+      faces.forEach((f) => f.classList.remove("is-live"));
       engines.forEach((e) => e?.stop());
     },
     setStep(s, dir, animate) {
@@ -1291,6 +1381,7 @@ function makeProjects(page) {
         inner.style.setProperty("--flip-angle", `${angle}deg`);
       }
       paintScene(prev, dir, moving);
+      markLive(moving ? PAGE_MS + 200 : 400);
     },
   };
 }
@@ -1381,6 +1472,7 @@ function makeProjects(page) {
     const prev = index;
     index = n;
     step = Math.max(0, Math.min(stepsOf(n) - 1, landStep ?? 0));
+    pages[index].querySelectorAll("[data-scroll]").forEach((el) => { el.scrollTop = 0; });
     ctrl[index]?.setStep?.(step, 0, false);
     ctrl[index]?.start();
     paintTrack(opts.instant);
@@ -1436,6 +1528,17 @@ function makeProjects(page) {
 
   document.querySelectorAll("[data-next]").forEach((el) => el.addEventListener("click", () => next()));
 
+  /* Inner scrolling. On narrow screens the text pages (bio, about,
+     contact) are their own scrollers ([data-scroll]) in case the copy is
+     taller than the viewport. A gesture that can still scroll that column
+     scrolls it natively; only at its edge does the next gesture page. */
+  const scrollerOf = () => {
+    const el = pages[index].querySelector("[data-scroll]");
+    return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
+  };
+  const canScroll = (el, dy) =>
+    dy > 0 ? el.scrollTop < el.scrollHeight - el.clientHeight - 1 : dy < 0 && el.scrollTop > 1;
+
   /* wheel. A move fires on the first event or two of a gesture. After a
      move, the trackpad keeps sending a decaying momentum tail; those are
      ignored during the cooldown, but a fresh gesture (a pause since the
@@ -1444,11 +1547,21 @@ function makeProjects(page) {
   window.addEventListener(
     "wheel",
     (e) => {
-      e.preventDefault();
       const now = performance.now();
       let dy = e.deltaY;
       if (e.deltaMode === 1) dy *= 16;
       else if (e.deltaMode === 2) dy *= window.innerHeight;
+      const s = scrollerOf();
+      if (s && canScroll(s, dy)) {
+        // Let the column scroll. Reaching its edge counts as a move:
+        // the tail of this gesture must not page as well.
+        acc = 0;
+        quietUntil = now + COOLDOWN;
+        lastWheelAt = now;
+        lastWheelMag = Math.abs(dy);
+        return;
+      }
+      e.preventDefault();
       const mag = Math.abs(dy);
       const fresh = now - lastWheelAt > 140 || mag > lastWheelMag * 1.8 + 4;
       lastWheelAt = now;
@@ -1504,16 +1617,37 @@ function makeProjects(page) {
     }
   });
 
-  /* touch */
-  let touchY = null;
-  window.addEventListener("touchstart", (e) => { touchY = e.touches[0]?.clientY ?? null; }, { passive: true });
-  window.addEventListener("touchend", (e) => {
-    if (touchY == null) return;
-    const dy = touchY - (e.changedTouches[0]?.clientY ?? touchY);
-    touchY = null;
-    if (Math.abs(dy) > 50) dy > 0 ? next() : prev();
+  /* touch. One finger, mostly vertical, 50px: a move. The first touchmove
+     decides the whole gesture: if the page's column can still scroll that
+     way the browser scrolls it (and this gesture never pages); otherwise
+     the default is cancelled and touchend pages. Two fingers are left to
+     the browser so pinch zoom keeps working. */
+  let touch = null;
+  window.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) { touch = null; return; }
+    const t = e.touches[0];
+    touch = { x: t.clientX, y: t.clientY, scroller: scrollerOf(), scrolled: false, decided: false };
   }, { passive: true });
-  window.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+  window.addEventListener("touchmove", (e) => {
+    if (!touch || e.touches.length !== 1) return;
+    if (!touch.decided) {
+      touch.decided = true;
+      const dy = touch.y - e.touches[0].clientY;
+      if (touch.scroller && canScroll(touch.scroller, dy)) touch.scrolled = true;
+    }
+    if (!touch.scrolled && e.cancelable) e.preventDefault();
+  }, { passive: false });
+  window.addEventListener("touchend", (e) => {
+    if (!touch) return;
+    const t = e.changedTouches[0];
+    const was = touch;
+    touch = null;
+    if (!t || was.scrolled) return;
+    const dy = was.y - t.clientY;
+    const dx = was.x - t.clientX;
+    if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx) * 1.2) dy > 0 ? next() : prev();
+  }, { passive: true });
+  window.addEventListener("touchcancel", () => { touch = null; }, { passive: true });
 
   /* dots */
   dotEls.forEach((d) => d.addEventListener("click", () => goStep(Number(d.dataset.step))));
@@ -1528,10 +1662,12 @@ function makeProjects(page) {
     goTo(id);
   });
 
-  /* keep engines honest on resize */
+  /* keep engines honest on resize (and rotation: the edge waves mount
+     any host that has just become visible). A scrolled column resets. */
   window.addEventListener("resize", () => {
     ctrl[index]?.stop();
     ctrl[index]?.start();
+    pages.forEach((p) => p.querySelectorAll("[data-scroll]").forEach((el) => { el.scrollTop = 0; }));
   }, { passive: true });
 
   /* initial page from the hash */
@@ -1563,7 +1699,9 @@ function makeProjects(page) {
     nav.addEventListener("click", (e) => {
       const t = e.target instanceof Element ? e.target : null;
       const open = t?.closest("[data-open]");
-      if (open) { show(open.dataset.open); return; }
+      // Tapping the opener again closes its row (matters on narrow
+      // screens, where the row hangs under the bar as a list).
+      if (open) { show(current === open.dataset.open ? "main" : open.dataset.open); return; }
       if (t?.closest("[data-close]")) { show("main"); return; }
       const link = t?.closest("a.dock__link");
       if (link && link.closest(".dock__panel")?.dataset.panel !== "main") setTimeout(() => show("main"), 450);
