@@ -1799,10 +1799,10 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   margin: 0 auto;
   max-width: 58ch;
   font-family: var(--font-body);
-  font-weight: 300;
+  font-weight: 400;
   font-size: clamp(17px, 1.65vw, 27px);
   line-height: 1.42;
-  letter-spacing: -0.004em;
+  letter-spacing: -0.006em;
   text-align: left;
 }
 .bio__line {
@@ -1812,11 +1812,11 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   -webkit-background-clip: text;
   background-clip: text;
   background-repeat: no-repeat;
-  background-color: rgb(255 255 255 / 0.8);
-  background-image: linear-gradient(90deg, transparent 30%, #fff 50%, transparent 70%);
+  background-color: rgb(255 255 255 / 0.74);
+  background-image: linear-gradient(90deg, transparent 26%, #fff 50%, transparent 74%);
   background-size: 300% 100%;
   background-position: 100% 0;
-  animation: shimmer-ltr 6.5s ease-in-out infinite;
+  animation: shimmer-ltr 4s ease-in-out infinite;
   transition:
     transform var(--page-ms) var(--page-ease),
     opacity 0.8s var(--page-ease),
@@ -1825,10 +1825,9 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
 .bio__line:last-child {
   margin-bottom: 0;
 }
-.bio__line:nth-child(2) { animation-delay: 0.35s; }
-.bio__line:nth-child(3) { animation-delay: 0.7s; }
-.bio__line:nth-child(4) { animation-delay: 1.05s; }
-.bio__line:nth-child(5) { animation-delay: 1.4s; }
+.bio__line:nth-child(2) { animation-delay: 0.25s; }
+.bio__line:nth-child(3) { animation-delay: 0.5s; }
+.bio__line:nth-child(4) { animation-delay: 0.75s; }
 /* Enter: odd lines from the left, even lines from the right, staggered. */
 .page--bio:not(.is-active) .bio__line {
   opacity: 0;
