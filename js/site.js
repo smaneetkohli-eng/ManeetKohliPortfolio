@@ -5,14 +5,8 @@
    palette swapped from red to white.
    ===================================================================== */
 
-import {
-  ShaderMount,
-  ShaderFitOptions,
-  GrainGradientShapes,
-  grainGradientFragmentShader,
-  getShaderColorFromString,
-  getShaderNoiseTexture,
-} from "https://cdn.jsdelivr.net/npm/@paper-design/shaders@0.0.80/+esm";
+// Visuals are optional. A slow or unavailable CDN must not block the pager.
+let shaderLibrary;
 
 /* ---- Tunables ------------------------------------------------------ */
 // midu: ["#FF4537", "#E41F18", "#FE887B"] (base, deep, highlight).
@@ -75,6 +69,15 @@ window.__waves = { EDGE_WAVE, CONTACT_WAVE };
 const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
 const html = document.documentElement;
 
+// Large animated masks are unreliable/expensive on mobile compositors.
+// Use the existing slide vocabulary on those screens or without CSS masks.
+const slideScreens = window.matchMedia("(max-width: 899px), (hover: none) and (pointer: coarse)");
+const setTransitions = () => html.classList.toggle("use-slide-transitions", slideScreens.matches ||
+  !(CSS.supports("mask-image", "linear-gradient(black, transparent)") ||
+    CSS.supports("-webkit-mask-image", "linear-gradient(black, transparent)")));
+setTransitions();
+slideScreens.addEventListener?.("change", setTransitions);
+
 /* Touch screens: no hover, coarse pointer. Read once; it does not change. */
 const touchScreen = !!window.matchMedia?.("(hover: none) and (pointer: coarse)").matches;
 
@@ -92,6 +95,11 @@ function pixelBudget() {
    the Bani AI nebula. */
 async function mountGrain(host, params, colors, speed) {
   if (!host) return null;
+
+  const {
+    ShaderMount, ShaderFitOptions, GrainGradientShapes,
+    grainGradientFragmentShader, getShaderColorFromString, getShaderNoiseTexture,
+  } = await (shaderLibrary ??= import("https://cdn.jsdelivr.net/npm/@paper-design/shaders@0.0.80/+esm"));
 
   // The library requires the noise texture to be fully decoded before mount.
   const noiseTexture = getShaderNoiseTexture();
@@ -129,8 +137,6 @@ async function mountGrain(host, params, colors, speed) {
     1, // minPixelRatio
     pixelBudget()
   );
-
-  reducedMotion?.addEventListener?.("change", () => mount.setSpeed(speedFor()));
 
   let resizeTimer;
   window.addEventListener(
@@ -279,6 +285,7 @@ function makeHero() {
   const LEAVE = 800;
   let i = 0;
   setInterval(() => {
+    if (reducedMotion?.matches || document.hidden) return;
     const current = words[i];
     i = (i + 1) % words.length;
     const next = words[i];
@@ -622,6 +629,7 @@ function makeGalaxy(nebulaHost, starsCanvas) {
   const ctx = starsCanvas.getContext("2d");
   let w = 0, h = 0, dpr = 1, stars = [], raf = 0, last = 0, built = false;
   let mount = null, mounting = null;
+  let active = false;
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -668,6 +676,7 @@ function makeGalaxy(nebulaHost, starsCanvas) {
 
   return {
     start() {
+      active = true;
       if (!built || w !== starsCanvas.clientWidth || h !== starsCanvas.clientHeight) {
         resize();
         built = true;
@@ -676,6 +685,7 @@ function makeGalaxy(nebulaHost, starsCanvas) {
         mounting = mountGrain(nebulaHost, NEBULA, NEBULA_COLORS, NEBULA_SPEED)
           .then((m) => {
             mount = m;
+            mount.setSpeed(active && !reducedMotion?.matches ? NEBULA_SPEED : 0);
             window.__nebula = m;
           })
           .catch((err) => console.warn("Nebula failed to mount.", err));
@@ -694,6 +704,7 @@ function makeGalaxy(nebulaHost, starsCanvas) {
       }
     },
     stop() {
+      active = false;
       cancelAnimationFrame(raf);
       raf = 0;
       mount?.setSpeed(0);
@@ -1014,7 +1025,11 @@ function makeEdgeWaves(page, params = EDGE_WAVE) {
       entries.map((e) => {
         if (e.mount || e.pending || !visible(e)) return e.pending;
         e.pending = mountGrain(e.host, params, WAVE_COLORS, EDGE_WAVE_SPEED)
-          .then((m) => { e.mount = m; expose(); })
+          .then((m) => {
+            e.mount = m;
+            m.setSpeed(on && visible(e) && !reducedMotion?.matches ? EDGE_WAVE_SPEED : 0);
+            expose();
+          })
           .catch((err) => console.warn("Edge wave failed to mount.", err))
           .finally(() => { e.pending = null; });
         return e.pending;
@@ -1088,12 +1103,12 @@ function makeEdgeWaves(page, params = EDGE_WAVE) {
     raf = requestAnimationFrame(tick);
   }
   function listen(on) {
-    if (reducedMotion?.matches) return;
-    active = on;
+    active = on && !reducedMotion?.matches;
     cancelAnimationFrame(raf);
+    raf = 0;
     window.removeEventListener("pointermove", onMove);
     document.removeEventListener("pointerleave", onLeave);
-    if (on) {
+    if (active) {
       window.addEventListener("pointermove", onMove, { passive: true });
       document.addEventListener("pointerleave", onLeave);
       last = 0;
@@ -1212,6 +1227,8 @@ function makeAbout(page) {
 
   function paintBlocks() {
     blocks.forEach((b, i) => {
+      b.inert = i !== step;
+      b.setAttribute("aria-hidden", String(i !== step));
       b.classList.toggle("is-current", i === step);
       b.classList.toggle("is-prev", i < step);
       b.classList.toggle("is-next", i > step);
@@ -1284,6 +1301,13 @@ function makeProjects(page) {
 
   const frontIndex = () => (Math.round(angle / 180) % 2 === 0 ? 0 : 1);
 
+  function markFront() {
+    faces.forEach((face, i) => {
+      face.inert = i !== frontIndex();
+      face.setAttribute("aria-hidden", String(face.inert));
+    });
+  }
+
   /* Touch screens have no hover, so each card's one motion (banner zoom,
      breathing grid, the plane's flight) plays when the card has landed:
      .is-live on the front face, cleared from the other. */
@@ -1343,6 +1367,11 @@ function makeProjects(page) {
     if (live) {
       engines[step]?.start();
       clearTimeout(stopTimer);
+      // A new gesture can arrive before the previous stop timer fires.
+      // Retire anything no longer participating in this transition now.
+      engines.forEach((engine, i) => {
+        if (i !== step && (!animate || i !== prev)) engine?.stop();
+      });
       if (prev !== step) {
         stopTimer = setTimeout(() => {
           if (prev !== step) engines[prev]?.stop();
@@ -1354,6 +1383,7 @@ function makeProjects(page) {
   // initial face
   fill(faces[0], 0);
   fill(faces[1], 1);
+  markFront();
 
   return {
     theme: (s) => THEMES[s] || "dark",
@@ -1380,6 +1410,7 @@ function makeProjects(page) {
         angle += (dir >= 0 ? 1 : -1) * 180;
         inner.style.setProperty("--flip-angle", `${angle}deg`);
       }
+      markFront();
       paintScene(prev, dir, moving);
       markLive(moving ? PAGE_MS + 200 : 400);
     },
@@ -1420,6 +1451,7 @@ function makeProjects(page) {
   let index = 0;
   let step = 0;
   let locked = false;
+  let lockTimer;
   let quietUntil = 0;
   let acc = 0;
   let accTimer = 0;
@@ -1429,6 +1461,8 @@ function makeProjects(page) {
   function paintTrack(instant) {
     track.classList.toggle("is-instant", !!instant);
     pages.forEach((p, i) => {
+      p.inert = i !== index;
+      p.setAttribute("aria-hidden", String(i !== index));
       p.classList.toggle("is-active", i === index);
       p.classList.toggle("is-above", i < index);
       p.classList.toggle("is-below", i > index);
@@ -1447,6 +1481,9 @@ function makeProjects(page) {
     html.classList.toggle("is-last-step", step === n - 1);
     const labels = stepLabels(index);
     dots?.classList.toggle("is-visible", n > 1);
+    if (dots) dots.inert = n <= 1;
+    document.querySelector(".hero-status").inert = page.id !== "hero";
+    document.querySelector(".projects-status").inert = page.id !== "projects" || step === n - 1;
     dotEls.forEach((d, k) => {
       d.hidden = k >= n;
       const active = k === step;
@@ -1459,9 +1496,17 @@ function makeProjects(page) {
   }
 
   function lock(ms) {
+    clearTimeout(lockTimer);
+    if (reducedMotion?.matches || ms === 0) {
+      locked = false;
+      // There is no animation to wait for, but a trackpad still emits a
+      // momentum tail. Keep that wheel-only guard for actual moves.
+      quietUntil = ms === 0 ? 0 : performance.now() + COOLDOWN;
+      return;
+    }
     locked = true;
     quietUntil = performance.now() + ms + COOLDOWN;
-    setTimeout(() => { locked = false; }, ms);
+    lockTimer = setTimeout(() => { locked = false; }, ms);
   }
 
   /* Move to page n, landing on `landStep` (0 from above, last from below). */
@@ -1484,7 +1529,7 @@ function makeProjects(page) {
       return true;
     }
     lock(PAGE_MS);
-    setTimeout(() => { if (prev !== index) ctrl[prev]?.stop(); }, PAGE_MS);
+    setTimeout(() => { if (prev !== index) ctrl[prev]?.stop(); }, reducedMotion?.matches ? 0 : PAGE_MS);
     return true;
   }
 
@@ -1493,6 +1538,7 @@ function makeProjects(page) {
     if (s === step || locked) return false;
     const dir = s > step ? 1 : -1;
     step = s;
+    pages[index].querySelectorAll("[data-scroll]").forEach((el) => { el.scrollTop = 0; });
     ctrl[index]?.setStep?.(step, dir, true);
     paintChrome();
     document.dispatchEvent(new CustomEvent("pager:move"));
@@ -1532,9 +1578,13 @@ function makeProjects(page) {
      contact) are their own scrollers ([data-scroll]) in case the copy is
      taller than the viewport. A gesture that can still scroll that column
      scrolls it natively; only at its edge does the next gesture page. */
-  const scrollerOf = () => {
+  const scrollerOf = (target) => {
     const el = pages[index].querySelector("[data-scroll]");
-    return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
+    if (!el || (target && !el.contains(target))) return null;
+    // Decorative pseudo-elements and transforms can add scrollHeight even
+    // when the element cannot scroll. Only hand a gesture to a real scroller.
+    return /^(auto|scroll)$/.test(getComputedStyle(el).overflowY) &&
+      el.scrollHeight > el.clientHeight + 1 ? el : null;
   };
   const canScroll = (el, dy) =>
     dy > 0 ? el.scrollTop < el.scrollHeight - el.clientHeight - 1 : dy < 0 && el.scrollTop > 1;
@@ -1547,11 +1597,12 @@ function makeProjects(page) {
   window.addEventListener(
     "wheel",
     (e) => {
+      if (e.ctrlKey || e.metaKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       const now = performance.now();
       let dy = e.deltaY;
       if (e.deltaMode === 1) dy *= 16;
       else if (e.deltaMode === 2) dy *= window.innerHeight;
-      const s = scrollerOf();
+      const s = scrollerOf(e.target);
       if (s && canScroll(s, dy)) {
         // Let the column scroll. Reaching its edge counts as a move:
         // the tail of this gesture must not page as well.
@@ -1592,14 +1643,24 @@ function makeProjects(page) {
   /* keys */
   window.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const tag = document.activeElement?.tagName;
-    if (tag === "INPUT" || tag === "TEXTAREA") return;
+    const active = document.activeElement;
+    if (active?.matches("input, textarea, select") || active?.isContentEditable) return;
+    // Space activates buttons, links and disclosure controls natively.
+    if (e.key === " " && active?.closest("a, button, [role='button']")) return;
+    const dir = ["ArrowDown", "PageDown", " "].includes(e.key) ? (e.key === " " && e.shiftKey ? -1 : 1) :
+      ["ArrowUp", "PageUp"].includes(e.key) ? -1 : 0;
+    const s = scrollerOf();
+    if (dir && s && canScroll(s, dir)) {
+      e.preventDefault();
+      s.scrollBy({ top: dir * (e.key.startsWith("Arrow") ? 48 : s.clientHeight * 0.8), behavior: "auto" });
+      return;
+    }
     switch (e.key) {
       case "ArrowDown":
       case "PageDown":
       case " ":
         e.preventDefault();
-        next();
+        dir > 0 ? next() : prev();
         break;
       case "ArrowUp":
       case "PageUp":
@@ -1626,14 +1687,17 @@ function makeProjects(page) {
   window.addEventListener("touchstart", (e) => {
     if (e.touches.length !== 1) { touch = null; return; }
     const t = e.touches[0];
-    touch = { x: t.clientX, y: t.clientY, scroller: scrollerOf(), scrolled: false, decided: false };
+    touch = { x: t.clientX, y: t.clientY, scroller: scrollerOf(e.target), scrolled: false, decided: false };
   }, { passive: true });
   window.addEventListener("touchmove", (e) => {
     if (!touch || e.touches.length !== 1) return;
     if (!touch.decided) {
-      touch.decided = true;
       const dy = touch.y - e.touches[0].clientY;
-      if (touch.scroller && canScroll(touch.scroller, dy)) touch.scrolled = true;
+      const dx = touch.x - e.touches[0].clientX;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 8) return;
+      touch.decided = true;
+      touch.scrolled = Math.abs(dx) > Math.abs(dy) ||
+        !!(touch.scroller && canScroll(touch.scroller, dy));
     }
     if (!touch.scrolled && e.cancelable) e.preventDefault();
   }, { passive: false });
@@ -1654,6 +1718,7 @@ function makeProjects(page) {
 
   /* in-page links: anything pointing at a page id or a step id */
   document.addEventListener("click", (e) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const a = e.target instanceof Element && e.target.closest('a[href^="#"]');
     if (!a) return;
     const id = a.getAttribute("href").slice(1);
@@ -1662,13 +1727,35 @@ function makeProjects(page) {
     goTo(id);
   });
 
-  /* keep engines honest on resize (and rotation: the edge waves mount
-     any host that has just become visible). A scrolled column resets. */
+  /* Browser chrome and rotation resize the viewport. Preserve reading
+     position and avoid rebuilding every engine for each resize event. */
+  let resizeTimer;
   window.addEventListener("resize", () => {
-    ctrl[index]?.stop();
-    ctrl[index]?.start();
-    pages.forEach((p) => p.querySelectorAll("[data-scroll]").forEach((el) => { el.scrollTop = 0; }));
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      ctrl[index]?.stop();
+      if (!document.hidden) ctrl[index]?.start();
+    }, 150);
   }, { passive: true });
+
+  // A fragment edited in the address bar or restored by Back/Forward is
+  // navigation too. Delay it through the current transition, never drop it.
+  let hashTimer;
+  function followHash() {
+    clearTimeout(hashTimer);
+    if (!locate(location.hash.slice(1))) return;
+    if (locked) { hashTimer = setTimeout(followHash, 50); return; }
+    goTo(location.hash.slice(1));
+  }
+  window.addEventListener("hashchange", followHash);
+
+  function reconcileMotion() {
+    ctrl.forEach((controller) => controller?.stop());
+    if (reducedMotion?.matches) lock(0);
+    if (!document.hidden) ctrl[index]?.start();
+  }
+  reducedMotion?.addEventListener?.("change", reconcileMotion);
+  document.addEventListener("visibilitychange", reconcileMotion);
 
   /* initial page from the hash */
   const at = locate(location.hash.slice(1));
@@ -1690,12 +1777,21 @@ function makeProjects(page) {
     };
     const show = (name) => {
       current = name;
-      panels.forEach((p) => p.classList.toggle("is-on", p.dataset.panel === name));
+      const narrow = window.innerWidth < 900;
+      panels.forEach((p) => {
+        const visible = p.dataset.panel === name || (narrow && p.dataset.panel === "main");
+        p.inert = !visible;
+        p.setAttribute("aria-hidden", String(!visible));
+        p.classList.toggle("is-on", p.dataset.panel === name);
+      });
+      nav.querySelectorAll("[data-open]").forEach((button) => {
+        button.setAttribute("aria-expanded", String(button.dataset.open === name));
+      });
       fit();
     };
-    fit();
+    show("main");
     document.fonts?.ready.then(fit);
-    window.addEventListener("resize", fit, { passive: true });
+    window.addEventListener("resize", () => show(current), { passive: true });
     nav.addEventListener("click", (e) => {
       const t = e.target instanceof Element ? e.target : null;
       const open = t?.closest("[data-open]");

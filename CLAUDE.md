@@ -156,7 +156,7 @@ Verifying: layout at any size in the Browser pane (`resize_window`, finish `docu
 
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=44` and `js/site.js?v=20`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code.
+`index.html` links `css/site.css?v=48` and `js/site.js?v=23`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code.
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html
@@ -205,3 +205,13 @@ The Claude desktop Browser pane usually runs hidden and **freezes CSS animation 
 - Old v1 URLs are redirected in `vercel.json`. If a page or step id ever changes, update the redirect targets there.
 - Copy on the site speaks as Maneet. Read `ALG/voice-principles.md` first. No em dashes.
 - Commit after every meaningful change with a specific message (see `git log` for tone). No AI attribution anywhere.
+
+
+## Reliability audit — September 9, 2026
+
+- Optional shaders load dynamically; CDN failure no longer blocks navigation. Late mounts check controller visibility, outgoing project engines cannot leak on quick cycling, and motion-preference/visibility changes reconcile active engines.
+- Gesture ownership requires a real overflow scroller containing the input target. Keyboard navigation reads overflowing copy first; browser zoom, horizontal gestures, and native button activation are preserved. Touch direction waits past initial jitter.
+- Hidden pages, About blocks, card backs, dock panels, dots, and prompts are inert. Hash changes after load navigate the pager. Resize preserves reading position; a new About step starts at the top.
+- Narrow/coarse-pointer or mask-unsupported browsers receive transform-based page/background slides (`html.use-slide-transitions`). Desktop retains the iris and masks. Reduced Motion overrides are last in the stylesheet; pager animation locks disappear while wheel momentum cooldown remains.
+- Text scrollers also apply to wide windows at or below 650px tall. The dock tightens below 360px to prevent overlapping controls.
+- Regression checks: `node --test tests/engine-lifecycle.mjs`; `python3 tests/serve.py`, then `http://127.0.0.1:8081/tests/browser.html`. `tests/visual.html` provides responsive inspection. `.vercelignore` excludes test and audit artifacts. Physical-device checks remain distinct from desktop viewport emulation.

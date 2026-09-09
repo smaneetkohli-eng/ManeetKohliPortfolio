@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8"><link rel="icon" href="/images/favicon.svg"><title>Portfolio responsive inspection</title>
+<style>body{margin:16px;background:#222;color:white;font:14px system-ui}nav{position:sticky;top:0;z-index:10;background:#222;padding:8px}button{padding:6px;margin:3px}.frames{display:flex;flex-wrap:wrap;align-items:flex-start;gap:20px}iframe{border:1px solid #888}figcaption{margin:8px 0}figure{margin:0}#report{white-space:pre-wrap}</style>
+<nav id="nav"></nav><div class="frames" id="frames"></div><pre id="report"></pre>
+<script>
+const ids=['hero','bio','youtube','bani-ai','regal','resume-agent','vision','me','people','contact'];
+const sizes=[[390,844]];
+let revision=0;
+for(const [width,height] of sizes){
+ const fig=document.createElement('figure');fig.innerHTML=`<figcaption>${width} × ${height}</figcaption><iframe title="${width} by ${height}" width="${width}" height="${height}"></iframe>`;
+ document.querySelector('#frames').append(fig);
+}
+const frames=[...document.querySelectorAll('iframe')];
+function show(id){for(const f of frames) f.src=`/?visual=${++revision}#${id}`;}
+for(const id of ids){const b=document.createElement('button');b.textContent=id;b.onclick=()=>show(id);document.querySelector('#nav').append(b);}
+for(const [width,height] of [[320,568],[390,844],[844,390],[768,1024],[1024,768],[1024,390]]) {const b=document.createElement('button');b.textContent=width+'×'+height;b.onclick=()=>{frames[0].width=width;frames[0].height=height;};document.querySelector('#nav').append(b);}
+show('hero');
+setInterval(()=>{
+ document.querySelector('#report').textContent=frames.map(f=>{
+ const d=f.contentDocument;if(!d)return '';
+ const page=d.querySelector('.page.is-active');if(!page)return 'Loading';
+ const scroller=page.querySelector('[data-scroll]');
+ const rect=page.getBoundingClientRect();
+ const visible=[...page.querySelectorAll('h1,h2,.bio__statement,.contact__email,.contact__ai,.card')].filter(e=>!e.closest('[inert]')).map(e=>{
+ const r=e.getBoundingClientRect();return {element:e.className,left:Math.round(r.left),right:Math.round(r.right),top:Math.round(r.top),bottom:Math.round(r.bottom)};
+ });
+ return JSON.stringify({viewport:[f.width,f.height],page:page.id,scroller:scroller&&{height:scroller.clientHeight,scroll:scroller.scrollHeight},elements:visible});
+ }).join('\\n');
+},1000);
+</script>
