@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@300;400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=41" />
+    <link rel="stylesheet" href="css/site.css?v=42" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -101,32 +101,32 @@
       <div class="project__bg project__bg--sky" data-project="0" aria-hidden="true">
         <canvas class="sky" data-sky></canvas>
         <!-- Rolling grass hills along the bottom edge, over the clouds. Sun
-             from the top right: yellow-green ridges, olive shadows, a grain
+             from the top right: lime ridges, deep grass-green shadows, a grain
              pass for grass. Edit the paths here; sizing is in site.css. -->
         <svg class="sky__hills" viewBox="0 0 1440 420" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="hill-far" gradientUnits="userSpaceOnUse" x1="1150" y1="30" x2="500" y2="420">
-              <stop offset="0" stop-color="#d9dc4c"/>
-              <stop offset="0.42" stop-color="#a9bd3f"/>
-              <stop offset="1" stop-color="#6f8d38"/>
+              <stop offset="0" stop-color="#b9e03a"/>
+              <stop offset="0.42" stop-color="#80c42b"/>
+              <stop offset="1" stop-color="#4d9b21"/>
             </linearGradient>
             <linearGradient id="hill-mid" gradientUnits="userSpaceOnUse" x1="520" y1="120" x2="200" y2="420">
-              <stop offset="0" stop-color="#c4cf44"/>
-              <stop offset="0.5" stop-color="#8fab3c"/>
-              <stop offset="1" stop-color="#5f7d35"/>
+              <stop offset="0" stop-color="#a3d636"/>
+              <stop offset="0.5" stop-color="#63ae25"/>
+              <stop offset="1" stop-color="#3f8a1c"/>
             </linearGradient>
             <linearGradient id="hill-near" gradientUnits="userSpaceOnUse" x1="1200" y1="250" x2="300" y2="420">
-              <stop offset="0" stop-color="#93ad3e"/>
-              <stop offset="0.55" stop-color="#5f7c36"/>
-              <stop offset="1" stop-color="#43602e"/>
+              <stop offset="0" stop-color="#72b92a"/>
+              <stop offset="0.55" stop-color="#489c1f"/>
+              <stop offset="1" stop-color="#2f6f16"/>
             </linearGradient>
             <radialGradient id="hill-sun" gradientUnits="userSpaceOnUse" cx="1010" cy="70" r="520">
-              <stop offset="0" stop-color="#eef07a" stop-opacity="0.55"/>
-              <stop offset="1" stop-color="#eef07a" stop-opacity="0"/>
+              <stop offset="0" stop-color="#d4f253" stop-opacity="0.5"/>
+              <stop offset="1" stop-color="#d4f253" stop-opacity="0"/>
             </radialGradient>
             <filter id="hill-grass" x="0" y="0" width="100%" height="100%">
               <feTurbulence type="fractalNoise" baseFrequency="0.9 1.6" numOctaves="2" seed="7" stitchTiles="stitch"/>
-              <feColorMatrix values="0 0 0 0 0.10  0 0 0 0 0.16  0 0 0 0 0.03  0 0 0 0.55 0"/>
+              <feColorMatrix values="0 0 0 0 0.05  0 0 0 0 0.20  0 0 0 0 0.03  0 0 0 0.5 0"/>
             </filter>
             <clipPath id="hill-clip">
               <path d="M0 236 C 260 214, 560 92, 860 48 S 1290 98, 1440 150 V420 H0 Z"/>
@@ -140,7 +140,7 @@
           <!-- near slope: in shadow, rising to the right -->
           <path fill="url(#hill-near)" d="M0 352 C 380 348, 760 262, 1080 288 S 1370 372, 1440 356 V420 H0 Z"/>
           <!-- grass grain over everything, multiplied -->
-          <rect width="1440" height="420" clip-path="url(#hill-clip)" filter="url(#hill-grass)" style="mix-blend-mode: multiply" opacity="0.7"/>
+          <rect width="1440" height="420" clip-path="url(#hill-clip)" filter="url(#hill-grass)" style="mix-blend-mode: multiply" opacity="0.55"/>
         </svg>
       </div>
       <div class="project__bg project__bg--galaxy" data-project="1" aria-hidden="true">

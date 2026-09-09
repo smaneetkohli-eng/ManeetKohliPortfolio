@@ -1164,7 +1164,7 @@ body {
   bottom: 0;
   height: 36vh;
   min-height: 220px;
-  filter: drop-shadow(0 -10px 30px rgb(30 70 30 / 0.2));
+  filter: drop-shadow(0 -10px 30px rgb(20 70 20 / 0.22));
 }
 
 /* Galaxy: near-black ground, nebula shader, stars on top. */
