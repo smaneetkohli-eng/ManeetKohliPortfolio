@@ -1166,7 +1166,6 @@ function makeProjects(page) {
 
   function paintTrack(instant) {
     track.classList.toggle("is-instant", !!instant);
-    track.style.transform = `translate3d(0, ${-index * 100}%, 0)`;
     pages.forEach((p, i) => {
       p.classList.toggle("is-active", i === index);
       p.classList.toggle("is-above", i < index);
@@ -1183,6 +1182,7 @@ function makeProjects(page) {
     html.dataset.theme = ctrl[index]?.theme?.(step) || page.dataset.theme || "dark";
     html.dataset.page = page.id;
     const n = stepsOf(index);
+    html.classList.toggle("is-last-step", step === n - 1);
     const labels = stepLabels(index);
     dots?.classList.toggle("is-visible", n > 1);
     dotEls.forEach((d, k) => {
@@ -1262,6 +1262,8 @@ function makeProjects(page) {
     if (at.page === index) return goStep(at.step);
     return goPage(at.page, at.step, opts);
   }
+
+  document.querySelectorAll("[data-next]").forEach((el) => el.addEventListener("click", () => next()));
 
   /* wheel. A move fires on the first event or two of a gesture. After a
      move, the trackpad keeps sending a decaying momentum tail; those are

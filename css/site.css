@@ -386,8 +386,43 @@ ul {
 .scroll-prompt .shimmer {
   color: rgb(255 255 255 / 0.82);
 }
-html[data-page]:not([data-page="hero"]) .scroll-prompt {
+html[data-page]:not([data-page="hero"]) .hero-status .scroll-prompt {
   pointer-events: none;
+}
+/* The same line on the project pages, as a button that advances the
+   pager. Same box as .hero-status so it lands in the same spot. */
+.projects-status {
+  position: fixed;
+  inset: 0;
+  z-index: 56;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 11vh;
+  pointer-events: none;
+}
+.projects-status .scroll-prompt {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+  pointer-events: none;
+}
+.projects-status__inner {
+  opacity: 0;
+  transform: translateY(16vh);
+  transition:
+    transform 0.8s var(--page-ease),
+    opacity 0.5s var(--page-ease);
+}
+html[data-page="projects"]:not(.is-last-step) .projects-status__inner {
+  opacity: 1;
+  transform: none;
+}
+html[data-page="projects"]:not(.is-last-step) .projects-status .scroll-prompt {
+  pointer-events: auto;
 }
 .scroll-prompt__arrow {
   width: 8px;
@@ -957,20 +992,28 @@ body {
   width: 100%;
   height: 100vh;
   height: 100svh;
-  transform: translate3d(0, 0, 0);
-  transition: transform var(--page-ms) var(--page-ease);
-  will-change: transform;
+  overflow: hidden;
 }
-.pages.is-instant {
-  transition: none;
-}
+/* Pages are stacked, later pages on top, and each one owns its own
+   enter/leave transform (see PAGE STATES). The track itself never moves. */
 .page {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100vh;
   height: 100svh;
   overflow: hidden;
   isolation: isolate;
+  will-change: transform;
+  transition: transform var(--page-ms) var(--page-ease);
+}
+.page:nth-child(1) { z-index: 1; }
+.page:nth-child(2) { z-index: 2; }
+.page:nth-child(3) { z-index: 3; }
+.page:nth-child(4) { z-index: 4; }
+.pages.is-instant .page,
+.pages.is-instant .page::after {
+  transition: none;
 }
 
 /* =====================================================================
@@ -1326,66 +1369,96 @@ body {
   overflow: visible;
 }
 
-/* Resume Agent: the sign-off. A white sheet with one ruled line and the
-   pen resting at its start. On hover the pen glides right and "Resume
-   Agent" is written behind the nib: the text sits under a mask whose rect
-   scales open at the same pace as the pen travels. */
+/* Resume Agent: an editorial mark. A white sheet with the wordmark set
+   thin and letter-spaced at rest, always legible. On hover a grid of
+   cells behind it breathes slowly to a faint grey and back; the middle
+   row, which holds the word, is excluded from the grid entirely so the
+   text never changes. */
 .card__preview--resume {
   background: #fff;
   border-color: rgb(0 0 0 / 0.08);
   color: #000;
 }
-.card__rule {
-  stroke: rgb(0 0 0 / 0.14);
-  stroke-width: 1;
+.card__grid {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(5, 1fr);
 }
-.card__script {
-  font: 600 27px/1 "Caveat", "Segoe Script", "Bradley Hand", cursive;
-  fill: #000;
+.card__cell {
+  background: #d8d8d8;
+  opacity: 0;
+  border: 1px solid rgb(0 0 0 / 0);
+  animation: card-cell-flicker 5.5s ease-in-out infinite;
+  animation-play-state: paused;
+  transition: border-color 0.5s var(--ease-out);
 }
-.card__write-mask {
-  transform: scaleX(0);
-  transform-box: fill-box;
-  transform-origin: 0 50%;
-  transition: transform 1.2s var(--ease-out);
+.card:hover .card__cell {
+  animation-play-state: running;
+  border-color: rgb(0 0 0 / 0.06);
 }
-.card:hover .card__write-mask {
-  transform: scaleX(1);
+@keyframes card-cell-flicker {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.3; }
 }
-/* Nib at the start of the text; --pen-end is where the word ends. */
-.card__pen {
-  --pen-end: 182px;
-  transform: translate(50px, 66px) rotate(30deg);
-  transition: transform 1.2s var(--ease-out);
+.card__cell:nth-child(5n+1) { animation-duration: 4.5s; }
+.card__cell:nth-child(5n+2) { animation-duration: 5.5s; }
+.card__cell:nth-child(5n+3) { animation-duration: 6.5s; }
+.card__cell:nth-child(5n+4) { animation-duration: 7.5s; }
+.card__cell:nth-child(5n+5) { animation-duration: 3.8s; }
+.card__cell:nth-child(7n+1) { animation-delay: 0s; }
+.card__cell:nth-child(7n+2) { animation-delay: 0.4s; }
+.card__cell:nth-child(7n+3) { animation-delay: 0.9s; }
+.card__cell:nth-child(7n+4) { animation-delay: 1.4s; }
+.card__cell:nth-child(7n+5) { animation-delay: 1.9s; }
+.card__cell:nth-child(7n+6) { animation-delay: 2.4s; }
+.card__cell:nth-child(7n) { animation-delay: 2.9s; }
+/* Middle row (cells 17-24 of 40): sits directly behind the wordmark, so
+   it's excluded from the grid, hover or not, to keep the text fixed. */
+.card__cell:nth-child(n+17):nth-child(-n+24),
+.card:hover .card__cell:nth-child(n+17):nth-child(-n+24) {
+  animation: none;
+  border-color: transparent;
 }
-.card:hover .card__pen {
-  transform: translate(var(--pen-end), 66px) rotate(30deg);
+.card__word {
+  position: relative;
+  z-index: 2;
+  font: 300 clamp(10px, 0.95vw, 13px)/1 var(--font-body);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #000;
+  mix-blend-mode: normal;
+  pointer-events: none;
 }
 
-/* Regal: a dispatch map on craft paper. Maroon pins joined by faint
-   dotted routes, the plane parked on the left pin. On hover the plane
-   flies the top route (offset-path, nose along the tangent) to the far
-   pin while the solid route draws in behind it; leaving flies it back. */
+/* Regal: a dispatch map on craft paper, inverted to a night negative —
+   deep maroon ground (the same warm family as the plane), cream ink.
+   Maroon pins joined by faint dotted routes, the plane parked on the
+   left pin. On hover the plane flies the top route (offset-path, nose
+   along the tangent) to the far pin while the solid route draws in
+   behind it; leaving flies it back. */
 .card__preview--regal {
-  background: #efe5cf;
-  border-color: rgb(122 31 43 / 0.2);
-  color: #7a1f2b;
+  background: #431118;
+  border-color: rgb(239 229 207 / 0.22);
+  color: #efe5cf;
 }
 .card__preview--regal::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.30  0 0 0 0 0.20  0 0 0 0.42 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.94  0 0 0 0 0.90  0 0 0 0 0.81  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-size: 320px 320px;
-  opacity: 0.5;
-  mix-blend-mode: multiply;
+  opacity: 0.22;
+  mix-blend-mode: screen;
   pointer-events: none;
 }
 .card__preview--regal::after {
   content: "";
   position: absolute;
   inset: 9px;
-  border: 1.5px dashed rgb(122 31 43 / 0.34);
+  border: 1.5px dashed rgb(239 229 207 / 0.3);
   border-radius: 8px;
   pointer-events: none;
 }
@@ -1508,7 +1581,8 @@ html[data-theme="mono"] .dots {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pages {
+  .page,
+  .page--projects::after {
     transition: none;
   }
   .dots__dot {
@@ -1528,6 +1602,71 @@ html[data-theme="mono"] .dots {
      PAGE_EASE in js/site.js identical. */
   --page-ease: cubic-bezier(0.45, 0, 0.2, 1);
   --page-ms: 1100ms;
+}
+
+/* ---------- Page moves ----------
+   Three kinds of move, one per boundary:
+     hero → bio        slide: both pages travel one viewport, like a track.
+     bio → projects    iris: bio holds still; projects sits over it and is
+                       revealed through a soft-edged circle growing from
+                       the centre (a radial mask whose size transitions).
+     projects → about  cover: projects holds still and dims; about rises
+                       from the bottom edge over it, with a shadow along
+                       its top. Reversed on the way back. */
+.page.is-above {
+  transform: translateY(-100%);
+}
+.page.is-below {
+  transform: translateY(100%);
+}
+/* iris: bio holds under projects */
+.page--bio.is-above {
+  transform: none;
+}
+.page--projects {
+  --iris-feather: 140px;
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 calc(100% - var(--iris-feather)), transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 calc(100% - var(--iris-feather)), transparent 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 50% 50%;
+  mask-position: 50% 50%;
+  -webkit-mask-size: 220vmax 220vmax;
+  mask-size: 220vmax 220vmax;
+  transition:
+    transform var(--page-ms) var(--page-ease),
+    -webkit-mask-size var(--page-ms) var(--page-ease),
+    mask-size var(--page-ms) var(--page-ease);
+}
+.page--projects.is-below {
+  transform: none;
+  -webkit-mask-size: 0px 0px;
+  mask-size: 0px 0px;
+}
+/* cover: projects holds under about and dims; the slab stays put */
+.page--projects.is-above {
+  transform: none;
+}
+.page--projects::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--page-ms) var(--page-ease);
+}
+.page--projects.is-above::after {
+  opacity: 0.6;
+}
+.page--projects.is-above .flip,
+.page--projects.is-above .projects__title {
+  opacity: 1;
+  transform: none;
+}
+.page--about {
+  box-shadow: 0 -40px 120px rgb(0 0 0 / 0.55);
 }
 
 /* ---------- Hero exit (Tanweer pattern) ----------
@@ -1922,6 +2061,7 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   .hero__name,
   .hero__figure-wrap,
   .hero-status__inner,
+  .projects-status__inner,
   .bio__wave,
   .bio__line,
   .bio__kicker,

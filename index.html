@@ -12,9 +12,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&family=Caveat:wght@600&text=ResumeAgnt&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@300;400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=30" />
+    <link rel="stylesheet" href="css/site.css?v=34" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -217,26 +217,19 @@
         <header class="card__head">
           <h2 class="card__name">Resume Agent</h2>
         </header>
-        <!-- White sheet, one ruled line, the pen resting at its start. On
-             hover the pen glides right and "Resume Agent" is written behind
-             the nib, revealed by a mask that grows with the pen. -->
+        <!-- Editorial white sheet, thin letter-spaced wordmark at rest. On
+             hover a grid of cells flickers to black behind it; the word is
+             white with mix-blend-mode: difference, so it inverts to black
+             or white per cell as the grid flickers underneath it. -->
         <div class="card__preview card__preview--resume" aria-hidden="true">
-          <svg class="card__icon card__icon--pen" viewBox="0 0 220 100" aria-hidden="true">
-            <defs>
-              <mask id="ra-write" maskUnits="userSpaceOnUse" x="0" y="0" width="220" height="100">
-                <rect class="card__write-mask" x="48" y="16" width="136" height="76" fill="#fff"/>
-              </mask>
-            </defs>
-            <line class="card__rule" x1="34" y1="70" x2="186" y2="70"/>
-            <text class="card__script" x="50" y="66" mask="url(#ra-write)">Resume Agent</text>
-            <g class="card__pen" fill="#000" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke">
-              <path d="M-7.5 -16 L0 0 L7.5 -16 Z"/>
-              <path d="M0 -4 V-12" stroke="#fff" stroke-width="2"/>
-              <rect x="-7.5" y="-62" width="15" height="47" rx="4.5"/>
-              <path d="M-7.5 -22 H7.5" stroke="#fff" stroke-width="2.4"/>
-              <path d="M-7.5 -52 H7.5" stroke="#fff" stroke-width="2"/>
-            </g>
-          </svg>
+          <div class="card__grid">
+            <span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span>
+            <span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span>
+            <span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span>
+            <span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span>
+            <span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span><span class="card__cell"></span>
+          </div>
+          <span class="card__word">Resume Agent</span>
         </div>
         <ul class="card__tags"><li class="tag">Tailored Resumes</li><li class="tag">Your Own AI Agent</li><li class="tag">For Students</li><li class="tag">Open-Source</li></ul>
       </template>
@@ -349,6 +342,21 @@
       </div>
     </div>
 
+    <!-- Projects prompt: the hero's scroll line again, shown on every
+         project except the last. Fixed chrome like .hero-status; enters
+         from below when html[data-page="projects"] and leaves the same
+         way on the last step (html.is-last-step) or the next page. -->
+    <div class="projects-status" aria-hidden="false">
+      <div class="projects-status__inner">
+        <button class="scroll-prompt" type="button" data-next>
+          <span class="shimmer shimmer--ttb" data-text="Scroll to cycle">Scroll to cycle</span>
+          <svg class="scroll-prompt__arrow" viewBox="0 0 7.824 9.941" aria-hidden="true">
+            <path d="M 4.366 9.744 C 4.103 10.006 3.677 10.006 3.414 9.744 L 0.175 6.505 C -0.067 6.238 -0.057 5.829 0.198 5.574 C 0.452 5.32 0.862 5.31 1.128 5.553 L 3.217 7.642 L 3.217 0.696 C 3.209 0.45 3.335 0.219 3.547 0.094 C 3.758 -0.031 4.021 -0.031 4.233 0.094 C 4.444 0.219 4.571 0.45 4.563 0.696 L 4.563 7.641 L 6.652 5.552 C 6.819 5.368 7.074 5.291 7.314 5.352 C 7.555 5.413 7.743 5.601 7.804 5.842 C 7.864 6.083 7.787 6.337 7.603 6.505 L 4.366 9.743 Z" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <nav class="dock" aria-label="Primary">
       <a class="dock__sig" href="#hero" aria-label="Maneet Kohli">
         <img
@@ -407,6 +415,6 @@
       <span class="cursor__label"></span>
     </div>
 
-    <script type="module" src="js/site.js?v=12"></script>
+    <script type="module" src="js/site.js?v=13"></script>
   </body>
 </html>
