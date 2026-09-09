@@ -872,8 +872,8 @@ function makeEdgeWaves(page) {
      nearer to pulls inward and swells a little, the far one retreats,
      and both slide with the cursor's height. Rests back to centre when
      the pointer leaves. All in uniforms, so nothing in the DOM moves. */
-  const target = { x: 0, y: 0 };
-  const cur = { x: 0, y: 0 };
+  const target = { x: 0, y: 0, lo: 0 };
+  const cur = { x: 0, y: 0, lo: 0 };
   let raf = 0;
   let active = false;
   let last = 0;
@@ -882,13 +882,29 @@ function makeEdgeWaves(page) {
   const SWELL = 0.14;    // u_scale added on the near side
   const RIDE = 0.07;     // u_offsetX per unit of cursor height
 
+  /* Reading light. The same eased cursor, in pixels, handed to each
+     paragraph as --lx / --ly (relative to its own box) so a radial layer
+     under the glyphs lifts the words near the cursor to white. --lo on
+     the statement fades the light in on the first move and out on leave. */
+  const statement = page.querySelector(".bio__statement");
+  const lines = [...page.querySelectorAll(".bio__line")];
+
   const onMove = (e) => {
     target.x = (e.clientX / window.innerWidth) * 2 - 1;
     target.y = (e.clientY / window.innerHeight) * 2 - 1;
+    target.lo = 1;
   };
-  const onLeave = () => { target.x = 0; target.y = 0; };
+  const onLeave = () => { target.x = 0; target.y = 0; target.lo = 0; };
 
   function apply() {
+    const px = ((cur.x + 1) / 2) * window.innerWidth;
+    const py = ((cur.y + 1) / 2) * window.innerHeight;
+    statement?.style.setProperty("--lo", cur.lo.toFixed(3));
+    lines.forEach((l) => {
+      const r = l.getBoundingClientRect();
+      l.style.setProperty("--lx", `${(px - r.left).toFixed(1)}px`);
+      l.style.setProperty("--ly", `${(py - r.top).toFixed(1)}px`);
+    });
     mounts.forEach((m, i) => {
       const side = sides[i];
       const near = Math.max(0, cur.x * side);
@@ -910,6 +926,7 @@ function makeEdgeWaves(page) {
     const k = 1 - Math.exp(-dt * 4);
     cur.x += (target.x - cur.x) * k;
     cur.y += (target.y - cur.y) * k;
+    cur.lo += (target.lo - cur.lo) * k;
     apply();
     raf = requestAnimationFrame(tick);
   }
@@ -926,6 +943,7 @@ function makeEdgeWaves(page) {
       raf = requestAnimationFrame(tick);
     } else {
       target.x = target.y = cur.x = cur.y = 0;
+      target.lo = cur.lo = 0;
       apply();
     }
   }

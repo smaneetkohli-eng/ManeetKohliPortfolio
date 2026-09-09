@@ -1813,8 +1813,14 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   background-clip: text;
   background-repeat: no-repeat;
   background-color: rgb(255 255 255 / 0.74);
-  background-image: linear-gradient(90deg, transparent 26%, #fff 50%, transparent 74%);
-  background-size: 300% 100%;
+  /* Two layers under the glyphs: the reading light (box-sized, placed by
+     --lx / --ly from js, faded by --lo on .bio__statement) and the
+     shimmer band. The shimmer keyframes move background-position; the
+     light is box-sized so that leaves it where it is. */
+  background-image:
+    radial-gradient(230px circle at var(--lx, -999px) var(--ly, -999px), rgb(255 255 255 / var(--lo, 0)) 0%, rgb(255 255 255 / 0) 70%),
+    linear-gradient(90deg, transparent 26%, #fff 50%, transparent 74%);
+  background-size: auto, 300% 100%;
   background-position: 100% 0;
   animation: shimmer-ltr 4s ease-in-out infinite;
   transition:
