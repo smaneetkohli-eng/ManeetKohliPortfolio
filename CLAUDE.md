@@ -79,7 +79,7 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 
 ## Bio (page 1)
 
-- `.bio__statement`: six `.bio__line` spans with hand-placed breaks and `white-space: nowrap`. Keep each line under ~28 characters or it overflows at 4.7vw. `.bio__accent` is Instrument Serif italic.
+- `.bio__statement`: five `.bio__line` paragraphs (Maneet's "build to learn" statement), one size, Inter 300 at `clamp(17px, 1.65vw, 27px)`, a 58ch column centred under the dock. Each paragraph is its own shimmer via `background-clip: text` on the `<p>` (not the `data-text` copy, so the `.bio__accent` serif italics wrap with the rest), delays staggered 0.35s per paragraph so the sweep flows down the page. No kicker any more.
 - Odd lines enter from the left, even from the right, staggered 60ms. Kicker "Hello, I'm Maneet" fades up.
 - Edge waves: the hero shader (`EDGE_WAVE` params: scale 1.55, offsetY 0.58) mounted in two `.bio__wave-host` boxes sized 100vh × 100vw and rotated ±90° so the wave band lands on the left / right screen edge, then masked to fade toward the centre. Mounted lazily on first visit, paused when off page.
 

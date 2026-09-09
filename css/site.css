@@ -1786,41 +1786,49 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   position: relative;
   z-index: 2;
   width: min(92vw, 1500px);
-  text-align: center;
+  padding-top: calc(var(--dock-top) + var(--dock-h));
   padding-bottom: 4vh;
 }
-.bio__kicker {
-  margin: 0 0 3.2vh;
-  font-size: var(--meta-size);
-  font-weight: 400;
-  color: var(--meta-dim);
-  transition:
-    opacity 0.7s var(--page-ease),
-    transform 0.9s var(--page-ease);
-}
-.page--bio:not(.is-active) .bio__kicker {
-  opacity: 0;
-  transform: translateY(14px);
-}
+/* Five paragraphs, one size, set thin but big enough to carry the page.
+   Each paragraph is a shimmer in its own right: the glyphs are cut from
+   a bright band that sweeps across every few seconds (the kicker's old
+   idle effect), staggered down the page so the sweep flows through the
+   copy. Background-clip on the paragraph itself, not a data-text copy,
+   so the serif accents wrap with the rest. */
 .bio__statement {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 100%;
-  font-size: clamp(30px, 4.7vw, 88px);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-  color: #f2f2f2;
-  overflow: visible;
+  margin: 0 auto;
+  max-width: 58ch;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(17px, 1.65vw, 27px);
+  line-height: 1.42;
+  letter-spacing: -0.004em;
+  text-align: left;
 }
 .bio__line {
   display: block;
-  white-space: nowrap;
+  margin: 0 0 1.05em;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-repeat: no-repeat;
+  background-color: rgb(255 255 255 / 0.8);
+  background-image: linear-gradient(90deg, transparent 30%, #fff 50%, transparent 70%);
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  animation: shimmer-ltr 6.5s ease-in-out infinite;
   transition:
     transform var(--page-ms) var(--page-ease),
     opacity 0.8s var(--page-ease),
     filter 0.8s var(--page-ease);
 }
+.bio__line:last-child {
+  margin-bottom: 0;
+}
+.bio__line:nth-child(2) { animation-delay: 0.35s; }
+.bio__line:nth-child(3) { animation-delay: 0.7s; }
+.bio__line:nth-child(4) { animation-delay: 1.05s; }
+.bio__line:nth-child(5) { animation-delay: 1.4s; }
 /* Enter: odd lines from the left, even lines from the right, staggered. */
 .page--bio:not(.is-active) .bio__line {
   opacity: 0;
@@ -1837,15 +1845,13 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
 .page--bio.is-active .bio__line:nth-child(3) { transition-delay: 0.17s; }
 .page--bio.is-active .bio__line:nth-child(4) { transition-delay: 0.23s; }
 .page--bio.is-active .bio__line:nth-child(5) { transition-delay: 0.29s; }
-.page--bio.is-active .bio__line:nth-child(6) { transition-delay: 0.35s; }
 .bio__accent {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  font-size: 1.12em;
+  font-size: 1.06em;
   letter-spacing: -0.01em;
   text-transform: none;
-  color: #fff;
 }
 
 /* =====================================================================
@@ -2069,7 +2075,6 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   .projects-status__inner,
   .bio__wave,
   .bio__line,
-  .bio__kicker,
   .helix,
   .about__copy,
   .about__block,
