@@ -2112,13 +2112,6 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   text-transform: uppercase;
   color: rgb(255 255 255 / 0.9);
 }
-.contact__index span {
-  margin-left: 10px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--meta-dim);
-}
 .contact__meta {
   display: inline-flex;
   align-items: center;
@@ -2236,6 +2229,116 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
 .contact__link {
   font-size: 13px;
 }
+/* Authentic Intelligence: the label sits in the link row's voice with
+   the dock CTA's "+"; hovering the node (or focusing / tapping the
+   label, which toggles .is-open) fans four frosted icon tiles out to
+   the right, one after another. Leaving folds them back at once. */
+.contact__ai {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: max-content;
+  margin-top: 22px;
+}
+.contact__ai-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.86);
+  cursor: pointer;
+  transition: color 0.4s var(--ease-out);
+}
+.contact__ai-label:focus-visible {
+  outline: none;
+}
+.contact__ai:hover .contact__ai-label,
+.contact__ai:focus-within .contact__ai-label,
+.contact__ai.is-open .contact__ai-label {
+  color: var(--white);
+}
+.contact__ai-plus {
+  font-size: 16px;
+  line-height: 1;
+  color: var(--meta-dim);
+  transition:
+    transform 0.5s var(--ease-out),
+    color 0.4s var(--ease-out);
+}
+.contact__ai:hover .contact__ai-plus,
+.contact__ai:focus-within .contact__ai-plus,
+.contact__ai.is-open .contact__ai-plus {
+  transform: rotate(90deg);
+  color: var(--white);
+}
+.contact__ai-icons {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.contact__ai-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(22 22 22 / 0.62);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  backdrop-filter: blur(22px) saturate(140%);
+  color: var(--white);
+  opacity: 0;
+  transform: translateX(-12px) scale(0.8);
+  pointer-events: none;
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.5s var(--ease-out),
+    background-color 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out),
+    color 0.35s var(--ease-out);
+}
+.contact__ai-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.contact__ai:hover .contact__ai-icon,
+.contact__ai:focus-within .contact__ai-icon,
+.contact__ai.is-open .contact__ai-icon {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.contact__ai:hover li:nth-child(2) .contact__ai-icon,
+.contact__ai:focus-within li:nth-child(2) .contact__ai-icon,
+.contact__ai.is-open li:nth-child(2) .contact__ai-icon { transition-delay: 0.06s; }
+.contact__ai:hover li:nth-child(3) .contact__ai-icon,
+.contact__ai:focus-within li:nth-child(3) .contact__ai-icon,
+.contact__ai.is-open li:nth-child(3) .contact__ai-icon { transition-delay: 0.12s; }
+.contact__ai:hover li:nth-child(4) .contact__ai-icon,
+.contact__ai:focus-within li:nth-child(4) .contact__ai-icon,
+.contact__ai.is-open li:nth-child(4) .contact__ai-icon { transition-delay: 0.18s; }
+.contact__ai-icon:hover,
+.contact__ai-icon:focus-visible {
+  background: var(--white);
+  border-color: var(--white);
+  color: var(--black);
+  outline: none;
+}
+/* No href yet: the tile shows but reads as inert. */
+.contact__ai-icon:not([href]) {
+  cursor: default;
+}
 
 /* Enter: the wave rises into place, the copy lifts in from below in
    reading order, each piece a beat after the last. */
@@ -2243,7 +2346,8 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
 .contact__title,
 .contact__statement,
 .contact__email,
-.contact__links {
+.contact__links,
+.contact__ai {
   transition:
     transform var(--page-ms) var(--page-ease),
     opacity 0.8s var(--page-ease),
@@ -2253,7 +2357,8 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
 .page--contact:not(.is-active) .contact__title,
 .page--contact:not(.is-active) .contact__statement,
 .page--contact:not(.is-active) .contact__email,
-.page--contact:not(.is-active) .contact__links {
+.page--contact:not(.is-active) .contact__links,
+.page--contact:not(.is-active) .contact__ai {
   opacity: 0;
   transform: translateY(7vh);
   filter: blur(10px);
@@ -2263,6 +2368,7 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
 .page--contact.is-active .contact__statement { transition-delay: 0.17s; }
 .page--contact.is-active .contact__email { transition-delay: 0.23s; }
 .page--contact.is-active .contact__links { transition-delay: 0.29s; }
+.page--contact.is-active .contact__ai { transition-delay: 0.35s; }
 
 /* =====================================================================
    FLIP — the project slab. Two card faces back to back, 14px apart, and
@@ -2349,6 +2455,9 @@ html[data-page]:not([data-page="hero"]) .hero-status__inner {
   .contact__statement,
   .contact__email,
   .contact__links,
+  .contact__ai,
+  .contact__ai-plus,
+  .contact__ai-icon,
   .contact__hint-word,
   .flip,
   .flip__inner,

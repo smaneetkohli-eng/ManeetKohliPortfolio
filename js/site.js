@@ -311,6 +311,22 @@ function makeHero() {
    is unavailable (no secure context), fall through to mailto.
    ===================================================================== */
 (function contact() {
+  /* Authentic Intelligence node: hover opens it in CSS; a tap or click on
+     the label toggles .is-open for touch and keyboard, a click anywhere
+     else closes it. */
+  const ai = document.querySelector("[data-ai]");
+  const aiLabel = ai?.querySelector(".contact__ai-label");
+  if (ai && aiLabel) {
+    const set = (open) => {
+      ai.classList.toggle("is-open", open);
+      aiLabel.setAttribute("aria-expanded", String(open));
+    };
+    aiLabel.addEventListener("click", () => set(!ai.classList.contains("is-open")));
+    document.addEventListener("click", (e) => {
+      if (!(e.target instanceof Element && e.target.closest("[data-ai]"))) set(false);
+    });
+  }
+
   const btn = document.querySelector("[data-copy]");
   if (!btn) return;
   const idle = btn.dataset.cursor || "";

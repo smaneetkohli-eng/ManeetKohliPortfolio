@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,900&family=Inter:wght@300;400;500&family=Instrument+Serif:ital@1&display=swap"
     />
-    <link rel="stylesheet" href="css/site.css?v=40" />
+    <link rel="stylesheet" href="css/site.css?v=41" />
   </head>
   <body>
     <main class="pages" id="pages">
@@ -318,7 +318,7 @@
       </div>
       <div class="contact">
         <div class="contact__top">
-          <p class="contact__index">04 <span>Get in touch</span></p>
+          <p class="contact__index">Get in touch</p>
           <p class="contact__meta">
             <span class="hero__meta-icon" data-clock-icon aria-hidden="true"></span>
             <span class="shimmer shimmer--rtl" data-clock="Dallas, Texas" data-text="Dallas, Texas">Dallas, Texas</span>
@@ -333,10 +333,33 @@
           <span class="contact__hint" aria-live="polite"><span class="contact__hint-word">Click to copy</span><span class="contact__hint-word">Copied</span></span>
         </button>
         <ul class="contact__links">
-          <li><a class="dock__link contact__link" href="mailto:s.maneetkohli@gmail.com">Email</a></li>
-          <li><a class="dock__link contact__link" href="https://www.linkedin.com/in/maneet-kohli-037bb42a7" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a class="dock__link contact__link" href="https://www.linkedin.com/in/maneetkohli" target="_blank" rel="noopener">LinkedIn</a></li>
           <li><a class="dock__link contact__link" href="https://github.com/smaneetkohli-eng" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a class="dock__link contact__link" href="https://www.instagram.com/maneetkohli07" target="_blank" rel="noopener">Instagram</a></li>
         </ul>
+        <!-- Authentic Intelligence: hover (or tap) the label and four icon
+             links fan out beside it. Give each <a> its href when the
+             channel URLs are final; without one it is inert. -->
+        <div class="contact__ai" data-ai>
+          <button class="contact__ai-label" type="button" aria-expanded="false">
+            <span>Authentic Intelligence</span>
+            <span class="contact__ai-plus" aria-hidden="true">+</span>
+          </button>
+          <ul class="contact__ai-icons">
+            <li><a class="contact__ai-icon" aria-label="Authentic Intelligence website" target="_blank" rel="noopener" data-ai-link="site">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.4"/><path d="M1.6 8h12.8M8 1.6c1.9 1.9 2.8 4 2.8 6.4S9.9 12.5 8 14.4M8 1.6C6.1 3.5 5.2 5.6 5.2 8s.9 4.5 2.8 6.4"/></svg>
+            </a></li>
+            <li><a class="contact__ai-icon" aria-label="Authentic Intelligence on YouTube" target="_blank" rel="noopener" data-ai-link="youtube">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><rect x="1.4" y="3.2" width="13.2" height="9.6" rx="2.6"/><path d="M6.6 5.9v4.2L10.2 8z" fill="currentColor" stroke="none"/></svg>
+            </a></li>
+            <li><a class="contact__ai-icon" aria-label="Authentic Intelligence on TikTok" target="_blank" rel="noopener" data-ai-link="tiktok">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+            </a></li>
+            <li><a class="contact__ai-icon" aria-label="Authentic Intelligence on Instagram" target="_blank" rel="noopener" data-ai-link="instagram">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="1.8" y="1.8" width="12.4" height="12.4" rx="3.6"/><circle cx="8" cy="8" r="2.9"/><circle cx="11.6" cy="4.4" r="0.55" fill="currentColor" stroke="none"/></svg>
+            </a></li>
+          </ul>
+        </div>
       </div>
     </section>
     </main>
@@ -453,6 +476,6 @@
       <span class="cursor__label"></span>
     </div>
 
-    <script type="module" src="js/site.js?v=17"></script>
+    <script type="module" src="js/site.js?v=18"></script>
   </body>
 </html>

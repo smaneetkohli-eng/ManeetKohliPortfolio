@@ -96,11 +96,12 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 ## Contact (page 4)
 
 - The bio's aesthetic, closed out: black page, one wave along the bottom edge (`CONTACT_WAVE`: `EDGE_WAVE` at scale 1.05, offsetY 0.47, so several crests roll across the width, a horizon) mounted through the same `makeEdgeWaves` controller with one `[data-edge-wave="bottom"]` host, so it leans toward the cursor on the y axis. Masked `#000 0%, #000 16%, transparent 60%`; enters by rising 24vh.
-- Copy, in a left-aligned column (`min(92vw, 1240px)`, centred vertically): a top row with the About-style index ("04 Get in touch") and the hero's clock on the right (`[data-clock="Dallas, Texas"]` + `[data-clock-icon]`, both driven by the `clock()` IIFE, which now updates every `[data-clock]` / `[data-clock-icon]`); `.contact__title` "Let's talk." set exactly like the hero name (Archivo 900 / 125, `--name-ink`, `mix-blend-mode: difference`) so the wave inverts through it; `.contact__statement` (one `.contact__line`, which shares the bio line's shimmer + reading light rules and the serif `.contact__accent`); the email; the links.
+- Copy, in a left-aligned column (`min(92vw, 1240px)`, centred vertically): a top row with the kicker ("Get in touch", `.contact__index`, no number) and the hero's clock on the right (`[data-clock="Dallas, Texas"]` + `[data-clock-icon]`, both driven by the `clock()` IIFE, which now updates every `[data-clock]` / `[data-clock-icon]`); `.contact__title` "Let's talk." set exactly like the hero name (Archivo 900 / 125, `--name-ink`, `mix-blend-mode: difference`) so the wave inverts through it; `.contact__statement` (one `.contact__line`, which shares the bio line's shimmer + reading light rules and the serif `.contact__accent`); the email; the links.
 - **Nothing between `.contact__title` and the wave may carry a z-index**: a stacking context there isolates the blend. `.contact__bg` and `.contact` are positioned without z-index and rely on DOM order.
 - **Email** (`.contact__email`, a `<button data-copy data-cursor="Copy">`): Inter 300, `clamp(24px, 3.1vw, 54px)`, shimmer. Click copies the address (`contact()` IIFE), toggles `.is-copied` for 1.8s (the `.contact__hint` under it rolls "Click to copy" → "Copied") and sets `data-cursor="Copied"`; the cursor re-reads via the `cursor:refresh` event. If the clipboard API is unavailable it falls through to `mailto:`. The card cursor now triggers on any `[data-cursor]` element, not only `.card`.
-- **Links** (`.contact__links`): Email (mailto), LinkedIn, GitHub, as `.dock__link.contact__link` (the dock's two sliding hairlines, 13px). Phone number deliberately left off the public page.
-- Enter: `.contact__top`, `.contact__title`, `.contact__statement`, `.contact__email`, `.contact__links` lift 7vh from below with blur, staggered 0.05–0.29s.
+- **Links** (`.contact__links`): LinkedIn (`linkedin.com/in/maneetkohli`), GitHub, Instagram (`instagram.com/maneetkohli07`), as `.dock__link.contact__link` (the dock's two sliding hairlines, 13px). No mailto link: the email button above already covers it. Phone number deliberately left off the public page.
+- **Authentic Intelligence node** (`.contact__ai`, `[data-ai]`), under the links: a label button in the same voice with the dock CTA's "+" (rotates 90° when open). Hovering the node, focusing inside it, or `.is-open` (the label's click toggles it, for touch; a click outside closes it, in the `contact()` IIFE) fans four frosted 36px icon tiles out to the right, staggered 0.06s: website (globe), YouTube, TikTok, Instagram, as `.contact__ai-icon[data-ai-link]`. A tile inverts to white on hover. **The four anchors have no `href` yet**; add `href` (they already carry `target=_blank rel=noopener`) when the channel URLs are final.
+- Enter: `.contact__top`, `.contact__title`, `.contact__statement`, `.contact__email`, `.contact__links`, `.contact__ai` lift 7vh from below with blur, staggered 0.05–0.35s.
 
 ## Projects (page 2)
 
@@ -136,7 +137,7 @@ Four projects in step order: Authentic Intelligence (YouTube), Bani AI, Regal In
 
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=40` and `js/site.js?v=17`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+`index.html` links `css/site.css?v=41` and `js/site.js?v=18`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html
