@@ -1,0 +1,12 @@
+{
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/about.html", "destination": "/#vision", "permanent": true },
+    { "source": "/contact.html", "destination": "/#contact", "permanent": true },
+    { "source": "/branding.html", "destination": "/#youtube", "permanent": true },
+    { "source": "/certifications.html", "destination": "/", "permanent": true },
+    { "source": "/projects/:path*", "destination": "/#projects", "permanent": true },
+    { "source": "/experience/:path*", "destination": "/#projects", "permanent": true },
+    { "source": "/files/:path*", "destination": "/#contact", "permanent": true }
+  ]
+}

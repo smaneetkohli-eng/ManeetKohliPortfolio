@@ -1,17 +1,18 @@
 # CLAUDE.md — Portfolio Website
 *Maneet Kohli's personal portfolio site. Pure HTML/CSS/JS. No framework, no build tool.*
-*Last updated: September 9, 2026 (responsive pass: every size, mobile included)*
+*Last updated: September 9, 2026 (v2 shipped: v1 stripped from `main`, Vercel redirects, raw sources moved out of the repo)*
 
 ---
 
 ## What This Is
 
-A dark, cinematic, single-page portfolio built as a stack of full-viewport **pages** moved by a JS pager: one wheel gesture, swipe, arrow key, or dot click equals one move. Vanilla HTML, CSS, and JavaScript. One stylesheet, one script, one external library (Paper Shaders, loaded from jsDelivr as an ES module). Git on `main`.
+A dark, cinematic, single-page portfolio built as a stack of full-viewport **pages** moved by a JS pager: one wheel gesture, swipe, arrow key, or dot click equals one move. Vanilla HTML, CSS, and JavaScript. One stylesheet, one script, one external library (Paper Shaders, loaded from jsDelivr as an ES module). Git on `main`, deployed by Vercel.
 
 Live at: `maneetkohli.com`
+Repo: `github.com/smaneetkohli-eng/ManeetKohliPortfolio` (Vercel builds `main` on push)
 Working directory: `/Users/maneetkohli/Desktop/ALG/PROFESSIONAL-HUB/PORTFOLIO/`
 
-**v1 is archived.** The old multi-page site (arc hero, nav dropdowns, `about.html`, `projects/*`, `experience/*`) lives on git branch `archive/v1`. Its files (`css/styles.css`, `js/main.js`, the subpage HTML) are still in the tree only so old links resolve. Do not build on them. Everything below describes v2.
+**v1 is archived and off `main`.** The old multi-page site (arc hero, nav dropdowns, `about.html`, `projects/*`, `experience/*`, `css/styles.css`, `js/main.js`, its images and the intro video) lives only on git branch `archive/v1` (pushed to origin). None of it is in the working tree any more. Old URLs still resolve: `vercel.json` 301s every v1 path to the matching v2 hash (`/about.html` to `/#vision`, `/contact.html` to `/#contact`, `/projects/*` and `/experience/*` to `/#projects`). Never bring v1 files back onto `main`; read them with `git show archive/v1:<path>` if you need to. Everything below describes v2.
 
 Desktop rules are written first; every other size (tablets, phones, narrow or portrait windows, landscape phones) is handled by the RESPONSIVE block at the end of `site.css` plus a few touch rules in `site.js`. See "Responsive" below before touching layout.
 
@@ -26,7 +27,7 @@ Desktop rules are written first; every other size (tablets, phones, narrow or po
 | Script | `js/site.js` (~1,150 lines, ES module) |
 | Shader | `@paper-design/shaders@0.0.80` GrainGradient via `https://cdn.jsdelivr.net/npm/...+esm`. The only approved external lib. |
 | Fonts | Archivo 900 (wdth 100–125, display) + Inter 300/400/500 (body; 300 is the Resume Agent card wordmark) + Instrument Serif italic (bio accent) via Google Fonts |
-| Hosting | Static (maneetkohli.com) |
+| Hosting | Vercel, static, auto-deploys `main` (maneetkohli.com). `vercel.json` holds only the v1 redirects; no build step, no framework preset. |
 | Preview | `.claude/launch.json` → "Portfolio Static Server" (python3 http.server, port 8080) |
 
 No transpilation, no PostCSS, no Sass, no npm. What you write is what ships.
@@ -89,7 +90,7 @@ Fixed chrome outside the track: `.dock` (top nav), `.dots` (step dots, shown onl
 
 ## About (page 3)
 
-- **Helix**: 30 `.helix__photo` figures in `[data-helix]`, 10 per step (`PER_GROUP`, 5 pairs) in order vision → what I do → my people. Photos live in `images/about/helix/{v,d,p}1-10.jpg` (480×600 portrait or 600×480 landscape crops; add `helix__photo--land` for landscape). Raw originals for the Sept 9 batch are in `images/about/about-main/helix-src/{1,2,3}/`. Two strands (odd/even index), one `.helix__rung` per pair, real 3D via `perspective` on `.helix`. Idle spin 0.11 rad/s; each step tweens the visible band up one group (the group's middle pair, `MID`, lands at the centre) with an extra 0.9 rad twist. Depth shading via `--shade` on the figure's `::after`.
+- **Helix**: 30 `.helix__photo` figures in `[data-helix]`, 10 per step (`PER_GROUP`, 5 pairs) in order vision → what I do → my people. Photos live in `images/about/helix/{v,d,p}1-10.jpg` (480×600 portrait or 600×480 landscape crops; add `helix__photo--land` for landscape). Raw originals for the Sept 9 batch are in `ALG/PROFESSIONAL-HUB/MEDIA/PORTFOLIO-SOURCE/about/about-main/helix-src/{1,2,3}/` (outside the repo). Two strands (odd/even index), one `.helix__rung` per pair, real 3D via `perspective` on `.helix`. Idle spin 0.11 rad/s; each step tweens the visible band up one group (the group's middle pair, `MID`, lands at the centre) with an extra 0.9 rad twist. Depth shading via `--shade` on the figure's `::after`.
 - **Copy**: three `.about__block` articles stacked in one grid cell; `.is-current / .is-prev / .is-next` move them ±9vh with blur. Text is Maneet's v1 "Who I Am" copy, rewritten without em dashes. It speaks as him; read `ALG/voice-principles.md` before editing it.
 - To add a photo group: 10 more images, 10 more figures, bump `data-steps`, `data-step-ids`, `data-step-labels`, and add a block. To change the group size, change `PER_GROUP` in `makeAbout` (must be even).
 
@@ -155,7 +156,7 @@ Verifying: layout at any size in the Browser pane (`resize_window`, finish `docu
 
 ## ⚠️ Cache-Busting — CRITICAL
 
-`index.html` links `css/site.css?v=44` and `js/site.js?v=20`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code. (The legacy `styles.css?v=` / `main.js?v=` numbers on the archived subpages no longer matter.)
+`index.html` links `css/site.css?v=44` and `js/site.js?v=20`. **Whenever you touch either file, bump its number in `index.html`** or the browser serves stale code.
 
 ```bash
 grep -n 'site.css?v=\|site.js?v=' index.html
@@ -165,19 +166,26 @@ grep -n 'site.css?v=\|site.js?v=' index.html
 
 ## Images
 
+Everything under `images/` ships. The repo holds only what the page loads:
+
 ```
-images/hero-figure.png        hero photo, real alpha
+images/hero-figure.png        hero photo, real alpha (1.0 MB)
 images/signature.png          dock signature (white ink)
 images/favicon.svg            MK monogram
 images/cards/                 project card previews (authentic-intelligence.jpg)
-images/about/helix/           30 helix crops (v1-10, d1-10, p1-10)
-images/about/home/            source photos (v1 collage), keep
-images/about/about-main/      raw staging photos, huge originals, keep out of the page
-images/about/about-main/helix-src/{1,2,3}/   raw originals behind the Sept 9 helix crops
-images/heroes/, projects/, bcom/, hero*.png, mountain-bg.png, Video/   v1 assets, unused by v2
+images/about/helix/           30 helix crops (v1-10, d1-10, p1-10), 480×600 or 600×480
 ```
 
-Make new helix crops with PIL: `ImageOps.exif_transpose`, then `ImageOps.fit` to 480×600 (portrait) or 600×480 (landscape), JPEG quality 84.
+Raw sources live **outside the repo** in `ALG/PROFESSIONAL-HUB/MEDIA/PORTFOLIO-SOURCE/`:
+
+```
+hero/HeroManny.png                          the cut-out behind images/hero-figure.png
+about/about-main/helix-src/{1,2,3}/         originals behind the Sept 9 helix crops
+about/about-main/hobby/                     older staging photos
+about/home-collage-v1/                      the v1 home collage sources
+```
+
+Make new helix crops with PIL from those sources: `ImageOps.exif_transpose`, then `ImageOps.fit` to 480×600 (portrait) or 600×480 (landscape), JPEG quality 84. Commit only the crop.
 
 ---
 
@@ -193,6 +201,7 @@ The Claude desktop Browser pane usually runs hidden and **freezes CSS animation 
 - Always bump `?v=N` in `index.html` when touching `site.css` or `site.js`.
 - Preserve the z-maps and the `.is-active / .is-above / .is-below` convention. New page choreography goes in CSS off those classes, not in JS.
 - New pages: add a `<section class="page" id="…" data-bg="…">`, a controller case in the pager's `switch`, and enter/leave rules in CSS. Steps need `data-steps`, `data-step-ids`, `data-step-labels`.
-- Do not edit the archived v1 files or link to `bio-brainstorm.html` / `projects-brainstorm.html`.
+- v1 exists only on `archive/v1`. Never restore its files to `main`, and never commit raw photo sources; they belong in `MEDIA/PORTFOLIO-SOURCE/`.
+- Old v1 URLs are redirected in `vercel.json`. If a page or step id ever changes, update the redirect targets there.
 - Copy on the site speaks as Maneet. Read `ALG/voice-principles.md` first. No em dashes.
 - Commit after every meaningful change with a specific message (see `git log` for tone). No AI attribution anywhere.
